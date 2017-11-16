@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d|%-5level|%-32t|%-64c|%msg%n"/>
+        </Console>
+        <Console name="Tracer" target="SYSTEM_OUT">
+            <PatternLayout pattern="%msg%n"/>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.github.ocraft.s2client.api.log.DataFlowTracer" level="trace" additivity="false">
+            <AppenderRef ref="Tracer"/>
+        </Logger>
+        <Root level="debug">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

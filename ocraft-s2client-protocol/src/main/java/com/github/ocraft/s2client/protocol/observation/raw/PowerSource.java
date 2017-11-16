@@ -1,0 +1,75 @@
+package com.github.ocraft.s2client.protocol.observation.raw;
+
+import SC2APIProtocol.Raw;
+import com.github.ocraft.s2client.protocol.Strings;
+import com.github.ocraft.s2client.protocol.spatial.Point;
+import com.github.ocraft.s2client.protocol.unit.Tag;
+
+import java.io.Serializable;
+
+import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
+import static com.github.ocraft.s2client.protocol.Errors.required;
+import static com.github.ocraft.s2client.protocol.Preconditions.require;
+
+public final class PowerSource implements Serializable {
+
+    private static final long serialVersionUID = 2443272338593956630L;
+
+    private final Point position;
+    private final float radius;
+    private final Tag tag;
+
+    private PowerSource(Raw.PowerSource sc2ApiPowerSource) {
+        position = tryGet(
+                Raw.PowerSource::getPos, Raw.PowerSource::hasPos
+        ).apply(sc2ApiPowerSource).map(Point::from).orElseThrow(required("position"));
+
+        radius = tryGet(
+                Raw.PowerSource::getRadius, Raw.PowerSource::hasRadius
+        ).apply(sc2ApiPowerSource).orElseThrow(required("radius"));
+
+        tag = tryGet(
+                Raw.PowerSource::getTag, Raw.PowerSource::hasTag
+        ).apply(sc2ApiPowerSource).map(Tag::from).orElseThrow(required("tag"));
+    }
+
+    public static PowerSource from(Raw.PowerSource sc2ApiPowerSource) {
+        require("sc2api power source", sc2ApiPowerSource);
+        return new PowerSource(sc2ApiPowerSource);
+    }
+
+    public Point getPosition() {
+        return position;
+    }
+
+    public float getRadius() {
+        return radius;
+    }
+
+    public Tag getTag() {
+        return tag;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PowerSource that = (PowerSource) o;
+
+        return Float.compare(that.radius, radius) == 0 && position.equals(that.position) && tag.equals(that.tag);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = position.hashCode();
+        result = 31 * result + (radius != +0.0f ? Float.floatToIntBits(radius) : 0);
+        result = 31 * result + tag.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return Strings.toJson(this);
+    }
+}

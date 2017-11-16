@@ -1,0 +1,100 @@
+package com.github.ocraft.s2client.protocol.response;
+
+import SC2APIProtocol.Sc2Api;
+import com.github.ocraft.s2client.protocol.Strings;
+import com.github.ocraft.s2client.protocol.data.*;
+import com.github.ocraft.s2client.protocol.game.GameStatus;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
+import static java.util.stream.Collectors.toSet;
+
+public final class ResponseData extends Response {
+
+    private static final long serialVersionUID = -5814145777819095941L;
+
+    private final Set<AbilityData> abilities;
+    private final Set<UnitTypeData> unitTypes;
+    private final Set<UpgradeData> upgrades;
+    private final Set<BuffData> buffs;
+    private final Set<EffectData> effects;
+
+    private ResponseData(Sc2Api.ResponseData sc2ApiResponseData, Sc2Api.Status status) {
+        super(ResponseType.DATA, GameStatus.from(status));
+
+        abilities = sc2ApiResponseData.getAbilitiesList().stream().map(AbilityData::from).collect(toSet());
+        unitTypes = sc2ApiResponseData.getUnitsList().stream().map(UnitTypeData::from).collect(toSet());
+        upgrades = sc2ApiResponseData.getUpgradesList().stream().map(UpgradeData::from).collect(toSet());
+        buffs = sc2ApiResponseData.getBuffsList().stream().map(BuffData::from).collect(toSet());
+        effects = sc2ApiResponseData.getEffectsList().stream().map(EffectData::from).collect(toSet());
+    }
+
+    public static ResponseData from(Sc2Api.Response sc2ApiResponse) {
+        if (!hasDataResponse(sc2ApiResponse)) {
+            throw new IllegalArgumentException("provided argument doesn't have data response");
+        }
+        return new ResponseData(sc2ApiResponse.getData(), sc2ApiResponse.getStatus());
+    }
+
+    private static boolean hasDataResponse(Sc2Api.Response sc2ApiResponse) {
+        return isSet(sc2ApiResponse) && sc2ApiResponse.hasData();
+    }
+
+    public Set<AbilityData> getAbilities() {
+        return new HashSet<>(abilities);
+    }
+
+    public Set<UnitTypeData> getUnitTypes() {
+        return new HashSet<>(unitTypes);
+    }
+
+    public Set<UpgradeData> getUpgrades() {
+        return new HashSet<>(upgrades);
+    }
+
+    public Set<BuffData> getBuffs() {
+        return new HashSet<>(buffs);
+    }
+
+    public Set<EffectData> getEffects() {
+        return new HashSet<>(effects);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        ResponseData that = (ResponseData) o;
+
+        return abilities.equals(that.abilities) &&
+                unitTypes.equals(that.unitTypes) &&
+                upgrades.equals(that.upgrades) &&
+                buffs.equals(that.buffs) &&
+                effects.equals(that.effects);
+    }
+
+    @Override
+    public boolean canEqual(Object other) {
+        return other instanceof ResponseData;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + abilities.hashCode();
+        result = 31 * result + unitTypes.hashCode();
+        result = 31 * result + upgrades.hashCode();
+        result = 31 * result + buffs.hashCode();
+        result = 31 * result + effects.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return Strings.toJson(this);
+    }
+}

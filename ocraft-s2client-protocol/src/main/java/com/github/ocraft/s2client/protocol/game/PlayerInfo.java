@@ -1,0 +1,99 @@
+package com.github.ocraft.s2client.protocol.game;
+
+import SC2APIProtocol.Sc2Api;
+import com.github.ocraft.s2client.protocol.Strings;
+
+import java.io.Serializable;
+import java.util.Optional;
+
+import static com.github.ocraft.s2client.protocol.Constants.nothing;
+import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
+import static com.github.ocraft.s2client.protocol.Errors.required;
+import static com.github.ocraft.s2client.protocol.Preconditions.require;
+
+public final class PlayerInfo implements Serializable {
+
+    private static final long serialVersionUID = 7579487844984509366L;
+
+    private final int playerId;
+    private final PlayerType playerType;
+    private final Race requestedRace;
+    private final Race actualRace;
+    private final Difficulty difficulty;
+
+    private PlayerInfo(Sc2Api.PlayerInfo sc2ApiPlayerInfo) {
+        this.playerId = tryGet(
+                Sc2Api.PlayerInfo::getPlayerId, Sc2Api.PlayerInfo::hasPlayerId
+        ).apply(sc2ApiPlayerInfo).orElseThrow(required("player id"));
+
+        this.playerType = tryGet(
+                Sc2Api.PlayerInfo::getType, Sc2Api.PlayerInfo::hasType
+        ).apply(sc2ApiPlayerInfo).map(PlayerType::from).orElse(nothing());
+
+        this.requestedRace = tryGet(
+                Sc2Api.PlayerInfo::getRaceRequested, Sc2Api.PlayerInfo::hasRaceRequested
+        ).apply(sc2ApiPlayerInfo).map(Race::from).orElseThrow(required("requested race"));
+
+        this.actualRace = tryGet(
+                Sc2Api.PlayerInfo::getRaceActual, Sc2Api.PlayerInfo::hasRaceActual
+        ).apply(sc2ApiPlayerInfo).map(Race::from).orElse(nothing());
+
+        this.difficulty = tryGet(
+                Sc2Api.PlayerInfo::getDifficulty, Sc2Api.PlayerInfo::hasDifficulty
+        ).apply(sc2ApiPlayerInfo).map(Difficulty::from).orElse(nothing());
+    }
+
+    public static PlayerInfo from(Sc2Api.PlayerInfo sc2ApiPlayerInfo) {
+        require("sc2api player info", sc2ApiPlayerInfo);
+        return new PlayerInfo(sc2ApiPlayerInfo);
+    }
+
+    public int getPlayerId() {
+        return playerId;
+    }
+
+    public Optional<PlayerType> getPlayerType() {
+        return Optional.ofNullable(playerType);
+    }
+
+    public Race getRequestedRace() {
+        return requestedRace;
+    }
+
+    public Optional<Race> getActualRace() {
+        return Optional.ofNullable(actualRace);
+    }
+
+    public Optional<Difficulty> getDifficulty() {
+        return Optional.ofNullable(difficulty);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PlayerInfo)) return false;
+
+        PlayerInfo that = (PlayerInfo) o;
+
+        return playerId == that.playerId &&
+                playerType == that.playerType &&
+                requestedRace == that.requestedRace &&
+                actualRace == that.actualRace &&
+                difficulty == that.difficulty;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = playerId;
+        result = 31 * result + (playerType != null ? playerType.hashCode() : 0);
+        result = 31 * result + requestedRace.hashCode();
+        result = 31 * result + (actualRace != null ? actualRace.hashCode() : 0);
+        result = 31 * result + (difficulty != null ? difficulty.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return Strings.toJson(this);
+    }
+}
