@@ -1,0 +1,102 @@
+= Ocraft S2Client
+
+image:https://img.shields.io/badge/license-MIT-brightgreen.svg[alt="MIT License"]
+
+Multi-threaded and non-blocking Starcraft 2 API client.
+
+== TL;DR
+
+.Start the game
+[source,java]
+----
+S2Controller game = starcraft2Game().launch();
+S2Client client = starcraft2Client().connectTo(game).traced(true).start();
+
+client.request(createGame()
+       .onBattlenetMap(BattlenetMap.of("Lava Flow"))
+       .withPlayerSetup(participant(), computer(PROTOSS, Difficulty.MEDIUM)));
+
+client.responseStream()
+       .takeWhile(Responses.isNot(ResponseLeaveGame.class))
+       .subscribe(response -> {
+           response.as(ResponseCreateGame.class).ifPresent(r -> client.request(joinGame().as(TERRAN)));
+           response.as(ResponseJoinGame.class).ifPresent(r -> {
+               client.request(actions().of(
+                       action().raw(unitCommand().forUnits(Tag.of(COMMAND_CENTER)).useAbility(TRAIN_SCV)),
+                       action().raw(cameraMove().to(Point.of(10, 10))),
+                       action().featureLayer(click().on(PointI.of(15, 10)).withMode(TOGGLE)),
+                       action().ui(selectArmy().add())
+               ));
+               client.request(leaveGame());
+           });
+       });
+
+client.await();
+----
+
+.Process replay
+[source,java]
+----
+S2Controller game = starcraft2Game().launch();
+S2Client client = starcraft2Client().connectTo(game).traced(true).start();
+
+client.request(replayInfo().of(REPLAY_PATH).download());
+
+client.responseStream()
+       .takeWhile(Responses.isNot(ResponseType.START_REPLAY))
+       .subscribe(response -> response.as(ResponseReplayInfo.class).ifPresent(r -> {
+           r.getReplayInfo()
+                   .ifPresent(info -> game.relaunchIfNeeded(info.getBaseBuild(), info.getDataVersion()));
+           client.request(startReplay()
+                   .from(REPLAY_PATH).use(defaultInterfaces()).toObserve(PLAYER_ID).disableFog());
+
+       }));
+
+client.responseStream()
+       .takeWhile(response -> !game.inState(GameStatus.ENDED))
+       .subscribe(response -> {
+           response.as(ResponseStartReplay.class).ifPresent(r -> client.request(observation()));
+           response.as(ResponseObservation.class).ifPresent(r -> {
+               client.request(nextStep().withCount(GAME_LOOP_COUNT));
+               client.request(observation());
+           });
+       });
+
+client.await();
+----
+
+.Play multiplayer game
+[source,java]
+----
+S2Controller game01 = starcraft2Game().launch();
+S2Client client01 = starcraft2Client().connectTo(game01).traced(true).start();
+
+S2Controller game02 = starcraft2Game().launch();
+S2Client client02 = starcraft2Client().connectTo(game02).traced(true).start();
+
+client01.request(createGame()
+       .onBattlenetMap(BattlenetMap.of("Lava Flow"))
+       .withPlayerSetup(participant(), participant()).realTime());
+
+MultiplayerOptions multiplayerOptions = multiplayerSetupFor(S2Controller.lastPort(), PLAYER_COUNT);
+
+client01.request(joinGame().as(PROTOSS).use(interfaces().raw()).with(multiplayerOptions));
+client02.request(joinGame().as(ZERG).use(interfaces().raw()).with(multiplayerOptions));
+
+client01.responseStream()
+       .takeWhile(Responses.isNot(ResponseType.QUIT_GAME))
+       .subscribe(response -> {
+           response.as(ResponseJoinGame.class).ifPresent(r -> client01.request(leaveGame()));
+           response.as(ResponseLeaveGame.class).ifPresent(r -> client01.request(quitGame()));
+       });
+
+client02.responseStream()
+       .takeWhile(Responses.isNot(ResponseType.QUIT_GAME))
+       .subscribe(response -> {
+           response.as(ResponseJoinGame.class).ifPresent(r -> client02.request(leaveGame()));
+           response.as(ResponseLeaveGame.class).ifPresent(r -> client02.request(quitGame()));
+       });
+
+client01.await();
+client02.await();
+----
