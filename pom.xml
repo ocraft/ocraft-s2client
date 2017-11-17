@@ -17,7 +17,7 @@
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>
-        Multi-threaded, non-blocking Starcraft 2 API client with fluent and reactive interface.
+        Multi-threaded and non-blocking Starcraft 2 API client with fluent and reactive interface.
     </description>
     <url>https://github.com/ocraft/ocraft-s2client</url>
     <inceptionYear>2017</inceptionYear>
@@ -52,12 +52,14 @@
 
     <scm>
         <connection>scm:git:git@github.com:ocraft/ocraft-s2client.git</connection>
-        <url>scm:git:git@github.com:ocraft/ocraft-s2client.git</url>
+        <url>https://github.com/ocraft/ocraft-s2client</url>
         <developerConnection>scm:git:git@github.com:ocraft/ocraft-s2client.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
     <properties>
+        <user.name>Ocraft Project</user.name>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -92,7 +94,7 @@
         <version.plugin.os>1.5.0.Final</version.plugin.os>
         <version.plugin.jar>3.0.2</version.plugin.jar>
         <version.plugin.source>3.0.1</version.plugin.source>
-        <version.plugin.javadoc>2.10.4</version.plugin.javadoc>
+        <version.plugin.javadoc>3.0.0-M1</version.plugin.javadoc>
         <version.plugin.gpg>1.6</version.plugin.gpg>
         <version.plugin.staging>1.6.8</version.plugin.staging>
         <version.plugin.release>2.5.3</version.plugin.release>
@@ -462,6 +464,17 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>${version.plugin.jar}</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Built-By>Ocraft Project</Built-By>
+                        </manifestEntries>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>
