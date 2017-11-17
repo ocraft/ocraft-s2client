@@ -16,7 +16,9 @@
     </modules>
 
     <name>${project.groupId}:${project.artifactId}</name>
-    <description>Multi-threaded and non-blocking Starcraft 2 API client.</description>
+    <description>
+        Multi-threaded, non-blocking Starcraft 2 API client with fluent and reactive interface.
+    </description>
     <url>https://github.com/ocraft/ocraft-s2client</url>
     <inceptionYear>2017</inceptionYear>
 

@@ -1,24 +1,46 @@
+[[ocraft]]
 = Ocraft S2Client
 
 image:https://img.shields.io/badge/license-MIT-brightgreen.svg[alt="MIT License"]
 
-Multi-threaded and non-blocking Starcraft 2 API client.
+Multi-threaded and non-blocking Starcraft 2 API client with fluent and reactive interface.
 
+* Full access to StarCraft 2 API that was made available by Blizzard -> https://github.com/Blizzard/s2client-proto.
+* Fluent and reactive interface.
+* All objects are thread safe - you do not have to synchronize access to them because your request and responses are
+immutable.
+* Prepared to working in hightly concurrent and multi-threaded environments.
+* Asynchronous and non-blocking architecture without putting threads to sleep.
+* You can have as many subscribers as you want, they all work on predefined thread pool.
+* You can enable <<ocraft.monitoring, monitoring>> of your communication in JSON format that is easy to process and
+analyze in many different tools.
+
+.Maven
+[source,xml]
+----
+<dependency>
+    <groupId>com.github.ocraft</groupId>
+    <artifactId>ocraft-s2client-api</artifactId>
+    <version>0.1.0</version>
+</dependency>
+----
+
+[[ocraft.tldr]]
 == TL;DR
 
-.Start the game
+.Play the game
 [source,java]
 ----
-S2Controller game = starcraft2Game().launch();
-S2Client client = starcraft2Client().connectTo(game).traced(true).start();
+S2Controller game = starcraft2Game().launch(); // <1>
+S2Client client = starcraft2Client().connectTo(game).traced(true).start(); // <2>
 
 client.request(createGame()
        .onBattlenetMap(BattlenetMap.of("Lava Flow"))
-       .withPlayerSetup(participant(), computer(PROTOSS, Difficulty.MEDIUM)));
+       .withPlayerSetup(participant(), computer(PROTOSS, Difficulty.MEDIUM))); // <3>
 
 client.responseStream()
        .takeWhile(Responses.isNot(ResponseLeaveGame.class))
-       .subscribe(response -> {
+       .subscribe(response -> { // <4>
            response.as(ResponseCreateGame.class).ifPresent(r -> client.request(joinGame().as(TERRAN)));
            response.as(ResponseJoinGame.class).ifPresent(r -> {
                client.request(actions().of(
@@ -26,13 +48,109 @@ client.responseStream()
                        action().raw(cameraMove().to(Point.of(10, 10))),
                        action().featureLayer(click().on(PointI.of(15, 10)).withMode(TOGGLE)),
                        action().ui(selectArmy().add())
-               ));
+               )); // <5>
                client.request(leaveGame());
            });
        });
 
-client.await();
+client.await(); // <6>
 ----
+<1> Launch StarCraft 2 with automatic configuration discovery.
+<2> Connect new client to the game and enable tracing of all data flow in json format.
+<3> Create new game using fluent api.
+<4> Subscribe to stream of responses.
+<5> Choose your action in the game.
+<6> Wait for all threads to finish their job.
+
+<<ocraft.examples, See other examples.>>
+
+[[ocraft.api]]
+== Basic API
+
+.class Requests
+[cols="1,4"]
+|===
+|actions()          |Executes an action for a participant.
+|observerActions()  |Executes an action for an observer.
+|availableMaps()    |Returns directory of maps that can be played on.
+|createGame()       |Send to host to initialize game.
+|data()             |Data about different gameplay elements. May be different for different games.
+|debug()            |Display debug information and execute debug actions.
+|gameInfo()         |Static data about the current game and map.
+|joinGame()         |Send to host and all clients for game to begin.
+|leaveGame()        |Multiplayer only. Disconnects from a multiplayer game, equivalent to surrender.
+|observation()      |Snapshot of the current game state.
+|ping()             |Network ping for testing connection.
+|query()            |Additional methods for inspecting game state.
+|quickLoad()        |Loads from an in-memory bookmark.
+|quickSave()        |Saves game to an in-memory bookmark.
+|quitGame()         |Terminates the application.
+|replayInfo()       |Returns metadata about a replay file. Does not load the replay.
+|restartGame()      |Single player only. Reinitializes the game with the same player setup.
+|saveMap()          |Saves binary map data to the local temp directory.
+|saveReplay()       |Generates a replay.
+|startReplay()      |Start playing a replay.
+|nextStep()         |Advances the game simulation.
+|===
+
+.class Actions
+[cols="1,4"]
+|===
+|message()              |Chat messages as a player typing into the chat channel.
+|Actions.Raw            |unitCommand(), cameraMove(), toggleAutocast()
+|Actions.Spatial        |unitCommand(), cameraMove(), click(), select()
+|Actions.Ui             |controlGroup(), selectArmy(), selectWarpGates(), selectLarva(), selectIdleWorker(),
+multiPanel(), cargoPanelUnload(), removeFromQueue(), toggleAutocast()
+|Observer               |playerPerspective(), cameraMove(), cameraFollowPlayer(), cameraFollowUnits()
+|===
+
+.class Commands
+[cols="1,4"]
+|===
+|Commands           |draw(), createUnit(), killUnit(), testProcess(), setScore(), endGame(), setUnitValue()
+|Commands.Draw      |text(), line(), box(), sphere()
+|===
+
+.class Queries
+[cols="1,4"]
+|===
+|Queries    |path(), placeBuilding(), availableAbilities()
+|===
+
+[[ocraft.config]]
+== Configuration
+
+Configuration is provided using https://github.com/lightbend/config[typesafe config]. That means that you can use
+default options or override them by system properties, your own config files or using programming api.
+
+[[ocraft.monitoring]]
+== Monitoring
+
+All logs are provided using slf4j binding. If you want to get full data flow monitoring in JSON format you must do
+two things:
+
+. Enable tracing either by using library api (starcraft2Client().connectTo(game).traced(true)), or by configuration
+file/system property (ocraft.client.traced=true).
+. Append your logger at trace level for class com.github.ocraft.s2client.api.log.DataFlowTracer. For example in log4j:
+
+[source,xml]
+----
+<Logger name="com.github.ocraft.s2client.api.log.DataFlowTracer" level="trace" additivity="false">
+    <AppenderRef ref="Tracer"/>
+</Logger>
+----
+
+You will get full request/response in JSON format, that can be loaded to many different tools, like grafana or kibana
+for further analysis.
+
+.Tracing position example
+[source]
+----
+{"ResponseObservation":{"type":"OBSERVATION","status":"IN_REPLAY","nanoTime":2273482598073,"actions":[{"featureLayer":{"unitSelectionPoint":{"selectionInScreenCoord":{"x":33,"y":34}...
+----
+
+[[ocraft.examples]]
+== Examples
 
 .Process replay
 [source,java]
