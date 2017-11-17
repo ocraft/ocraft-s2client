@@ -51,9 +51,9 @@
     </distributionManagement>
 
     <scm>
-        <connection>scm:git:git@github.com:ocraft/ocraft-s2client.git</connection>
+        <connection>scm:git:https://github.com/ocraft/ocraft-s2client.git</connection>
         <url>https://github.com/ocraft/ocraft-s2client</url>
-        <developerConnection>scm:git:git@github.com:ocraft/ocraft-s2client.git</developerConnection>
+        <developerConnection>scm:git:https://github.com/ocraft/ocraft-s2client.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
