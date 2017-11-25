@@ -64,7 +64,7 @@ client.await(); // <6>
 
 <<ocraft.examples, See other examples.>>
 
-https://github.com/ocraft/ocraft-s2client/blob/master/ocraft-s2client-api/src/test/java/com/github/ocraft/s2client/api/OcraftS2ClientExamplesIT.java[See fully working source code/]
+https://github.com/ocraft/ocraft-s2client/blob/master/ocraft-s2client-api/src/test/java/com/github/ocraft/s2client/api/OcraftS2ClientExamplesIT.java[See fully working source code.]
 
 [[ocraft.api]]
 == Basic API
