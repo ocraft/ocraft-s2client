@@ -9,7 +9,7 @@ Multi-threaded and non-blocking Starcraft 2 API client with fluent and reactive 
 * Fluent and reactive interface.
 * All objects are thread safe - you do not have to synchronize access to them because your request and responses are
 immutable.
-* Prepared to working in hightly concurrent and multi-threaded environments.
+* Prepared to working in highly concurrent and multi-threaded environments.
 * Asynchronous and non-blocking architecture without putting threads to sleep.
 * You can have as many subscribers as you want, they all work on predefined thread pool.
 * You can enable <<ocraft.monitoring, monitoring>> of your communication in JSON format that is easy to process and
@@ -64,10 +64,45 @@ client.await(); // <6>
 
 <<ocraft.examples, See other examples.>>
 
+https://github.com/ocraft/ocraft-s2client/blob/master/ocraft-s2client-api/src/test/java/com/github/ocraft/s2client/api/OcraftS2ClientExamplesIT.java[See fully working source code/]
+
 [[ocraft.api]]
 == Basic API
 
-.class Requests
+After successful connection to the game you have to do two main things:
+
+. Send some requests.
+. Observe and react to game responses.
+
+First one you achieve by invoking _com.github.ocraft.s2client.api.S2Client#request(T)_ method. Second one is done by
+observing response stream that is based on rxjava2: _com.github.ocraft.s2client.api.S2Client#responseStream_.
+All requests inherit from _com.github.ocraft.s2client.protocol.request.Request_ and are located in
+_com.github.ocraft.s2client.protocol.request_ package. Interface
+<<ocraft.api.requests, com.github.ocraft.s2client.protocol.request.Requests>> provides entry point for building all of
+possible requests. Building of some requests require more work than the others: actions(), debug(), query(). For them
+there are another entry points that should allow to easy browsing of possible options. There are:
+
+* for actions(): <<ocraft.api.actions, com.github.ocraft.s2client.protocol.action.Actions>>,
+* for debug(): <<ocraft.api.commands, com.github.ocraft.s2client.protocol.debug.Commands>>,
+* for query(): <<ocraft.api.queries, com.github.ocraft.s2client.protocol.query.Queries>>.
+
+Responses inherits from _com.github.ocraft.s2client.protocol.response.Response_ class and are located in
+_com.github.ocraft.s2client.protocol.response package_. There are two different way to identify what type of response
+is:
+
+. checking instance type using instanceof operator,
+. checking type of response by invoking _com.github.ocraft.s2client.protocol.response.Response#getType_.
+
+There are also several enum classes with different type of data:
+
+* com.github.ocraft.s2client.protocol.data.Units,
+* com.github.ocraft.s2client.protocol.data.Effects,
+* com.github.ocraft.s2client.protocol.data.Buffs,
+* com.github.ocraft.s2client.protocol.data.Upgrades,
+* com.github.ocraft.s2client.protocol.data.Abilities.
+
+[[ocraft.api.requests]]
+.com.github.ocraft.s2client.protocol.request.Requests
 [cols="1,4"]
 |===
 |actions()          |Executes an action for a participant.
@@ -93,7 +128,8 @@ client.await(); // <6>
 |nextStep()         |Advances the game simulation.
 |===
 
-.class Actions
+[[ocraft.api.actions]]
+.com.github.ocraft.s2client.protocol.action.Actions
 [cols="1,4"]
 |===
 |message()              |Chat messages as a player typing into the chat channel.
@@ -104,14 +140,16 @@ multiPanel(), cargoPanelUnload(), removeFromQueue(), toggleAutocast()
 |Observer               |playerPerspective(), cameraMove(), cameraFollowPlayer(), cameraFollowUnits()
 |===
 
-.class Commands
+[[ocraft.api.commands]]
+.com.github.ocraft.s2client.protocol.debug.Commands
 [cols="1,4"]
 |===
 |Commands           |draw(), createUnit(), killUnit(), testProcess(), setScore(), endGame(), setUnitValue()
 |Commands.Draw      |text(), line(), box(), sphere()
 |===
 
-.class Queries
+[[ocraft.api.queries]]
+.com.github.ocraft.s2client.protocol.query.Queries
 [cols="1,4"]
 |===
 |Queries    |path(), placeBuilding(), availableAbilities()
@@ -151,6 +189,8 @@ for further analysis.
 
 [[ocraft.examples]]
 == Examples
+
+https://github.com/ocraft/ocraft-s2client/blob/master/ocraft-s2client-api/src/test/java/com/github/ocraft/s2client/api/OcraftS2ClientExamplesIT.java[See fully working source code.]
 
 .Process replay
 [source,java]
