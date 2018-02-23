@@ -81,12 +81,15 @@ class S2ControllerTest {
     }
 
     private Config expectedConfiguration() {
+        Path gameRoot = gameRoot();
+        String exePath = gameRoot.resolve(Paths.get("Versions", CFG_EXE_BUILD_OLD, CFG_EXE_FILE)).toString();
         return ConfigFactory.parseMap(Map.ofEntries(
                 entry(GAME_NET_IP, CFG_NET_IP),
                 entry(GAME_NET_PORT, CFG_NET_PORT),
                 entry(GAME_NET_TIMEOUT, 2000),
                 entry(GAME_NET_RETRY_COUNT, 10),
-                entry(GAME_EXE_PATH, gameRoot().toString()),
+                entry(GAME_EXE_ROOT, gameRoot.toString()),
+                entry(GAME_EXE_PATH, exePath),
                 entry(GAME_EXE_BUILD, CFG_EXE_BUILD_NEW),
                 entry(GAME_EXE_FILE, CFG_EXE_FILE),
                 entry(GAME_EXE_DATA_VER, CFG_EXE_DATA_VER),
@@ -145,13 +148,38 @@ class S2ControllerTest {
 
     private void assertThatConfigurationIsExtractedOnOsX() throws IOException {
         asMac();
-        initStarcraft2Executable(OSX_USER_DIR);
+        initStarcraft2ExecutableOnMacOs(OSX_USER_DIR);
 
-        assertThatGameConfigurationIsCorrect(starcraft2Game().getGameConfiguration());
+        assertThat(starcraft2Game().getGameConfiguration().getConfig(OcraftConfig.GAME)).as("MacOs game cfg")
+                .isEqualTo(expectedMacOsConfiguration());
     }
 
     private void asMac() {
         System.setProperty("os.name", "MAC");
+    }
+
+    private void initStarcraft2ExecutableOnMacOs(Path userDir) throws IOException {
+        Path versionRoot = gameRoot().resolve(Paths.get("Versions"));
+        createExecuteInfoOnMacOs(userDir);
+        userHome.newFile(
+                versionRoot.resolve(Paths.get(CFG_EXE_BUILD_OLD, "SC2.app", "Contents", "MacOS")), CFG_EXE_FILE);
+        userHome.newFile(
+                versionRoot.resolve(Paths.get(CFG_EXE_BUILD_NEW, "SC2.app", "Contents", "MacOS")), CFG_EXE_FILE);
+    }
+
+    private void createExecuteInfoOnMacOs(Path userDir) throws IOException {
+        Path exeFilePath = Paths.get("Versions", CFG_EXE_BUILD_OLD, "SC2.app", "Contents", "MacOS", CFG_EXE_FILE);
+        Files.write(
+                userHome.newFile(userDir.resolve(GAME_DIR), EXECUTE_INFO_TXT),
+                singletonList("executable = " + gameRoot().resolve(exeFilePath)));
+    }
+
+    private Config expectedMacOsConfiguration() {
+        Path exeFile = Paths.get("SC2.app", "Contents", "MacOS", CFG_EXE_FILE);
+        return ConfigFactory.parseMap(Map.of(
+                GAME_EXE_FILE, exeFile.toString(),
+                GAME_EXE_PATH, gameRoot().resolve(Paths.get("Versions", CFG_EXE_BUILD_OLD).resolve(exeFile)).toString()
+        )).withFallback(expectedConfiguration()).getConfig(OcraftConfig.GAME);
     }
 
     @Test
@@ -172,33 +200,11 @@ class S2ControllerTest {
     }
 
     @Test
-    void throwsExceptionWhenBaseBuildDoesNotExist() throws IOException {
-        asWindows();
-        createExecuteInfo(WIN_USER_DIR);
-        userHome.newDir(GAME_ROOT.resolve("Versions"));
-
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> starcraft2Game().getGameConfiguration())
-                .withMessage("base build is required");
-    }
-
-    @Test
-    void throwsExceptionWhenExeFileDoesNotExist() throws IOException {
-        asWindows();
-        createExecuteInfo(WIN_USER_DIR);
-        userHome.newDir(GAME_ROOT.resolve(Paths.get("Versions", CFG_EXE_BUILD_OLD)));
-
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> starcraft2Game().getGameConfiguration())
-                .withMessage("exe file name is required");
-    }
-
-    @Test
     void allowsStartingGameFromCustomConfiguration() throws IOException {
         initStarcraft2Executable(LINUX_USER_DIR);
 
         Config cfg = starcraft2Game()
-                .withExecutablePath(gameRoot())
+                .withExecutablePath(gameRoot().resolve(Paths.get("Versions", CFG_EXE_BUILD_OLD, CFG_EXE_FILE)))
                 .withListenIp(CFG_NET_IP_CUSTOM)
                 .withPort(CFG_NET_PORT_CUSTOM)
                 .withWindowSize(CFG_WINDOW_W_CUSTOM, CFG_WINDOW_H_CUSTOM)

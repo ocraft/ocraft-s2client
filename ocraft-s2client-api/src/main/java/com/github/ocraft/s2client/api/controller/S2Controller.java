@@ -152,7 +152,6 @@ public class S2Controller extends DefaultSubscriber<Response> {
             Config customConfig = ConfigFactory.parseMap(builderConfig).withFallback(referenceConfig);
             Map<String, Object> executableConfig = new HashMap<>();
 
-
             if (!customConfig.hasPath(GAME_EXE_PATH)) {
                 executableConfig.put(GAME_EXE_PATH, findExecutablePath().toString());
             } else {
@@ -160,12 +159,17 @@ public class S2Controller extends DefaultSubscriber<Response> {
             }
 
             Path executablePath = Paths.get((String) executableConfig.get(GAME_EXE_PATH));
-            String baseBuild = toNewestBaseBuild().apply(executablePath.resolve(VERSIONS_DIR));
-            Path buildPath = executablePath.resolve(Paths.get(VERSIONS_DIR, baseBuild));
-            String exeFile = toNewestExeFile().apply(buildPath);
+            Path gamePath = toGameRootPath().apply(executablePath);
+            executableConfig.put(
+                    GAME_EXE_FILE,
+                    executablePath.subpath(gamePath.getNameCount() + 2, executablePath.getNameCount()).toString());
+
+
+            executableConfig.put(GAME_EXE_ROOT, gamePath.toString());
+            String exeFile = (String) executableConfig.get(GAME_EXE_FILE);
+            String baseBuild = toNewestBaseBuild(exeFile).apply(gamePath.resolve(VERSIONS_DIR));
 
             executableConfig.put(GAME_EXE_BUILD, baseBuild);
-            executableConfig.put(GAME_EXE_FILE, exeFile);
             executableConfig.put(GAME_EXE_IS_64, exeFile.contains(X64_SUFFIX));
 
             if (!customConfig.hasPath(GAME_EXE_DATA_VER)) {
@@ -188,7 +192,7 @@ public class S2Controller extends DefaultSubscriber<Response> {
                         .filter(correctProperty())
                         .filter(notEmptyValue())
                         .map(toPropertyValue())
-                        .map(toGameRootPath())
+                        .map(Paths::get)
                         .filter(Files::exists)
                         .orElseThrow(required("executable path"));
             } catch (IOException e) {
@@ -239,35 +243,26 @@ public class S2Controller extends DefaultSubscriber<Response> {
             return property -> property[1].trim();
         }
 
-        private Function<String, Path> toGameRootPath() {
-            return exePath -> Paths.get(exePath).resolve(Paths.get("..", "..", "..")).normalize();
+        private Function<Path, Path> toGameRootPath() {
+            if (!isMac(System.getProperty("os.name").toLowerCase())) {
+                return exePath -> exePath.resolve(Paths.get("..", "..", "..")).normalize();
+            } else {
+                return exePath -> exePath.resolve(Paths.get("..", "..", "..", "..", "..", "..")).normalize();
+            }
         }
 
-        private Function<Path, String> toNewestBaseBuild() {
+        private Function<Path, String> toNewestBaseBuild(String exeFile) {
             return versionPath -> {
                 try (Stream<Path> builds = Files.list(
                         ofNullable(versionPath).filter(Files::exists).orElseThrow(required("version directory")))) {
-                    return builds.sorted(reverseOrder()).findFirst()
+                    return builds.min(reverseOrder())
+                            .filter(path -> Files.exists(path.resolve(exeFile)))
                             .map(Path::getFileName)
                             .map(Path::toString)
                             .orElseThrow(required("base build"));
                 } catch (IOException e) {
                     log.debug("Newest base build not found.", e);
                     throw new StarCraft2LaunchException("Newest base build not found.", e);
-                }
-            };
-        }
-
-        private Function<Path, String> toNewestExeFile() {
-            return path -> {
-                try (Stream<Path> exes = Files.list(path)) {
-                    return exes.sorted(reverseOrder()).findFirst()
-                            .map(Path::getFileName)
-                            .map(Path::toString)
-                            .orElseThrow(required("exe file name"));
-                } catch (IOException e) {
-                    log.debug("Newest exe file not found.", e);
-                    throw new StarCraft2LaunchException("Newest exe file not found.", e);
                 }
             };
         }
@@ -290,8 +285,8 @@ public class S2Controller extends DefaultSubscriber<Response> {
     private S2Controller launch() {
         log.info("Launching Starcraft II with configuration: {}.", cfg);
         try {
-            Path executablePath = Paths.get(cfg.getString(GAME_EXE_PATH));
-            String exeFile = executablePath
+            Path gameRoot = Paths.get(cfg.getString(GAME_EXE_ROOT));
+            String exeFile = gameRoot
                     .resolve(Paths.get(
                             Builder.VERSIONS_DIR,
                             cfg.getString(GAME_EXE_BUILD),
@@ -315,7 +310,7 @@ public class S2Controller extends DefaultSubscriber<Response> {
             command(args, "-eglpath", GAME_CLI_EGL_PATH);
 
             s2Process = new ProcessBuilder(args)
-                    .directory(executablePath.resolve(getSupportDirPath()).toFile())
+                    .directory(gameRoot.resolve(getSupportDirPath()).toFile())
                     .start();
 
             return this;

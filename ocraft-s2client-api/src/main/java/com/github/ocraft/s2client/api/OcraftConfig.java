@@ -33,6 +33,7 @@ public final class OcraftConfig {
     public static final String GAME_EXE = GAME + ".executable";
     public static final String GAME_NET = GAME + ".net";
     public static final String GAME_WINDOW = GAME + ".window";
+    public static final String GAME_EXE_ROOT = GAME_EXE + ".root";
     public static final String GAME_EXE_PATH = GAME_EXE + ".path";
     public static final String GAME_EXE_DATA_VER = GAME_EXE + ".dataVersion";
     public static final String GAME_EXE_BUILD = GAME_EXE + ".baseBuild";
