@@ -68,8 +68,8 @@ public class S2Client extends DefaultSubscriber<Response> {
 
     public static class Builder implements S2ClientSyntax, TracedSyntax, WithTracerSyntax {
 
-        private String connectToIp;
-        private Integer connectToPort;
+        private String connectToIp = cfg().getString(OcraftConfig.CLIENT_NET_IP);
+        private Integer connectToPort = cfg().getInt(OcraftConfig.CLIENT_NET_PORT);
         private boolean traced = cfg().getBoolean(OcraftConfig.CLIENT_TRACED);
         private S2Controller game;
         private DataFlowTracer tracer = new DataFlowTracer();
@@ -209,6 +209,18 @@ public class S2Client extends DefaultSubscriber<Response> {
     @Override
     public void onComplete() {
         stop();
+    }
+
+    public String getConnectToIp() {
+        return connectToIp;
+    }
+
+    public Integer getConnectToPort() {
+        return connectToPort;
+    }
+
+    public boolean isTraced() {
+        return traced;
     }
 
     @Override

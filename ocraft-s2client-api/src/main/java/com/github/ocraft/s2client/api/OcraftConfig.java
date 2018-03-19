@@ -59,6 +59,8 @@ public final class OcraftConfig {
     public static final String CLIENT_NET_RETRY = CLIENT_NET + ".retry";
     public static final String CLIENT_NET_FRAME_SIZE = CLIENT_NET + ".maxWebSocketFrameSizeInBytes";
     public static final String CLIENT_NET_CONNECT_TIMEOUT = CLIENT_NET + ".connectTimeoutInMillis";
+    public static final String CLIENT_NET_IP = CLIENT_NET + ".ip";
+    public static final String CLIENT_NET_PORT = CLIENT_NET + ".port";
     public static final String CLIENT_BUFFER_SIZE = CLIENT_BUFFER + ".size";
     public static final String CLIENT_BUFFER_SIZE_REQUEST = CLIENT_BUFFER_SIZE + ".request";
     public static final String CLIENT_BUFFER_SIZE_REQUEST_EVENT_BUS = CLIENT_BUFFER_SIZE_REQUEST + ".eventBus";

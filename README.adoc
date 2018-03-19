@@ -161,6 +161,21 @@ multiPanel(), cargoPanelUnload(), removeFromQueue(), toggleAutocast()
 Configuration is provided using https://github.com/lightbend/config[typesafe config]. That means that you can use
 default options or override them by system properties, your own config files or using programming api.
 
+[[ocraft.config.example]]
+=== Minimal configuration example of command line connection properties
+
+.Building client
+[source,java]
+----
+S2Client s2Client = S2Client.starcraft2Client().start();
+----
+
+.Running client
+[source]
+----
+java -jar bot.jar -Docraft.client.net.ip="127.0.0.1" -Docraft.client.net.port="5000"
+----
+
 [[ocraft.monitoring]]
 == Monitoring
 

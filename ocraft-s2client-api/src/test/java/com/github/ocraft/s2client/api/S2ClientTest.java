@@ -30,6 +30,7 @@ import com.github.ocraft.s2client.protocol.request.Request;
 import com.github.ocraft.s2client.protocol.response.ResponsePing;
 import org.junit.jupiter.api.Test;
 
+import static com.github.ocraft.s2client.api.Configs.refreshConfig;
 import static com.github.ocraft.s2client.api.S2Client.starcraft2Client;
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.request.Requests.ping;
@@ -119,6 +120,22 @@ class S2ClientTest {
         S2Controller s2Controller = mock(S2Controller.class);
         when(s2Controller.getConfig()).thenReturn(OcraftConfig.cfg());
         return s2Controller;
+    }
+
+    @Test
+    void usesDefaultNetConfigurationIfNotProvided() {
+        System.setProperty(OcraftConfig.CLIENT_NET_IP, "192.168.1.1");
+        System.setProperty(OcraftConfig.CLIENT_NET_PORT, "1000");
+        refreshConfig();
+
+        S2Client s2Client = starcraft2Client().start();
+
+        assertThat(s2Client.getConnectToIp()).as("default game ip").isEqualTo("192.168.1.1");
+        assertThat(s2Client.getConnectToPort()).as("default game port").isEqualTo(1000);
+
+        System.clearProperty(OcraftConfig.CLIENT_NET_IP);
+        System.clearProperty(OcraftConfig.CLIENT_NET_PORT);
+        refreshConfig();
     }
 
 }
