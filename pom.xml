@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.ocraft</groupId>
@@ -96,6 +99,7 @@
         <version.plugin.gpg>1.6</version.plugin.gpg>
         <version.plugin.staging>1.6.8</version.plugin.staging>
         <version.plugin.release>2.5.3</version.plugin.release>
+        <version.plugin.license>1.16</version.plugin.license>
 
     </properties>
 
@@ -177,29 +181,10 @@
                     </plugin>
 
                     <plugin>
-                        <groupId>com.mycila</groupId>
+                        <groupId>org.codehaus.mojo</groupId>
                         <artifactId>license-maven-plugin</artifactId>
-                        <version>3.0</version>
-                        <configuration>
-                            <header>LICENSE.txt</header>
-                            <aggregate>true</aggregate>
-                            <excludes>
-                                <exclude>LICENSE.txt</exclude>
-                                <exclude>**/README</exclude>
-                                <exclude>**/pom.xml</exclude>
-                                <exclude>**/src/test/resources/**</exclude>
-                                <exclude>**/src/main/resources/**</exclude>
-                                <exclude>**/src/main/proto/**</exclude>
-                            </excludes>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                     </plugin>
+
                 </plugins>
             </build>
         </profile>
@@ -376,6 +361,25 @@
                             <goals>
                                 <goal>add-source</goal>
                             </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>${version.plugin.license}</version>
+                    <configuration>
+                        <licenseName>mit</licenseName>
+                        <trimHeaderLine>true</trimHeaderLine>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>first</id>
+                            <goals>
+                                <goal>update-file-header</goal>
+                                <goal>update-project-license</goal>
+                            </goals>
+                            <phase>process-sources</phase>
                         </execution>
                     </executions>
                 </plugin>
