@@ -21,7 +21,7 @@ analyze in many different tools.
 <dependency>
     <groupId>com.github.ocraft</groupId>
     <artifactId>ocraft-s2client-api</artifactId>
-    <version>0.1.3</version>
+    <version>0.1.4</version>
 </dependency>
 ----
 
