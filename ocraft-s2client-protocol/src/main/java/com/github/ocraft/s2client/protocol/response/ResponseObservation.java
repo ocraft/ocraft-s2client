@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.response;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -56,7 +56,8 @@ public final class ResponseObservation extends Response {
     private ResponseObservation(Sc2Api.ResponseObservation sc2ApiResponseObservation, Sc2Api.Status status) {
         super(ResponseType.OBSERVATION, GameStatus.from(status));
 
-        this.actions = sc2ApiResponseObservation.getActionsList().stream().map(Action::from).collect(toList());
+        this.actions = sc2ApiResponseObservation.getActionsList().stream()
+                .filter(a -> a.getSerializedSize() > 0).map(Action::from).collect(toList());
         this.actionErrors = sc2ApiResponseObservation.getActionErrorsList().stream()
                 .map(ActionError::from).collect(toList());
         this.observation = tryGet(

@@ -53,10 +53,10 @@ import static org.hamcrest.core.IsEqual.equalTo;
 class OcraftS2ClientStressIT {
 
     private static final int OBSERVER_COUNT = 4;
-    private static final int THREAD_COUNT = 10;
+    private static final int THREAD_COUNT = 4;
     private static final int ITERATION_COUNT = 10000;
     private static final int REQUEST_DELAY_IN_MILLIS = 1;
-    private static final int TIMEOUT_IN_SECONDS = 5;
+    private static final int TIMEOUT_IN_SECONDS = 30;
     private static final int CONNECTION_TIMEOUT_IN_SECONDS = 30;
 
     private S2Controller game;
