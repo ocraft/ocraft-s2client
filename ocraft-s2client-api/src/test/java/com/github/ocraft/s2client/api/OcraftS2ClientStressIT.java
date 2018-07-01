@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.api;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -119,7 +119,7 @@ class OcraftS2ClientStressIT {
     }
 
     @Test
-    void isResilientToConnectionLost() throws InterruptedException {
+    void isResilientToConnectionLost() {
         launchTheGame();
 
         TestS2ClientSubscriber subscriber = subscribeToResponseStream();
@@ -151,7 +151,7 @@ class OcraftS2ClientStressIT {
     }
 
     @Test
-    void throwsExceptionOnRequestEventBusBufferOverflow() throws InterruptedException {
+    void throwsExceptionOnRequestEventBusBufferOverflow() {
         System.setProperty(OcraftConfig.CLIENT_BUFFER_SIZE_REQUEST_EVENT_BUS, "1");
         refreshConfig();
 
@@ -170,7 +170,7 @@ class OcraftS2ClientStressIT {
     }
 
     @Test
-    void emitsErrorOnRequestQueueBufferOverflow() throws InterruptedException {
+    void emitsErrorOnRequestQueueBufferOverflow() {
         System.setProperty(OcraftConfig.CLIENT_BUFFER_SIZE_REQUEST_QUEUE, "1");
         refreshConfig();
 
@@ -182,7 +182,7 @@ class OcraftS2ClientStressIT {
     }
 
     @Test
-    void emitsErrorOnResponseEventBusBufferOverflow() throws InterruptedException {
+    void emitsErrorOnResponseEventBusBufferOverflow() {
         System.setProperty(OcraftConfig.CLIENT_BUFFER_SIZE_RESPONSE_EVENT_BUS, "1");
         refreshConfig();
 
@@ -194,7 +194,7 @@ class OcraftS2ClientStressIT {
     }
 
     @Test
-    void emitsErrorOnResponseStreamBufferOverflow() throws InterruptedException {
+    void emitsErrorOnResponseStreamBufferOverflow() {
         System.setProperty(OcraftConfig.CLIENT_BUFFER_SIZE_RESPONSE_STREAM, "1");
         System.setProperty(OcraftConfig.CLIENT_BUFFER_SIZE_RESPONSE_EVENT_BUS, String.valueOf(ITERATION_COUNT));
         System.setProperty(OcraftConfig.CLIENT_BUFFER_SIZE_RESPONSE_BACKPRESSURE, "1");

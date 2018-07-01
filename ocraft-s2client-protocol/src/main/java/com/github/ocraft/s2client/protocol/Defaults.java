@@ -42,7 +42,7 @@ public final class Defaults {
     }
 
     public static InterfaceOptions defaultInterfaces() {
-        return interfaces().raw().score().featureLayer().build();
+        return interfaces().raw().build();
     }
 
     public static SpatialCameraSetup defaultSpatialSetup() {
