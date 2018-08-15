@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.api;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,7 +37,7 @@ import static com.github.ocraft.s2client.api.Configs.refreshConfig;
 import static com.github.ocraft.s2client.api.S2Client.starcraft2Client;
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.request.Requests.ping;
-import static com.github.ocraft.test.Threads.delay;
+import static com.github.ocraft.s2client.test.Threads.delay;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.*;
@@ -50,29 +50,14 @@ class S2ClientTest {
             -65, 3, 32, -45, -69, 3};
 
     @Test
-    void throwsExceptionWhenIpIsNotSet() {
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> starcraft2Client().connectTo(nothing(), 5000).start())
-                .withMessage("ip is required");
-    }
-
-
-    @Test
-    void throwsExceptionIfTracerIsNotSetButRequired() {
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> aSampleS2Client().traced(true).withTracer(nothing()).start())
-                .withMessage("data flow tracer is required");
-    }
-
-    private TracedSyntax aSampleS2Client() {
-        return starcraft2Client().connectTo("127.0.0.1", 5000);
-    }
-
-    @Test
     void throwsExceptionForNullRequest() {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> aSampleS2Client().start().request((Request) nothing()))
                 .withMessage("request is required");
+    }
+
+    private TracedSyntax aSampleS2Client() {
+        return starcraft2Client().connectTo("127.0.0.1", 5000);
     }
 
     @Test
@@ -84,10 +69,12 @@ class S2ClientTest {
 
         client.request(ping());
         client.channel().output(sc2ApiResponse);
-        delay(100);
+        delay(200);
 
         verify(tracer).fire(ping());
         verify(tracer).fire(any(ResponsePing.class));
+
+        client.stop();
     }
 
     @Test
@@ -121,24 +108,32 @@ class S2ClientTest {
 
     private S2Controller theGame() {
         S2Controller s2Controller = mock(S2Controller.class);
-        when(s2Controller.getConfig()).thenReturn(OcraftConfig.cfg());
+        when(s2Controller.getConfig()).thenReturn(OcraftApiConfig.cfg());
         return s2Controller;
     }
 
     @Test
     void usesDefaultNetConfigurationIfNotProvided() {
-        System.setProperty(OcraftConfig.CLIENT_NET_IP, "192.168.1.1");
-        System.setProperty(OcraftConfig.CLIENT_NET_PORT, "1000");
+        System.setProperty(OcraftApiConfig.CLIENT_NET_IP, "192.168.1.1");
+        System.setProperty(OcraftApiConfig.CLIENT_NET_PORT, "1000");
+        System.setProperty(OcraftApiConfig.CLIENT_NET_SYNCH_REQUEST_TIMEOUT, "100");
+        System.setProperty(OcraftApiConfig.CLIENT_NET_CONNECT_TIMEOUT, "101");
         refreshConfig();
 
         S2Client s2Client = starcraft2Client().start();
 
         assertThat(s2Client.getConnectToIp()).as("default game ip").isEqualTo("192.168.1.1");
         assertThat(s2Client.getConnectToPort()).as("default game port").isEqualTo(1000);
+        assertThat(s2Client.getRequestTimeoutInMillis()).as("default synchronous request timeout").isEqualTo(100);
+        assertThat(s2Client.getConnectTimeoutInMillis()).as("default connect timeout").isEqualTo(101);
 
-        System.clearProperty(OcraftConfig.CLIENT_NET_IP);
-        System.clearProperty(OcraftConfig.CLIENT_NET_PORT);
+        System.clearProperty(OcraftApiConfig.CLIENT_NET_IP);
+        System.clearProperty(OcraftApiConfig.CLIENT_NET_PORT);
+        System.clearProperty(OcraftApiConfig.CLIENT_NET_SYNCH_REQUEST_TIMEOUT);
+        System.clearProperty(OcraftApiConfig.CLIENT_NET_CONNECT_TIMEOUT);
         refreshConfig();
+
+        s2Client.stop();
     }
 
 }

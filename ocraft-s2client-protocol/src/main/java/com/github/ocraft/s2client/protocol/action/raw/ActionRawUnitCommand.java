@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.action.raw;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,6 +27,7 @@ package com.github.ocraft.s2client.protocol.action.raw;
  */
 
 import SC2APIProtocol.Raw;
+import com.github.ocraft.s2client.protocol.GeneralizableAbility;
 import com.github.ocraft.s2client.protocol.Sc2ApiSerializable;
 import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.data.Abilities;
@@ -36,9 +37,11 @@ import com.github.ocraft.s2client.protocol.syntax.action.raw.*;
 import com.github.ocraft.s2client.protocol.unit.Tag;
 import com.github.ocraft.s2client.protocol.unit.Unit;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
@@ -49,7 +52,8 @@ import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toSet;
 
-public final class ActionRawUnitCommand implements Sc2ApiSerializable<Raw.ActionRawUnitCommand> {
+public final class ActionRawUnitCommand
+        implements Sc2ApiSerializable<Raw.ActionRawUnitCommand>, GeneralizableAbility<ActionRawUnitCommand> {
 
     private static final long serialVersionUID = -4206327934043657298L;
 
@@ -71,6 +75,12 @@ public final class ActionRawUnitCommand implements Sc2ApiSerializable<Raw.Action
         @Override
         public UseAbilitySyntax forUnits(Unit... units) {
             unitTags.addAll(stream(units).map(Unit::getTag).collect(toSet()));
+            return this;
+        }
+
+        @Override
+        public UseAbilitySyntax forUnits(Collection<Tag> units) {
+            unitTags.addAll(units);
             return this;
         }
 
@@ -103,6 +113,12 @@ public final class ActionRawUnitCommand implements Sc2ApiSerializable<Raw.Action
         @Override
         public ActionRawUnitCommandBuilder queued() {
             queued = true;
+            return this;
+        }
+
+        @Override
+        public ActionRawUnitCommandBuilder queued(boolean value) {
+            queued = value;
             return this;
         }
 
@@ -185,6 +201,19 @@ public final class ActionRawUnitCommand implements Sc2ApiSerializable<Raw.Action
 
     public boolean isQueued() {
         return queued;
+    }
+
+    @Override
+    public ActionRawUnitCommand generalizeAbility(UnaryOperator<Ability> generalize) {
+        Builder builder = new Builder();
+
+        builder.ability = generalize.apply(this.ability);
+        builder.targetedUnitTag = this.targetedUnitTag;
+        builder.targetedWorldSpacePosition = this.targetedWorldSpacePosition;
+        builder.unitTags = this.unitTags;
+        builder.queued = this.queued;
+
+        return new ActionRawUnitCommand(builder);
     }
 
     @Override

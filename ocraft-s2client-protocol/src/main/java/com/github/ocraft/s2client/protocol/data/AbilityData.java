@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.data;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -47,7 +47,7 @@ public final class AbilityData implements Serializable {
     private final String buttonName;        // Name used for the command card. May not always be set.
     private final String friendlyName;      // A human friendly name when the button name or link name isn't descriptive.
     private final String hotkey;            // Hotkey. May not always be set.
-    private final Integer remapsToAbilityId;// This ability id may be represented by the given more generic id.
+    private final Ability remapsToAbility;  // This ability id may be represented by the given more generic id.
     private final boolean available;        // If true, the ability may be used by this set of mods/map.
     private final Target target;            // Determines if a point is private final or required.
     private final boolean allowMinimap;     // Can be cast in the minimap.
@@ -76,8 +76,8 @@ public final class AbilityData implements Serializable {
         hotkey = tryGet(Data.AbilityData::getHotkey, Data.AbilityData::hasHotkey)
                 .apply(sc2ApiAbilityData).orElse(nothing());
 
-        remapsToAbilityId = tryGet(Data.AbilityData::getRemapsToAbilityId, Data.AbilityData::hasRemapsToAbilityId)
-                .apply(sc2ApiAbilityData).orElse(nothing());
+        remapsToAbility = tryGet(Data.AbilityData::getRemapsToAbilityId, Data.AbilityData::hasRemapsToAbilityId)
+                .apply(sc2ApiAbilityData).map(Abilities::from).orElse(nothing());
 
         available = tryGet(Data.AbilityData::getAvailable, Data.AbilityData::hasAvailable)
                 .apply(sc2ApiAbilityData).orElse(false);
@@ -133,8 +133,8 @@ public final class AbilityData implements Serializable {
         return Optional.ofNullable(hotkey);
     }
 
-    public Optional<Integer> getRemapsToAbilityId() {
-        return Optional.ofNullable(remapsToAbilityId);
+    public Optional<Ability> getRemapsToAbility() {
+        return Optional.ofNullable(remapsToAbility);
     }
 
     public boolean isAvailable() {
@@ -187,9 +187,9 @@ public final class AbilityData implements Serializable {
                 (buttonName != null ? buttonName.equals(that.buttonName) : that.buttonName == null) &&
                 (friendlyName != null ? friendlyName.equals(that.friendlyName) : that.friendlyName == null) &&
                 (hotkey != null ? hotkey.equals(that.hotkey) : that.hotkey == null) &&
-                (remapsToAbilityId != null
-                        ? remapsToAbilityId.equals(that.remapsToAbilityId)
-                        : that.remapsToAbilityId == null) &&
+                (remapsToAbility != null
+                        ? remapsToAbility.equals(that.remapsToAbility)
+                        : that.remapsToAbility == null) &&
                 target == that.target &&
                 (footprintRadius != null
                         ? footprintRadius.equals(that.footprintRadius)
@@ -205,7 +205,7 @@ public final class AbilityData implements Serializable {
         result = 31 * result + (buttonName != null ? buttonName.hashCode() : 0);
         result = 31 * result + (friendlyName != null ? friendlyName.hashCode() : 0);
         result = 31 * result + (hotkey != null ? hotkey.hashCode() : 0);
-        result = 31 * result + (remapsToAbilityId != null ? remapsToAbilityId.hashCode() : 0);
+        result = 31 * result + (remapsToAbility != null ? remapsToAbility.hashCode() : 0);
         result = 31 * result + (available ? 1 : 0);
         result = 31 * result + (target != null ? target.hashCode() : 0);
         result = 31 * result + (allowMinimap ? 1 : 0);

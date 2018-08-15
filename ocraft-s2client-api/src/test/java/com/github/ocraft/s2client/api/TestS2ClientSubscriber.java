@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.api;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -36,14 +36,14 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
-import static com.github.ocraft.test.Threads.delay;
+import static com.github.ocraft.s2client.test.Threads.delay;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class TestS2ClientSubscriber extends TestSubscriber<Response> {
 
     private Logger log = LoggerFactory.getLogger(TestS2ClientSubscriber.class);
 
-    private static final int WAITING_TIMEOUT_IN_MILLIS = 30000;
+    private static final int WAITING_TIMEOUT_IN_MILLIS = 45000;
     private static final int ONLY_ONE = 1;
     private final boolean backpressure;
 
@@ -119,6 +119,7 @@ class TestS2ClientSubscriber extends TestSubscriber<Response> {
 
     void eventuallyReceivedExactly(int valueCount) {
         waitFor(valueCount);
+        assertThat(this.valueCount()).isEqualTo(valueCount);
     }
 
     void cancelAfter(int timeoutInMillis) {

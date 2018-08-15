@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.unit;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,7 +27,10 @@ package com.github.ocraft.s2client.protocol.unit;
  */
 
 import SC2APIProtocol.Raw;
+import com.github.ocraft.s2client.protocol.data.Abilities;
 import com.github.ocraft.s2client.protocol.data.Units;
+import de.danielbechler.diff.ObjectDifferBuilder;
+import de.danielbechler.diff.node.DiffNode;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
@@ -193,6 +196,19 @@ class UnitTest {
         assertThat(Unit.from(
                 without(() -> sc2ApiUnit().toBuilder(), Raw.Unit.Builder::clearBuffIds).build()
         ).getBuffs()).as("unit: empty buff set").isEmpty();
+    }
+
+    @Test
+    void createsCopyWithGeneralizedAbility() {
+        Unit specific = Unit.from(sc2ApiUnit());
+        Abilities generalizedAbility = Abilities.EFFECT_CHRONO_BOOST;
+        Unit generalized = specific.generalizeAbility(ability -> generalizedAbility);
+
+        DiffNode diffNode = ObjectDifferBuilder.buildDefault().compare(specific, generalized);
+
+        assertThat(diffNode.hasChanges()).as("generalized unit changes").isTrue();
+        assertThat(diffNode.childCount()).as("generalized unit changes count").isEqualTo(1);
+        assertThat(generalized.getOrders().get(0).getAbility()).as("generalized ability").isSameAs(generalizedAbility);
     }
 
     @Test

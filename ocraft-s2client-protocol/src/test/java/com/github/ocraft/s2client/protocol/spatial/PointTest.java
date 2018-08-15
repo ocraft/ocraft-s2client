@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.spatial;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -110,6 +110,24 @@ class PointTest {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> Point.of(1, 1, 256))
                 .withMessage("point [z] has value 256.0 and is greater than 255.0");
+    }
+
+    @Test
+    void performsBasicMathOperations() {
+        Point p0 = Point.of(2, 4, 1);
+        Point p1 = Point.of(5, 8, 1);
+
+        assertThat(p0.add(p1)).isEqualTo(Point.of(7, 12, 2));
+        assertThat(p1.sub(p0)).isEqualTo(Point.of(3, 4, 0));
+        assertThat(p0.div(2)).isEqualTo(Point.of(1, 2, 0.5f));
+        assertThat(p1.mul(2)).isEqualTo(Point.of(10, 16, 2));
+        assertThat(p0.dot(p1)).isEqualTo(43);
+        assertThat(p0.distance(p1)).isEqualTo(5.0);
+    }
+
+    @Test
+    void hasPoint2dView() {
+        assertThat(Point.of(4, 5, 7).toPoint2d()).isEqualTo(Point2d.of(4.0f, 5.0f));
     }
 
     @Test

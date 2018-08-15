@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.api.vertx;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -39,7 +39,8 @@ import org.slf4j.LoggerFactory;
 import java.nio.BufferOverflowException;
 import java.util.UUID;
 
-import static com.github.ocraft.s2client.api.OcraftConfig.*;
+import static com.github.ocraft.s2client.api.OcraftApiConfig.*;
+import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
 
 public class VertxChannel implements Channel {
 
@@ -53,6 +54,8 @@ public class VertxChannel implements Channel {
     private final Subject<byte[]> errorStream = PublishSubject.<byte[]>create().toSerialized();
     private final MessageProducer<byte[]> inputMessageProducer;
     private final MessageProducer<byte[]> outputMessageProducer;
+    private volatile boolean connected;
+    private Runnable onConnectionLost;
 
     static VertxChannel from(EventBus eventBus) {
         return new VertxChannel(eventBus);
@@ -123,4 +126,28 @@ public class VertxChannel implements Channel {
         return errorStream;
     }
 
+    @Override
+    public boolean ready() {
+        return connected;
+    }
+
+    @Override
+    public void onConnectionLost(Runnable onConnectionLost) {
+        this.onConnectionLost = onConnectionLost;
+    }
+
+    void connected() {
+        if (!connected) {
+            connected = true;
+        }
+    }
+
+    void disconnected() {
+        if (connected) {
+            connected = false;
+            if (isSet(onConnectionLost)) {
+                onConnectionLost.run();
+            }
+        }
+    }
 }

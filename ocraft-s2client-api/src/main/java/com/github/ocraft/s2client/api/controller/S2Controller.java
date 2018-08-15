@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.api.controller;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,8 +26,6 @@ package com.github.ocraft.s2client.api.controller;
  * #L%
  */
 
-import com.github.ocraft.s2client.protocol.GameVersion;
-import com.github.ocraft.s2client.protocol.Versions;
 import com.github.ocraft.s2client.protocol.game.GameStatus;
 import com.github.ocraft.s2client.protocol.response.Response;
 import com.typesafe.config.Config;
@@ -36,25 +34,22 @@ import io.reactivex.subscribers.DefaultSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import static com.github.ocraft.s2client.api.OcraftConfig.*;
-import static com.github.ocraft.s2client.protocol.Constants.nothing;
-import static com.github.ocraft.s2client.protocol.Errors.required;
+import static com.github.ocraft.s2client.api.OcraftApiConfig.*;
 import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
 import static java.lang.String.format;
-import static java.util.Comparator.reverseOrder;
-import static java.util.Optional.ofNullable;
-
 
 public class S2Controller extends DefaultSubscriber<Response> {
 
@@ -62,7 +57,7 @@ public class S2Controller extends DefaultSubscriber<Response> {
 
     private static final int CONNECTION_TIMEOUT_IN_MILLIS = cfg().getInt(GAME_NET_TIMEOUT);
     private static final int MAX_CONNECTION_TRY_COUNT = cfg().getInt(GAME_NET_RETRY_COUNT);
-    private static final String BUILD_PREFIX = "Base";
+    private static final int STOP_PROCESS_TIMEOUT_IN_MILLIS = 4000;
 
     private Config cfg;
 
@@ -76,29 +71,17 @@ public class S2Controller extends DefaultSubscriber<Response> {
 
     public static class Builder {
 
-        private static final String EXECUTE_INFO = "ExecuteInfo.txt";
-        private static final Path CFG_PATH = Paths.get("Starcraft II", EXECUTE_INFO);
-        private static final Path WIN_CFG = Paths.get("Documents").resolve(CFG_PATH);
-        private static final Path LINUX_CFG = CFG_PATH;
-        private static final Path MAC_CFG = Paths.get("Library", "Application Support", "Blizzard").resolve(CFG_PATH);
-        private static final String VERSIONS_DIR = "Versions";
-        private static final String X64_SUFFIX = "_x64";
-
         private static int instanceCount = 0;
 
         private Map<String, Object> builderConfig = new HashMap<>();
 
         private Builder() {
             Config referenceConfig = cfg();
-            preparePort();
             prepareWindowPosition(referenceConfig);
             instanceCount++;
         }
 
-        private void preparePort() {
-            builderConfig.put(GAME_NET_PORT, PortSetup.fetchPort());
-        }
-
+        // TODO p.picheta move this outside?
         private void prepareWindowPosition(Config referenceConfig) {
             int w = referenceConfig.getInt(GAME_WINDOW_W);
             int h = referenceConfig.getInt(GAME_WINDOW_H);
@@ -113,34 +96,67 @@ public class S2Controller extends DefaultSubscriber<Response> {
         }
 
         public Builder withExecutablePath(Path executablePath) {
-            builderConfig.put(GAME_EXE_PATH, executablePath.toString());
+            if (isSet(executablePath)) {
+                builderConfig.put(GAME_EXE_PATH, executablePath.toString());
+            }
             return this;
         }
 
         public Builder withListenIp(String gameListenIp) {
-            builderConfig.put(GAME_NET_IP, gameListenIp);
+            if (isSet(gameListenIp)) builderConfig.put(GAME_NET_IP, gameListenIp);
             return this;
         }
 
-        public Builder withPort(int gameListenPort) {
-            builderConfig.put(GAME_NET_PORT, gameListenPort);
+        public Builder withPort(Integer gameListenPort) {
+            if (isSet(gameListenPort)) builderConfig.put(GAME_NET_PORT, gameListenPort);
             return this;
         }
 
-        public Builder withWindowSize(int w, int h) {
-            builderConfig.put(GAME_WINDOW_W, w);
-            builderConfig.put(GAME_WINDOW_H, h);
+        public Builder withWindowSize(Integer w, Integer h) {
+            if (isSet(w)) builderConfig.put(GAME_WINDOW_W, w);
+            if (isSet(h)) builderConfig.put(GAME_WINDOW_H, h);
             return this;
         }
 
-        public Builder withWindowPosition(int x, int y) {
-            builderConfig.put(GAME_WINDOW_X, x);
-            builderConfig.put(GAME_WINDOW_Y, y);
+        public Builder withWindowPosition(Integer x, Integer y) {
+            if (isSet(x)) builderConfig.put(GAME_WINDOW_X, x);
+            if (isSet(y)) builderConfig.put(GAME_WINDOW_Y, y);
             return this;
         }
 
         public Builder withDataVersion(String dataVersion) {
-            builderConfig.put(GAME_EXE_DATA_VER, dataVersion);
+            if (isSet(dataVersion)) builderConfig.put(GAME_EXE_DATA_VER, dataVersion);
+            return this;
+        }
+
+        public Builder withBaseBuild(Integer baseBuild) {
+            // TODO p.picheta to test
+            if (isSet(baseBuild)) builderConfig.put(GAME_EXE_BUILD, ExecutableParser.BUILD_PREFIX + baseBuild);
+            return this;
+        }
+
+        public Builder verbose(Boolean value) {
+            if (isSet(value)) builderConfig.put(GAME_CLI_VERBOSE, String.valueOf(value));
+            return this;
+        }
+
+        public Builder withTmpDir(Path tmpDir) {
+            if (isSet(tmpDir)) builderConfig.put(GAME_CLI_TEMP_DIR, tmpDir.toString());
+            return this;
+        }
+
+        public Builder withDataDir(Path dataDir) {
+            if (isSet(dataDir)) builderConfig.put(GAME_CLI_DATA_DIR, dataDir.toString());
+            return this;
+        }
+
+        public Builder withOsMesaPath(Path osMesaPath) {
+            if (isSet(osMesaPath)) builderConfig.put(GAME_CLI_OS_MESA_PATH, osMesaPath.toString());
+            return this;
+        }
+
+        public Builder withEglPath(Path eglPath) {
+            if (isSet(eglPath)) builderConfig.put(GAME_CLI_EGL_PATH, eglPath.toString());
             return this;
         }
 
@@ -152,34 +168,17 @@ public class S2Controller extends DefaultSubscriber<Response> {
 
             Config referenceConfig = cfg();
 
-            Config customConfig = ConfigFactory.parseMap(builderConfig).withFallback(referenceConfig);
-            Map<String, Object> executableConfig = new HashMap<>();
+            Config customConfig = builderConfig();
+            String customPath = customConfig.hasPath(GAME_EXE_PATH) ? customConfig.getString(GAME_EXE_PATH) : null;
+            String customDataVersion = customConfig.hasPath(GAME_EXE_DATA_VER)
+                    ? customConfig.getString(GAME_EXE_DATA_VER)
+                    : null;
+            String customBaseBuild = customConfig.hasPath(GAME_EXE_BUILD)
+                    ? customConfig.getString(GAME_EXE_BUILD)
+                    : null;
 
-            if (!customConfig.hasPath(GAME_EXE_PATH)) {
-                executableConfig.put(GAME_EXE_PATH, findExecutablePath().toString());
-            } else {
-                executableConfig.put(GAME_EXE_PATH, customConfig.getString(GAME_EXE_PATH));
-            }
-
-            Path executablePath = Paths.get((String) executableConfig.get(GAME_EXE_PATH));
-            Path gamePath = toGameRootPath().apply(executablePath);
-            executableConfig.put(
-                    GAME_EXE_FILE,
-                    executablePath.subpath(gamePath.getNameCount() + 2, executablePath.getNameCount()).toString());
-
-
-            executableConfig.put(GAME_EXE_ROOT, gamePath.toString());
-            String exeFile = (String) executableConfig.get(GAME_EXE_FILE);
-            String baseBuild = toNewestBaseBuild(exeFile).apply(gamePath.resolve(VERSIONS_DIR));
-
-            executableConfig.put(GAME_EXE_BUILD, baseBuild);
-            executableConfig.put(GAME_EXE_IS_64, exeFile.contains(X64_SUFFIX));
-
-            if (!customConfig.hasPath(GAME_EXE_DATA_VER)) {
-                Optional<GameVersion> gameVersion = Versions.versionFor(
-                        Integer.parseInt(baseBuild.replaceFirst(BUILD_PREFIX, "")));
-                gameVersion.ifPresent(ver -> executableConfig.put(GAME_EXE_DATA_VER, ver.getDataHash()));
-            }
+            Map<String, Object> executableConfig = ExecutableParser.loadSettings(
+                    customPath, customDataVersion, customBaseBuild);
 
             Config gameConfig = ConfigFactory.parseMap(executableConfig).withFallback(customConfig);
             gameConfig.checkValid(referenceConfig);
@@ -187,91 +186,11 @@ public class S2Controller extends DefaultSubscriber<Response> {
             return gameConfig;
         }
 
-        private Path findExecutablePath() {
-            Path executeInfoPath = resolveExecuteInfoPath().filter(Files::exists).orElseThrow(required(EXECUTE_INFO));
-            try (Stream<String> lines = Files.lines(executeInfoPath)) {
-                return lines.findFirst()
-                        .map(splitToKeyValue())
-                        .filter(correctProperty())
-                        .filter(notEmptyValue())
-                        .map(toPropertyValue())
-                        .map(Paths::get)
-                        .filter(Files::exists)
-                        .orElseThrow(required("executable path"));
-            } catch (IOException e) {
-                log.debug("Finding executable path error.", e);
-                throw new StarCraft2LaunchException("Finding executable path error.", e);
-            }
-        }
-
-        private Optional<Path> resolveExecuteInfoPath() {
-            String os = System.getProperty("os.name").toLowerCase();
-            String userHome = System.getProperty("user.home");
-            if (isWindows(os)) {
-                return Optional.of(Paths.get(userHome).resolve(WIN_CFG));
-            } else if (isUnix(os)) {
-                return Optional.of(Paths.get(userHome).resolve(LINUX_CFG));
-            } else if (isMac(os)) {
-                return Optional.of(Paths.get(userHome).resolve(MAC_CFG));
-            } else {
-                return Optional.empty();
-            }
-        }
-
-        private boolean isWindows(String os) {
-            return os.contains("win");
-        }
-
-        private boolean isMac(String os) {
-            return os.contains("mac");
-        }
-
-        private boolean isUnix(String os) {
-            return os.contains("nix") || os.contains("nux") || os.contains("aix");
-        }
-
-        private Function<String, String[]> splitToKeyValue() {
-            return property -> property.split("=");
-        }
-
-        private Predicate<String[]> correctProperty() {
-            return property -> property.length == 2;
-        }
-
-        private Predicate<String[]> notEmptyValue() {
-            return property -> property[1] != nothing() && !property[1].isEmpty();
-        }
-
-        private Function<String[], String> toPropertyValue() {
-            return property -> property[1].trim();
-        }
-
-        private Function<Path, Path> toGameRootPath() {
-            if (!isMac(System.getProperty("os.name").toLowerCase())) {
-                return exePath -> exePath.resolve(Paths.get("..", "..", "..")).normalize();
-            } else {
-                return exePath -> exePath.resolve(Paths.get("..", "..", "..", "..", "..", "..")).normalize();
-            }
-        }
-
-        private Function<Path, String> toNewestBaseBuild(String exeFile) {
-            return versionPath -> {
-                try (Stream<Path> builds = Files.list(
-                        ofNullable(versionPath).filter(Files::exists).orElseThrow(required("version directory")))) {
-                    return builds.min(reverseOrder())
-                            .filter(path -> Files.exists(path.resolve(exeFile)))
-                            .map(Path::getFileName)
-                            .map(Path::toString)
-                            .orElseThrow(required("base build"));
-                } catch (IOException e) {
-                    log.debug("Newest base build not found.", e);
-                    throw new StarCraft2LaunchException("Newest base build not found.", e);
-                }
-            };
+        public Config builderConfig() {
+            return ConfigFactory.parseMap(builderConfig).withFallback(cfg());
         }
 
         static void reset() {
-            PortSetup.reset();
             instanceCount = 0;
         }
 
@@ -281,17 +200,13 @@ public class S2Controller extends DefaultSubscriber<Response> {
         return new Builder();
     }
 
-    public static int lastPort() {
-        return PortSetup.getLastPort();
-    }
-
     private S2Controller launch() {
         log.info("Launching Starcraft II with configuration: {}.", cfg);
         try {
             Path gameRoot = Paths.get(cfg.getString(GAME_EXE_ROOT));
             String exeFile = gameRoot
                     .resolve(Paths.get(
-                            Builder.VERSIONS_DIR,
+                            ExecutableParser.VERSIONS_DIR,
                             cfg.getString(GAME_EXE_BUILD),
                             cfg.getString(GAME_EXE_FILE)))
                     .toString();
@@ -313,13 +228,17 @@ public class S2Controller extends DefaultSubscriber<Response> {
             command(args, "-eglpath", GAME_CLI_EGL_PATH);
 
             s2Process = new ProcessBuilder(args)
+                    .redirectErrorStream(true)
                     .directory(gameRoot.resolve(getSupportDirPath()).toFile())
                     .start();
+
+            log.info("Launched SC2 ({}), PID: {}", exeFile, s2Process.pid());
 
             return this;
         } catch (IOException e) {
             log.error("StarCraft 2 launching process error.", e);
-            throw new StarCraft2LaunchException("StarCraft 2 launching process error.", e);
+            throw new StarCraft2ControllerException(
+                    ControllerError.PROCESS_START_FAILED, "StarCraft 2 launching process error.", e);
         }
     }
 
@@ -353,7 +272,8 @@ public class S2Controller extends DefaultSubscriber<Response> {
 
     private void tryReachAgain(InetSocketAddress endpoint) {
         if (tryCount > MAX_CONNECTION_TRY_COUNT) {
-            throw new StarCraft2LaunchException("Game is unreachable.");
+            log.error("Game process in unreachable.");
+            throw new StarCraft2ControllerException(ControllerError.GAME_UNREACHABLE, "Game is unreachable.");
         } else {
             tryCount++;
             reachTheGame(endpoint);
@@ -370,15 +290,24 @@ public class S2Controller extends DefaultSubscriber<Response> {
         }
     }
 
-    public void stopAndWait() {
+    public boolean stopAndWait() {
+        return stopAndWait(STOP_PROCESS_TIMEOUT_IN_MILLIS);
+    }
+
+    public boolean stopAndWait(long timeoutInMillis) {
         try {
             if (isSet(s2Process)) {
                 stop();
-                s2Process.waitFor();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(s2Process.getInputStream()));
+                reader.lines().forEach(log::debug);
+
+                return s2Process.waitFor(timeoutInMillis, TimeUnit.MILLISECONDS);
             }
+            return true;
         } catch (InterruptedException e) {
             log.debug("Thread was interrupted.", e);
             Thread.currentThread().interrupt();
+            return false;
         }
     }
 
@@ -415,7 +344,7 @@ public class S2Controller extends DefaultSubscriber<Response> {
     public S2Controller relaunchIfNeeded(int baseBuild, String dataVersion) {
         String currentBaseBuild = cfg.getString(GAME_EXE_BUILD);
         String currentDataVersion = cfg.hasPath(GAME_EXE_DATA_VER) ? cfg.getString(GAME_EXE_DATA_VER) : "";
-        String baseBuildName = BUILD_PREFIX + baseBuild;
+        String baseBuildName = ExecutableParser.BUILD_PREFIX + baseBuild;
         if (!currentBaseBuild.equals(baseBuildName) || !currentDataVersion.equals(dataVersion)) {
 
             log.warn("Expected base build: {} and data version: {}. " +
@@ -423,7 +352,9 @@ public class S2Controller extends DefaultSubscriber<Response> {
                             "Relaunching to expected version...",
                     baseBuildName, dataVersion, currentBaseBuild, currentDataVersion);
 
-            stopAndWait();
+            if (!stopAndWait()) {
+                throw new IllegalStateException("Failed to stop previous game instance.");
+            }
 
             cfg = ConfigFactory.parseMap(
                     Map.of(GAME_EXE_BUILD, baseBuildName, GAME_EXE_DATA_VER, dataVersion)
@@ -439,5 +370,7 @@ public class S2Controller extends DefaultSubscriber<Response> {
         launch();
     }
 
-
+    public Process getS2Process() {
+        return s2Process;
+    }
 }

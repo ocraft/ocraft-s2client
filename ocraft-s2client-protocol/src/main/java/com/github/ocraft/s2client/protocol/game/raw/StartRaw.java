@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.game.raw;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -40,7 +40,6 @@ import java.util.Set;
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
-import static com.github.ocraft.s2client.protocol.Preconditions.requireNotEmpty;
 import static java.util.stream.Collectors.toSet;
 
 public final class StartRaw implements Serializable {
@@ -71,8 +70,6 @@ public final class StartRaw implements Serializable {
                 .apply(sc2ApiStartRaw).map(RectangleI::from).orElseThrow(required("playable area"));
 
         startLocations = sc2ApiStartRaw.getStartLocationsList().stream().map(Point2d::from).collect(toSet());
-
-        requireNotEmpty("start locations", startLocations);
     }
 
     public static StartRaw from(Raw.StartRaw sc2ApiStartRaw) {

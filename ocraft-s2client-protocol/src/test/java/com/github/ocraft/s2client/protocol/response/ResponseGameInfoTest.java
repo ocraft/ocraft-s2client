@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.response;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,6 +28,8 @@ package com.github.ocraft.s2client.protocol.response;
 
 import SC2APIProtocol.Sc2Api;
 import com.github.ocraft.s2client.protocol.game.GameStatus;
+import com.github.ocraft.s2client.protocol.spatial.Point2d;
+import com.github.ocraft.s2client.protocol.spatial.PointI;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
@@ -100,6 +102,29 @@ class ResponseGameInfoTest {
         assertThat(ResponseGameInfo.from(
                 sc2ApiGameInfoWithout(Sc2Api.ResponseGameInfo.Builder::clearModNames)).getModNames())
                 .as("game info: default mod names").isEmpty();
+    }
+
+    @Test
+    void convertsWorldPositionToMinimapPosition() {
+        assertThat(ResponseGameInfo.from(sc2ApiResponseWithGameInfo()).convertWorldToMinimap(Point2d.of(5, 7)))
+                .isEqualTo(PointI.of(5, 57));
+    }
+
+    @Test
+    void convertsWorldPositionToCameraPosition() {
+        assertThat(ResponseGameInfo.from(sc2ApiResponseWithGameInfo())
+                .convertWorldToCamera(Point2d.of(10, 20), Point2d.of(5, 7)))
+                .isEqualTo(PointI.of(18, 66));
+    }
+
+    @Test
+    void findsRandomLocationOnPlayableArea() {
+        assertThat(ResponseGameInfo.from(sc2ApiResponseWithGameInfo()).findRandomLocation()).isNotNull();
+    }
+
+    @Test
+    void findsCenterOfMap() {
+        assertThat(ResponseGameInfo.from(sc2ApiResponseWithGameInfo()).findCenterOfMap()).isNotNull();
     }
 
     @Test

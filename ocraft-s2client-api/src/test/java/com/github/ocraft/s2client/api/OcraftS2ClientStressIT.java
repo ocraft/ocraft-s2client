@@ -26,46 +26,49 @@ package com.github.ocraft.s2client.api;
  * #L%
  */
 
-import com.github.ocraft.s2client.api.controller.S2Controller;
-import com.github.ocraft.test.MultiThreadedStressTester;
+import com.github.ocraft.s2client.api.test.GameServer;
+import com.github.ocraft.s2client.test.MultiThreadedStressTester;
+import com.github.ocraft.s2client.test.Threads;
 import io.reactivex.exceptions.MissingBackpressureException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.net.ConnectException;
 import java.nio.BufferOverflowException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static com.github.ocraft.s2client.api.Configs.refreshConfig;
 import static com.github.ocraft.s2client.api.S2Client.starcraft2Client;
-import static com.github.ocraft.s2client.api.controller.S2Controller.starcraft2Game;
 import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
 import static com.github.ocraft.s2client.protocol.request.Requests.ping;
-import static com.github.ocraft.test.Threads.delay;
+import static com.github.ocraft.s2client.test.Threads.delay;
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.hamcrest.core.IsEqual.equalTo;
 
+@Tag("integration")
 class OcraftS2ClientStressIT {
 
     private static final int OBSERVER_COUNT = 4;
     private static final int THREAD_COUNT = 4;
     private static final int ITERATION_COUNT = 10000;
     private static final int REQUEST_DELAY_IN_MILLIS = 1;
-    private static final int TIMEOUT_IN_SECONDS = 30;
+    private static final int TIMEOUT_IN_SECONDS = 60;
     private static final int CONNECTION_TIMEOUT_IN_SECONDS = 30;
 
-    private S2Controller game;
     private S2Client client;
+    private GameServer gameServer;
 
     @BeforeEach
     void setUp() {
-        System.setProperty(OcraftConfig.CLIENT_BUFFER_SIZE_REQUEST_EVENT_BUS, String.valueOf(ITERATION_COUNT));
-        System.setProperty(OcraftConfig.CLIENT_BUFFER_SIZE_REQUEST_QUEUE, String.valueOf(ITERATION_COUNT));
+        System.setProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_REQUEST_EVENT_BUS, String.valueOf(ITERATION_COUNT));
+        System.setProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_REQUEST_QUEUE, String.valueOf(ITERATION_COUNT));
         refreshConfig();
     }
 
@@ -75,26 +78,26 @@ class OcraftS2ClientStressIT {
             client.stop();
             client = null;
         }
-        if (isSet(game)) {
-            game.stopAndWait();
-            game = null;
+
+        if (isSet(gameServer)) {
+            gameServer.stop();
+            gameServer = null;
         }
 
-        System.clearProperty(OcraftConfig.CLIENT_BUFFER_SIZE_RESPONSE_STREAM);
-        System.clearProperty(OcraftConfig.CLIENT_BUFFER_SIZE_RESPONSE_EVENT_BUS);
-        System.clearProperty(OcraftConfig.CLIENT_BUFFER_SIZE_RESPONSE_BACKPRESSURE);
-        System.clearProperty(OcraftConfig.CLIENT_BUFFER_SIZE_REQUEST_EVENT_BUS);
-        System.clearProperty(OcraftConfig.CLIENT_BUFFER_SIZE_REQUEST_QUEUE);
+        System.clearProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_RESPONSE_STREAM);
+        System.clearProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_RESPONSE_EVENT_BUS);
+        System.clearProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_RESPONSE_BACKPRESSURE);
+        System.clearProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_REQUEST_EVENT_BUS);
+        System.clearProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_REQUEST_QUEUE);
         refreshConfig();
     }
 
     @Test
     void worksCorrectlyUnderMultiThreadedStress() throws Exception {
         System.setProperty(
-                OcraftConfig.CLIENT_BUFFER_SIZE_RESPONSE_EVENT_BUS, String.valueOf(ITERATION_COUNT * THREAD_COUNT));
+                OcraftApiConfig.CLIENT_BUFFER_SIZE_RESPONSE_EVENT_BUS, String.valueOf(ITERATION_COUNT * THREAD_COUNT));
         refreshConfig();
-
-        launchTheGame();
+        prepareGame();
 
         AtomicInteger responseCounter = new AtomicInteger(0);
 
@@ -109,9 +112,10 @@ class OcraftS2ClientStressIT {
         await().atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS).untilAtomic(responseCounter, equalTo(expectedResponses()));
     }
 
-    private void launchTheGame() {
-        game = starcraft2Game().launch().untilReady();
-        client = starcraft2Client().connectTo(game).start();
+    private void prepareGame() {
+        int port = 4000;
+        gameServer = GameServer.create(port).start();
+        client = starcraft2Client().connectTo("127.0.0.1", port).start();
     }
 
     private int expectedResponses() {
@@ -119,15 +123,29 @@ class OcraftS2ClientStressIT {
     }
 
     @Test
-    void isResilientToConnectionLost() {
-        launchTheGame();
+    void isResilientToConnectionLost() throws TimeoutException {
+        AtomicInteger connectionLostCounter = new AtomicInteger(0);
+
+        int port = 3000;
+        GameServer gameServer = GameServer.create(port).start();
+        client = starcraft2Client()
+                .connectTo("127.0.0.1", port)
+                .onConnectionLost(connectionLostCounter::incrementAndGet)
+                .start()
+                .untilReady();
 
         TestS2ClientSubscriber subscriber = subscribeToResponseStream();
 
-        new Thread(() -> game.restart()).start();
+        gameServer.stop();
         Stream.iterate(0, i -> i < ITERATION_COUNT, i -> i + 1).forEach(i -> client.request(ping()));
+        new Thread(() -> {
+            Threads.delay(2000);
+            gameServer.start();
+        }).start();
 
         subscriber.eventuallyReceivedExactly(ITERATION_COUNT);
+        assertThat(connectionLostCounter).hasValue(1);
+        gameServer.stop();
     }
 
     private TestS2ClientSubscriber subscribeToResponseStream() {
@@ -152,7 +170,7 @@ class OcraftS2ClientStressIT {
 
     @Test
     void throwsExceptionOnRequestEventBusBufferOverflow() {
-        System.setProperty(OcraftConfig.CLIENT_BUFFER_SIZE_REQUEST_EVENT_BUS, "1");
+        System.setProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_REQUEST_EVENT_BUS, "1");
         refreshConfig();
 
         client = starcraft2Client().connectTo("127.0.0.1", 5000).start();
@@ -171,10 +189,10 @@ class OcraftS2ClientStressIT {
 
     @Test
     void emitsErrorOnRequestQueueBufferOverflow() {
-        System.setProperty(OcraftConfig.CLIENT_BUFFER_SIZE_REQUEST_QUEUE, "1");
+        System.setProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_REQUEST_QUEUE, "1");
         refreshConfig();
 
-        launchTheGame();
+        prepareGame();
         TestS2ClientSubscriber subscriber = subscribeToResponseStream();
         startRequestStream();
 
@@ -183,10 +201,10 @@ class OcraftS2ClientStressIT {
 
     @Test
     void emitsErrorOnResponseEventBusBufferOverflow() {
-        System.setProperty(OcraftConfig.CLIENT_BUFFER_SIZE_RESPONSE_EVENT_BUS, "1");
+        System.setProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_RESPONSE_EVENT_BUS, "1");
         refreshConfig();
 
-        launchTheGame();
+        prepareGame();
         TestS2ClientSubscriber subscriber = subscribeToResponseStream();
         startRequestStream();
 
@@ -195,13 +213,13 @@ class OcraftS2ClientStressIT {
 
     @Test
     void emitsErrorOnResponseStreamBufferOverflow() {
-        System.setProperty(OcraftConfig.CLIENT_BUFFER_SIZE_RESPONSE_STREAM, "1");
-        System.setProperty(OcraftConfig.CLIENT_BUFFER_SIZE_RESPONSE_EVENT_BUS, String.valueOf(ITERATION_COUNT));
-        System.setProperty(OcraftConfig.CLIENT_BUFFER_SIZE_RESPONSE_BACKPRESSURE, "1");
+        System.setProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_RESPONSE_STREAM, "1");
+        System.setProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_RESPONSE_EVENT_BUS, String.valueOf(ITERATION_COUNT));
+        System.setProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_RESPONSE_BACKPRESSURE, "1");
 
         refreshConfig();
 
-        launchTheGame();
+        prepareGame();
         TestS2ClientSubscriber subscriber = TestS2ClientSubscriber.withBackPressure();
         client.responseStream().subscribe(subscriber);
         startRequestStream();

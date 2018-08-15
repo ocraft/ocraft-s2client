@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.query;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,6 +27,9 @@ package com.github.ocraft.s2client.protocol.query;
  */
 
 import SC2APIProtocol.Query;
+import com.github.ocraft.s2client.protocol.data.Abilities;
+import de.danielbechler.diff.ObjectDifferBuilder;
+import de.danielbechler.diff.node.DiffNode;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
@@ -79,6 +82,23 @@ class AvailableAbilitiesTest {
                 () -> sc2ApiAvailableAbilities().toBuilder(),
                 Query.ResponseQueryAvailableAbilities.Builder::clearAbilities).build()).getAbilities())
                 .as("available abilities: default abilities set").isEmpty();
+    }
+
+    @Test
+    void createsCopyWithGeneralizedAbility() {
+        AvailableAbilities specific = AvailableAbilities.from(sc2ApiAvailableAbilities());
+        Abilities generalizedAbility = Abilities.EFFECT_CHRONO_BOOST;
+        AvailableAbilities generalized = specific.generalizeAbility(ability -> generalizedAbility);
+
+        assertThatGeneralizationIsEqualToSpecific(specific, generalized);
+    }
+
+    private void assertThatGeneralizationIsEqualToSpecific(
+            AvailableAbilities specific, AvailableAbilities generalized) {
+        DiffNode diffNode = ObjectDifferBuilder.buildDefault().compare(specific, generalized);
+
+        assertThat(diffNode.hasChanges()).as("generalized unit changes").isTrue();
+        assertThat(diffNode.childCount()).as("generalized unit changes count").isEqualTo(1);
     }
 
     @Test

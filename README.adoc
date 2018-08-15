@@ -3,6 +3,96 @@
 
 image:https://img.shields.io/badge/license-MIT-brightgreen.svg[alt="MIT License"]
 
+The StarCraft II Java API provides access to in-game state observation and unit control. The API is a wrapper around protobuf
+defined protocol over a websocket connection.
+
+Ocraft S2Client consist of two modules:
+
+* <<ocraft.bot>> - High-level framework based on https://github.com/Blizzard/s2client-api.
+* <<ocraft.api>> - Low-level asynchronous and reactive api.
+
+[[ocraft.bot]]
+== Ocraft S2Client Bot
+
+Ocraft Bot is a Java port of Blizzard's C\++ Api for Starcraft 2. All of documentation and user-experience of C++
+sc2client-api should be valid or similar by analogy in this Java Api. More info about C++ Api:
+
+* https://github.com/Blizzard/s2client-api
+* https://blizzard.github.io/s2client-api/
+
+.Maven
+[source,xml]
+----
+<dependency>
+    <groupId>com.github.ocraft</groupId>
+    <artifactId>ocraft-s2client-bot</artifactId>
+    <version>0.2.0</version>
+</dependency>
+----
+
+.Examples
+
+https://github.com/ocraft/ocraft-s2client/tree/master/ocraft-s2client-sample[Examples are provided in ocraft-s2client-sample module.]
+
+[source,java]
+----
+package com.github.ocraft.s2client.sample;
+
+import com.github.ocraft.s2client.bot.S2Agent;
+import com.github.ocraft.s2client.bot.S2Coordinator;
+import com.github.ocraft.s2client.protocol.data.Abilities;
+import com.github.ocraft.s2client.protocol.game.BattlenetMap;
+import com.github.ocraft.s2client.protocol.game.Difficulty;
+import com.github.ocraft.s2client.protocol.game.Race;
+import com.github.ocraft.s2client.protocol.unit.Alliance;
+
+public class SampleBot {
+
+    private static class TestBot extends S2Agent {
+
+        @Override
+        public void onGameStart() {
+            System.out.println("Hello world of Starcraft II bots!");
+        }
+
+        @Override
+        public void onStep() {
+            long gameLoop = observation().getGameLoop();
+
+            if (gameLoop % 100 == 0) {
+                observation().getUnits(Alliance.SELF).forEach(unitInPool ->
+                        actions().unitCommand(
+                                unitInPool.unit(),
+                                Abilities.SMART,
+                                observation().getGameInfo().findRandomLocation(), false));
+            }
+        }
+
+    }
+
+    public static void main(String[] args) {
+        TestBot bot = new TestBot();
+        S2Coordinator s2Coordinator = S2Coordinator.setup()
+                .loadSettings(args)
+                .setParticipants(
+                        S2Coordinator.createParticipant(Race.TERRAN, bot),
+                        S2Coordinator.createComputer(Race.ZERG, Difficulty.MEDIUM))
+                .launchStarcraft()
+                .startGame(BattlenetMap.of("Lava Flow"));
+
+        while (s2Coordinator.update()) {
+        }
+
+        s2Coordinator.quit();
+    }
+
+}
+----
+
+
+[[ocraft.api]]
+== Ocraft S2Client Api
+
 Multi-threaded and non-blocking Starcraft 2 API client with fluent and reactive interface.
 
 * Full access to StarCraft 2 API that was made available by Blizzard -> https://github.com/Blizzard/s2client-proto.
@@ -21,12 +111,12 @@ analyze in many different tools.
 <dependency>
     <groupId>com.github.ocraft</groupId>
     <artifactId>ocraft-s2client-api</artifactId>
-    <version>0.1.4</version>
+    <version>0.2.0</version>
 </dependency>
 ----
 
-[[ocraft.tldr]]
-== TL;DR
+[[ocraft.api.tldr]]
+=== TL;DR
 
 .Play the game
 [source,java]
@@ -64,10 +154,10 @@ client.await(); // <6>
 
 <<ocraft.examples, See other examples.>>
 
-https://github.com/ocraft/ocraft-s2client/blob/master/ocraft-s2client-api/src/test/java/com/github/ocraft/s2client/api/OcraftS2ClientExamplesIT.java[See fully working source code.]
+https://github.com/ocraft/ocraft-s2client/blob/master/ocraft-s2client-api/src/test/java/com/github/ocraft/s2client/api/OcraftS2ClientExamplesEndToEndIT.java[See fully working source code.]
 
-[[ocraft.api]]
-== Basic API
+[[ocraft.api.basic]]
+=== Basic API
 
 After successful connection to the game you have to do two main things:
 
@@ -155,14 +245,14 @@ multiPanel(), cargoPanelUnload(), removeFromQueue(), toggleAutocast()
 |Queries    |path(), placeBuilding(), availableAbilities()
 |===
 
-[[ocraft.config]]
-== Configuration
+[[ocraft.api.config]]
+=== Configuration
 
 Configuration is provided using https://github.com/lightbend/config[typesafe config]. That means that you can use
 default options or override them by system properties, your own config files or using programming api.
 
-[[ocraft.config.example]]
-=== Minimal configuration example of command line connection properties
+[[ocraft.api.config.example]]
+==== Minimal configuration example of command line connection properties
 
 .Building client
 [source,java]
@@ -176,8 +266,8 @@ S2Client s2Client = S2Client.starcraft2Client().start();
 java -jar bot.jar -Docraft.client.net.ip="127.0.0.1" -Docraft.client.net.port="5000"
 ----
 
-[[ocraft.monitoring]]
-== Monitoring
+[[ocraft.api.monitoring]]
+=== Monitoring
 
 All logs are provided using slf4j binding. If you want to get full data flow monitoring in JSON format you must do
 two things:
@@ -202,10 +292,10 @@ for further analysis.
 {"ResponseObservation":{"type":"OBSERVATION","status":"IN_REPLAY","nanoTime":2273482598073,"actions":[{"featureLayer":{"unitSelectionPoint":{"selectionInScreenCoord":{"x":33,"y":34}...
 ----
 
-[[ocraft.examples]]
-== Examples
+[[ocraft.api.examples]]
+=== Examples
 
-https://github.com/ocraft/ocraft-s2client/blob/master/ocraft-s2client-api/src/test/java/com/github/ocraft/s2client/api/OcraftS2ClientExamplesIT.java[See fully working source code.]
+https://github.com/ocraft/ocraft-s2client/blob/master/ocraft-s2client-api/src/test/java/com/github/ocraft/s2client/api/OcraftS2ClientExamplesEndToEndIT.java[See fully working source code.]
 
 .Process replay
 [source,java]
@@ -241,34 +331,36 @@ client.await();
 .Play multiplayer game
 [source,java]
 ----
-S2Controller game01 = starcraft2Game().launch();
+PortSetup portSetup = PortSetup.init(5000);
+
+S2Controller game01 = starcraft2Game().withPort(portSetup.fetchPort()).launch();
 S2Client client01 = starcraft2Client().connectTo(game01).traced(true).start();
 
-S2Controller game02 = starcraft2Game().launch();
+S2Controller game02 = starcraft2Game().withPort(portSetup.fetchPort()).launch();
 S2Client client02 = starcraft2Client().connectTo(game02).traced(true).start();
 
 client01.request(createGame()
-       .onBattlenetMap(BattlenetMap.of("Lava Flow"))
-       .withPlayerSetup(participant(), participant()).realTime());
+        .onBattlenetMap(BattlenetMap.of("Lava Flow"))
+        .withPlayerSetup(participant(), participant()).realTime());
 
-MultiplayerOptions multiplayerOptions = multiplayerSetupFor(S2Controller.lastPort(), PLAYER_COUNT);
+MultiplayerOptions multiplayerOptions = multiplayerSetupFor(portSetup.lastPort(), PLAYER_COUNT);
 
 client01.request(joinGame().as(PROTOSS).use(interfaces().raw()).with(multiplayerOptions));
 client02.request(joinGame().as(ZERG).use(interfaces().raw()).with(multiplayerOptions));
 
 client01.responseStream()
-       .takeWhile(Responses.isNot(ResponseType.QUIT_GAME))
-       .subscribe(response -> {
-           response.as(ResponseJoinGame.class).ifPresent(r -> client01.request(leaveGame()));
-           response.as(ResponseLeaveGame.class).ifPresent(r -> client01.request(quitGame()));
-       });
+        .takeWhile(Responses.isNot(ResponseType.QUIT_GAME))
+        .subscribe(response -> {
+            response.as(ResponseJoinGame.class).ifPresent(r -> client01.request(leaveGame()));
+            response.as(ResponseLeaveGame.class).ifPresent(r -> client01.request(quitGame()));
+        });
 
 client02.responseStream()
-       .takeWhile(Responses.isNot(ResponseType.QUIT_GAME))
-       .subscribe(response -> {
-           response.as(ResponseJoinGame.class).ifPresent(r -> client02.request(leaveGame()));
-           response.as(ResponseLeaveGame.class).ifPresent(r -> client02.request(quitGame()));
-       });
+        .takeWhile(Responses.isNot(ResponseType.QUIT_GAME))
+        .subscribe(response -> {
+            response.as(ResponseJoinGame.class).ifPresent(r -> client02.request(leaveGame()));
+            response.as(ResponseLeaveGame.class).ifPresent(r -> client02.request(quitGame()));
+        });
 
 client01.await();
 client02.await();

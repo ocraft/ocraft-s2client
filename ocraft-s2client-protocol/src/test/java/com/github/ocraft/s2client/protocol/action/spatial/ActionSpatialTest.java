@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.action.spatial;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,10 +28,13 @@ package com.github.ocraft.s2client.protocol.action.spatial;
 
 import SC2APIProtocol.Spatial;
 import com.github.ocraft.s2client.protocol.data.Abilities;
+import com.github.ocraft.s2client.protocol.data.Ability;
 import com.github.ocraft.s2client.protocol.spatial.PointI;
 import com.github.ocraft.s2client.protocol.spatial.RectangleI;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
+
+import java.util.function.UnaryOperator;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.Fixtures.*;
@@ -112,9 +115,7 @@ class ActionSpatialTest {
 
     @Test
     void serializesToSc2ApiActionSpatialWithUnitCommand() {
-        Spatial.ActionSpatial sc2ApiActionSpatial = ActionSpatial.of(
-                unitCommand().useAbility(Abilities.ATTACK).build()
-        ).toSc2Api();
+        Spatial.ActionSpatial sc2ApiActionSpatial = actionSpatialWithUnitCommand().toSc2Api();
 
         assertThat(sc2ApiActionSpatial.hasUnitCommand()).as("sc2api action spatial: case of action is unit command")
                 .isTrue();
@@ -124,13 +125,15 @@ class ActionSpatialTest {
                 .as("sc2api action spatial: case of action is unit selection point").isFalse();
         assertThat(sc2ApiActionSpatial.hasUnitSelectionRect())
                 .as("sc2api action spatial: case of action is unit selection rect").isFalse();
+    }
+
+    private ActionSpatial actionSpatialWithUnitCommand() {
+        return ActionSpatial.of(unitCommand().useAbility(Abilities.ATTACK).build());
     }
 
     @Test
     void serializesToSc2ApiActionSpatialWithCameraMove() {
-        Spatial.ActionSpatial sc2ApiActionSpatial = ActionSpatial.of(
-                cameraMove().to(PointI.of(1, 1)).build()
-        ).toSc2Api();
+        Spatial.ActionSpatial sc2ApiActionSpatial = actionSpatialWithCameraMove().toSc2Api();
 
         assertThat(sc2ApiActionSpatial.hasUnitCommand()).as("sc2api action spatial: case of action is unit command")
                 .isFalse();
@@ -142,11 +145,13 @@ class ActionSpatialTest {
                 .as("sc2api action spatial: case of action is unit selection rect").isFalse();
     }
 
+    private ActionSpatial actionSpatialWithCameraMove() {
+        return ActionSpatial.of(cameraMove().to(PointI.of(1, 1)).build());
+    }
+
     @Test
     void serializesToSc2ApiActionSpatialWithUnitSelectionPoint() {
-        Spatial.ActionSpatial sc2ApiActionSpatial = ActionSpatial.of(
-                click().on(PointI.of(1, 2)).withMode(ActionSpatialUnitSelectionPoint.Type.SELECT).build()
-        ).toSc2Api();
+        Spatial.ActionSpatial sc2ApiActionSpatial = actionSpatialWithSelectionPoint().toSc2Api();
 
         assertThat(sc2ApiActionSpatial.hasUnitCommand()).as("sc2api action spatial: case of action is unit command")
                 .isFalse();
@@ -158,11 +163,14 @@ class ActionSpatialTest {
                 .as("sc2api action spatial: case of action is unit selection rect").isFalse();
     }
 
+    private ActionSpatial actionSpatialWithSelectionPoint() {
+        return ActionSpatial.of(
+                click().on(PointI.of(1, 2)).withMode(ActionSpatialUnitSelectionPoint.Type.SELECT).build());
+    }
+
     @Test
     void serializesToSc2ApiActionSpatialWithUnitSelectionRect() {
-        Spatial.ActionSpatial sc2ApiActionSpatial = ActionSpatial.of(
-                select().of(RectangleI.of(PointI.of(0, 0), PointI.of(1, 1))).build()
-        ).toSc2Api();
+        Spatial.ActionSpatial sc2ApiActionSpatial = actionSpatialWithSelectionRect().toSc2Api();
 
         assertThat(sc2ApiActionSpatial.hasUnitCommand()).as("sc2api action spatial: case of action is unit command")
                 .isFalse();
@@ -172,6 +180,27 @@ class ActionSpatialTest {
                 .as("sc2api action spatial: case of action is unit selection point").isFalse();
         assertThat(sc2ApiActionSpatial.hasUnitSelectionRect())
                 .as("sc2api action spatial: case of action is unit selection rect").isTrue();
+    }
+
+    private ActionSpatial actionSpatialWithSelectionRect() {
+        return ActionSpatial.of(select().of(RectangleI.of(PointI.of(0, 0), PointI.of(1, 1))).build());
+    }
+
+    @Test
+    void createsCopyWithGeneralizedAbility() {
+        ActionSpatial actionSpatialWithUnitCommand = actionSpatialWithUnitCommand();
+        ActionSpatial actionSpatialWithCameraMove = actionSpatialWithCameraMove();
+        ActionSpatial actionSpatialWithSelectionPoint = actionSpatialWithSelectionPoint();
+        ActionSpatial actionSpatialWithSelectionRect = actionSpatialWithSelectionRect();
+
+        UnaryOperator<Ability> generalize = ability -> Abilities.ATTACK_REDIRECT;
+
+        assertThat(actionSpatialWithUnitCommand.generalizeAbility(generalize)).isNotEqualTo(actionSpatialWithUnitCommand);
+        assertThat(actionSpatialWithCameraMove.generalizeAbility(generalize)).isSameAs(actionSpatialWithCameraMove);
+        assertThat(actionSpatialWithSelectionPoint.generalizeAbility(generalize))
+                .isSameAs(actionSpatialWithSelectionPoint);
+        assertThat(actionSpatialWithSelectionRect.generalizeAbility(generalize))
+                .isSameAs(actionSpatialWithSelectionRect);
     }
 
     @Test

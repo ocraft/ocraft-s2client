@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.data;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -56,7 +56,7 @@ class AbilityDataTest {
         assertThat(ability.getButtonName()).as("ability: button name").hasValue(ABILITY_BUTTON_NAME);
         assertThat(ability.getFriendlyName()).as("ability: friendly name").hasValue(ABILITY_FRIENDLY_NAME);
         assertThat(ability.getHotkey()).as("ability: hotkey").hasValue(ABILITY_HOTKEY);
-        assertThat(ability.getRemapsToAbilityId()).as("ability: remaps to id").hasValue(ABILITY_REMAPS_TO_ID);
+        assertThat(ability.getRemapsToAbility()).as("ability: remaps to ability").hasValue(ABILITY_REMAPS_TO_ID);
         assertThat(ability.isAvailable()).as("ability: available").isEqualTo(ABILITY_AVAILABLE);
         assertThat(ability.getTarget()).as("ability: target").isNotEmpty();
         assertThat(ability.isAllowMinimap()).as("ability: available").isEqualTo(ABILITY_ALLOW_MINIMAP);

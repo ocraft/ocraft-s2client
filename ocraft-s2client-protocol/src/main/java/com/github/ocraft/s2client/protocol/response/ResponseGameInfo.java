@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.response;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,6 +33,8 @@ import com.github.ocraft.s2client.protocol.game.InterfaceOptions;
 import com.github.ocraft.s2client.protocol.game.LocalMap;
 import com.github.ocraft.s2client.protocol.game.PlayerInfo;
 import com.github.ocraft.s2client.protocol.game.raw.StartRaw;
+import com.github.ocraft.s2client.protocol.spatial.Point2d;
+import com.github.ocraft.s2client.protocol.spatial.PointI;
 
 import java.nio.file.Paths;
 import java.util.HashSet;
@@ -112,6 +114,83 @@ public final class ResponseGameInfo extends Response {
 
     public InterfaceOptions getInterfaceOptions() {
         return interfaceOptions;
+    }
+
+    public PointI convertWorldToMinimap(Point2d world) {
+        return getInterfaceOptions()
+                .getFeatureLayer()
+                .filter(spatialCameraSetup -> getStartRaw().isPresent())
+                .map(spatialCameraSetup -> {
+                    int imageWidth = spatialCameraSetup.getMinimap().getX();
+                    int imageHeight = spatialCameraSetup.getMinimap().getY();
+                    float mapWidth = (float) getStartRaw().get().getMapSize().getX();
+                    float mapHeight = (float) getStartRaw().get().getMapSize().getY();
+
+                    // Pixels always cover a square amount of world space. The scale is determined
+                    // by the largest axis of the map.
+                    float pixelSize = Math.max(mapWidth / imageWidth, mapHeight / imageHeight);
+
+                    // Origin of world space is bottom left. Origin of image space is top left.
+                    // Upper left corner of the map corresponds to the upper left corner of the upper
+                    // left pixel of the feature layer.
+                    float imageOriginX = 0;
+                    float imageOriginY = mapHeight;
+                    float imageRelativeX = world.getX() - imageOriginX;
+                    float imageRelativeY = imageOriginY - world.getY();
+
+                    int imageX = (int) (imageRelativeX / pixelSize);
+                    int imageY = (int) (imageRelativeY / pixelSize);
+
+                    return PointI.of(imageX, imageY);
+                }).orElseThrow(() -> new IllegalStateException("Feature layer interface is required."));
+    }
+
+    public PointI convertWorldToCamera(Point2d cameraWorld, Point2d world) {
+        return getInterfaceOptions()
+                .getFeatureLayer()
+                .filter(spatialCameraSetup -> getStartRaw().isPresent())
+                .filter(spatialCameraSetup -> spatialCameraSetup.getWidth().isPresent())
+                .map(spatialCameraSetup -> {
+                    float cameraSize = spatialCameraSetup.getWidth().get();
+                    int imageWidth = spatialCameraSetup.getMap().getX();
+                    int imageHeight = spatialCameraSetup.getMap().getY();
+
+                    // Pixels always cover a square amount of world space. The scale is determined
+                    // by making the shortest axis of the camera match the requested cameraSize.
+                    float pixelSize = cameraSize / Math.min(imageWidth, imageHeight);
+                    float imageWidthWorld = pixelSize * imageWidth;
+                    float imageHeightWorld = pixelSize * imageHeight;
+
+                    // Origin of world space is bottom left. Origin of image space is top left.
+                    // The feature layer is centered around the camera target position.
+                    float imageOriginX = cameraWorld.getX() - imageWidthWorld / 2.0f;
+                    float imageOriginY = cameraWorld.getY() + imageHeightWorld / 2.0f;
+                    float imageRelativeX = world.getX() - imageOriginX;
+                    float imageRelativeY = imageOriginY - world.getY();
+
+                    int imageX = (int) (imageRelativeX / pixelSize);
+                    int imageY = (int) (imageRelativeY / pixelSize);
+
+                    return PointI.of(imageX, imageY);
+                }).orElseThrow(() -> new IllegalStateException("Feature layer interface is required."));
+    }
+
+    public Point2d findRandomLocation() {
+        return getStartRaw().map(start -> {
+            PointI playableMin = start.getPlayableArea().getP0();
+            PointI playableMax = start.getPlayableArea().getP1();
+            return findRandomLocation(playableMin.toPoint2d(), playableMax.toPoint2d());
+        }).orElseGet(() -> Point2d.of(0.0f, 0.0f));
+    }
+
+    public Point2d findRandomLocation(Point2d min, Point2d max) {
+        return Point2d.of(
+                (float) ((max.getX() - min.getX()) * Math.random() + min.getX()),
+                (float) ((max.getY() - min.getY()) * Math.random() + min.getY()));
+    }
+
+    public PointI findCenterOfMap() {
+        return getStartRaw().map(start -> start.getPlayableArea().getP1().div(2)).orElseGet(() -> PointI.of(0, 0));
     }
 
     @Override

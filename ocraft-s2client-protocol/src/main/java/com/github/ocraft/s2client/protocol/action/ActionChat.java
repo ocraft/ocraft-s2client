@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.action;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -93,6 +93,12 @@ public final class ActionChat implements Sc2ApiSerializable<Sc2Api.ActionChat> {
         @Override
         public ActionChatBuilder toTeam() {
             channel = Channel.TEAM;
+            return this;
+        }
+
+        @Override
+        public ActionChatBuilder to(Channel channel) {
+            this.channel = channel;
             return this;
         }
 

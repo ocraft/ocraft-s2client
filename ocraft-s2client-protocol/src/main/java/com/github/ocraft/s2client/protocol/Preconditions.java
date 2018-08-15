@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -35,12 +35,12 @@ import static java.util.Arrays.stream;
 
 public final class Preconditions {
 
-    public static boolean isSet(Object o) {
-        return o != nothing();
-    }
-
     private Preconditions() {
         throw new AssertionError("private constructor");
+    }
+
+    public static boolean isSet(Object o) {
+        return o != nothing();
     }
 
     public static <T> void require(String name, T argument) {
@@ -59,7 +59,7 @@ public final class Preconditions {
 
     public static void oneOfIsSet(String name, Object... objects) {
         require(name, objects);
-        if (stream(objects).filter(Preconditions::isSet).count() == 0) {
+        if (stream(objects).noneMatch(Preconditions::isSet)) {
             throw required("one of " + name).get();
         }
     }
@@ -67,7 +67,7 @@ public final class Preconditions {
     @SafeVarargs
     public static <T extends Collection> void oneOfIsNotEmpty(String name, T... objects) {
         require(name, objects);
-        if (stream(objects).filter(c -> !c.isEmpty()).count() == 0) {
+        if (stream(objects).allMatch(Collection::isEmpty)) {
             throw required("one of " + name).get();
         }
     }
@@ -96,4 +96,15 @@ public final class Preconditions {
         }
     }
 
+    public static boolean isEmpty(String value) {
+        return value == null || value.isEmpty();
+    }
+
+    public static boolean isEmpty(Collection<?> value) {
+        return value == null || value.isEmpty();
+    }
+
+    public static <T> boolean isEmpty(T[] value) {
+        return value == null || value.length == 0;
+    }
 }

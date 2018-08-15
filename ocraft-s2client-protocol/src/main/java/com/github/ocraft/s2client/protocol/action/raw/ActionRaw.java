@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.action.raw;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,17 +27,20 @@ package com.github.ocraft.s2client.protocol.action.raw;
  */
 
 import SC2APIProtocol.Raw;
+import com.github.ocraft.s2client.protocol.GeneralizableAbility;
 import com.github.ocraft.s2client.protocol.Sc2ApiSerializable;
 import com.github.ocraft.s2client.protocol.Strings;
+import com.github.ocraft.s2client.protocol.data.Ability;
 
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
 
-public final class ActionRaw implements Sc2ApiSerializable<Raw.ActionRaw> {
+public final class ActionRaw implements Sc2ApiSerializable<Raw.ActionRaw>, GeneralizableAbility<ActionRaw> {
 
     private static final long serialVersionUID = 8861695161269129846L;
 
@@ -126,6 +129,23 @@ public final class ActionRaw implements Sc2ApiSerializable<Raw.ActionRaw> {
 
     public Optional<ActionRawToggleAutocast> getToggleAutocast() {
         return Optional.ofNullable(toggleAutocast);
+    }
+
+    @Override
+    public ActionRaw generalizeAbility(UnaryOperator<Ability> generalize) {
+        Optional<ActionRawUnitCommand> commandUnit = getUnitCommand();
+        Optional<ActionRawCameraMove> commandCamera = getCameraMove();
+        Optional<ActionRawToggleAutocast> commandAutocast = getToggleAutocast();
+        if (commandUnit.isPresent()) {
+            return ActionRaw.of(commandUnit.get().generalizeAbility(generalize));
+        }
+        if (commandCamera.isPresent()) {
+            return this;
+        }
+        if (commandAutocast.isPresent()) {
+            return ActionRaw.of(commandAutocast.get().generalizeAbility(generalize));
+        }
+        throw new AssertionError("Invalid state: one of action case must be set.");
     }
 
     @Override

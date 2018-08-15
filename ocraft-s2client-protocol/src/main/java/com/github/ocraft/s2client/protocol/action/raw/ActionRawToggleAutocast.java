@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.action.raw;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,6 +27,7 @@ package com.github.ocraft.s2client.protocol.action.raw;
  */
 
 import SC2APIProtocol.Raw;
+import com.github.ocraft.s2client.protocol.GeneralizableAbility;
 import com.github.ocraft.s2client.protocol.Sc2ApiSerializable;
 import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.data.Abilities;
@@ -39,6 +40,7 @@ import com.github.ocraft.s2client.protocol.unit.Unit;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
@@ -48,7 +50,8 @@ import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toSet;
 
-public final class ActionRawToggleAutocast implements Sc2ApiSerializable<Raw.ActionRawToggleAutocast> {
+public final class ActionRawToggleAutocast
+        implements Sc2ApiSerializable<Raw.ActionRawToggleAutocast>, GeneralizableAbility<ActionRawToggleAutocast> {
 
     private static final long serialVersionUID = 7653142081908980904L;
 
@@ -126,6 +129,16 @@ public final class ActionRawToggleAutocast implements Sc2ApiSerializable<Raw.Act
 
     public Set<Tag> getUnitTags() {
         return new HashSet<>(unitTags);
+    }
+
+    @Override
+    public ActionRawToggleAutocast generalizeAbility(UnaryOperator<Ability> generalize) {
+        Builder builder = new Builder();
+
+        builder.ability = generalize.apply(this.ability);
+        builder.unitTags = this.unitTags;
+
+        return new ActionRawToggleAutocast(builder);
     }
 
     @Override

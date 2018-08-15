@@ -36,7 +36,7 @@ class VertxChannelProviderTest {
     @Test
     void emitsErrorOnDeployFailure() {
         VertxChannelProvider provider = new VertxChannelProvider();
-        provider.start(null, 0);
+        provider.start(null, 0, 0);
 
         TestObserver<byte[]> observer = new TestObserver<>();
         provider.getChannel().errorStream().subscribe(observer);

@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.unit;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,15 +27,14 @@ package com.github.ocraft.s2client.protocol.unit;
  */
 
 import SC2APIProtocol.Raw;
+import com.github.ocraft.s2client.protocol.GeneralizableAbility;
 import com.github.ocraft.s2client.protocol.Strings;
-import com.github.ocraft.s2client.protocol.data.Buff;
-import com.github.ocraft.s2client.protocol.data.Buffs;
-import com.github.ocraft.s2client.protocol.data.UnitType;
-import com.github.ocraft.s2client.protocol.data.Units;
+import com.github.ocraft.s2client.protocol.data.*;
 import com.github.ocraft.s2client.protocol.spatial.Point;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.function.UnaryOperator;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
@@ -44,7 +43,7 @@ import static com.github.ocraft.s2client.protocol.Preconditions.require;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
-public final class Unit implements Serializable {
+public final class Unit implements Serializable, GeneralizableAbility<Unit> {
 
     private static final long serialVersionUID = 7550391852510629664L;
 
@@ -178,6 +177,45 @@ public final class Unit implements Serializable {
 
         engagedTargetTag = tryGet(Raw.Unit::getEngagedTargetTag, Raw.Unit::hasEngagedTargetTag)
                 .apply(sc2ApiUnit).map(Tag::from).orElse(nothing());
+    }
+
+    private Unit(Unit original, UnaryOperator<Ability> generalize) {
+        this.displayType = original.displayType;
+        this.alliance = original.alliance;
+        this.tag = original.tag;
+        this.type = original.type;
+        this.owner = original.owner;
+        this.position = original.position;
+        this.facing = original.facing;
+        this.radius = original.radius;
+        this.buildProgress = original.buildProgress;
+        this.cloakState = original.cloakState;
+        this.detectRange = original.detectRange;
+        this.radarRange = original.radarRange;
+        this.selected = original.selected;
+        this.onScreen = original.onScreen;
+        this.blip = original.blip;
+        this.powered = original.powered;
+        this.health = original.health;
+        this.healthMax = original.healthMax;
+        this.shield = original.shield;
+        this.shieldMax = original.shieldMax;
+        this.energy = original.energy;
+        this.energyMax = original.energyMax;
+        this.mineralContents = original.mineralContents;
+        this.vespeneContents = original.vespeneContents;
+        this.flying = original.flying;
+        this.burrowed = original.burrowed;
+        this.orders = original.orders.stream().map(order -> order.generalizeAbility(generalize)).collect(toList());
+        this.addOnTag = original.addOnTag;
+        this.passengers = original.passengers;
+        this.cargoSpaceTaken = original.cargoSpaceTaken;
+        this.cargoSpaceMax = original.cargoSpaceMax;
+        this.buffs = original.buffs;
+        this.assignedHarvesters = original.assignedHarvesters;
+        this.idealHarvesters = original.idealHarvesters;
+        this.weaponCooldown = original.weaponCooldown;
+        this.engagedTargetTag = original.engagedTargetTag;
     }
 
     public static Unit from(Raw.Unit sc2ApiUnit) {
@@ -330,6 +368,11 @@ public final class Unit implements Serializable {
     }
 
     @Override
+    public Unit generalizeAbility(UnaryOperator<Ability> generalize) {
+        return new Unit(this, generalize);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -433,4 +476,5 @@ public final class Unit implements Serializable {
     public String toString() {
         return Strings.toJson(this);
     }
+
 }

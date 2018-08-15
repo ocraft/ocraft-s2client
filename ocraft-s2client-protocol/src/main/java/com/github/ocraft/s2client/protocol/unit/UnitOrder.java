@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.unit;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,6 +27,7 @@ package com.github.ocraft.s2client.protocol.unit;
  */
 
 import SC2APIProtocol.Raw;
+import com.github.ocraft.s2client.protocol.GeneralizableAbility;
 import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.data.Abilities;
 import com.github.ocraft.s2client.protocol.data.Ability;
@@ -34,13 +35,14 @@ import com.github.ocraft.s2client.protocol.spatial.Point;
 
 import java.io.Serializable;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
 
-public final class UnitOrder implements Serializable {
+public final class UnitOrder implements Serializable, GeneralizableAbility<UnitOrder> {
 
     private static final long serialVersionUID = -3274022682192775161L;
 
@@ -64,6 +66,13 @@ public final class UnitOrder implements Serializable {
                 .apply(sc2ApiUnitOrder).orElse(nothing());
     }
 
+    public UnitOrder(Ability ability, Tag targetedUnitTag, Point targetedWorldSpacePosition, Float progress) {
+        this.ability = ability;
+        this.targetedUnitTag = targetedUnitTag;
+        this.targetedWorldSpacePosition = targetedWorldSpacePosition;
+        this.progress = progress;
+    }
+
     public static UnitOrder from(Raw.UnitOrder sc2ApiUnitOrder) {
         require("sc2api unit order", sc2ApiUnitOrder);
         return new UnitOrder(sc2ApiUnitOrder);
@@ -83,6 +92,11 @@ public final class UnitOrder implements Serializable {
 
     public Optional<Float> getProgress() {
         return Optional.ofNullable(progress);
+    }
+
+    @Override
+    public UnitOrder generalizeAbility(UnaryOperator<Ability> generalize) {
+        return new UnitOrder(generalize.apply(getAbility()), targetedUnitTag, targetedWorldSpacePosition, progress);
     }
 
     @Override
@@ -115,4 +129,5 @@ public final class UnitOrder implements Serializable {
     public String toString() {
         return Strings.toJson(this);
     }
+
 }

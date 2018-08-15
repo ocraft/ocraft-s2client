@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.api;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,6 +26,7 @@ package com.github.ocraft.s2client.api;
  * #L%
  */
 
+import com.github.ocraft.s2client.api.controller.PortSetup;
 import com.github.ocraft.s2client.api.controller.S2Controller;
 import com.github.ocraft.s2client.protocol.action.Actions;
 import com.github.ocraft.s2client.protocol.debug.DebugGameState;
@@ -35,6 +36,7 @@ import com.github.ocraft.s2client.protocol.request.Requests;
 import com.github.ocraft.s2client.protocol.response.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static com.github.ocraft.s2client.api.Fixtures.*;
@@ -72,15 +74,18 @@ import static com.github.ocraft.s2client.protocol.query.Queries.*;
 import static com.github.ocraft.s2client.protocol.request.RequestData.Type.*;
 import static com.github.ocraft.s2client.protocol.request.Requests.*;
 
+@Tag("endtoend")
 class OcraftS2ClientEndToEndIT {
 
     private S2Client client;
     private S2Controller game;
     private TestS2ClientSubscriber subscriber;
+    private PortSetup portSetup;
 
     @BeforeEach
     void prepareTest() {
-        game = starcraft2Game().launch();
+        portSetup = PortSetup.init(5000);
+        game = starcraft2Game().withPort(portSetup.fetchPort()).launch();
         client = starcraft2Client().connectTo(game).traced(true).start();
         subscriber = new TestS2ClientSubscriber();
         client.responseStream().subscribe(subscriber);
@@ -231,15 +236,15 @@ class OcraftS2ClientEndToEndIT {
         client.request(saveMap().to(LocalMap.of(TMP_PATH)));
         subscriber.hasReceivedResponseOfType(ResponseSaveMap.class);
 
-        S2Controller game02 = starcraft2Game().launch();
-        S2Client client02 = starcraft2Client().connectTo(game02).start();
+        S2Controller game02 = starcraft2Game().withPort(portSetup.fetchPort()).launch();
+        S2Client client02 = starcraft2Client().connectTo(game02).traced(true).start();
 
         client.request(createGame()
                 .onLocalMap(LocalMap.of(MAP_PATH))
                 .withPlayerSetup(participant(), participant()).realTime());
         subscriber.hasReceivedResponseOfType(ResponseCreateGame.class);
 
-        MultiplayerOptions multiplayerOptions = multiplayerSetupFor(S2Controller.lastPort(), PLAYER_COUNT);
+        MultiplayerOptions multiplayerOptions = multiplayerSetupFor(portSetup.lastPort(), PLAYER_COUNT);
 
         client.request(joinGame().as(PROTOSS).use(interfaces().raw()).with(multiplayerOptions));
         client02.request(joinGame().as(ZERG).use(interfaces().raw()).with(multiplayerOptions));

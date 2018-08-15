@@ -40,4 +40,8 @@ public interface Channel {
     Observable<byte[]> inputStream();
 
     Observable<byte[]> errorStream();
+
+    boolean ready();
+
+    void onConnectionLost(Runnable onConnectionLost);
 }

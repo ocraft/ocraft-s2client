@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.observation;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,17 +27,19 @@ package com.github.ocraft.s2client.protocol.observation;
  */
 
 import SC2APIProtocol.Common;
+import com.github.ocraft.s2client.protocol.GeneralizableAbility;
 import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.data.Abilities;
 import com.github.ocraft.s2client.protocol.data.Ability;
 
 import java.io.Serializable;
+import java.util.function.UnaryOperator;
 
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
 
-public final class AvailableAbility implements Serializable {
+public final class AvailableAbility implements Serializable, GeneralizableAbility<AvailableAbility> {
 
     private static final long serialVersionUID = 4523885840022128043L;
 
@@ -56,6 +58,11 @@ public final class AvailableAbility implements Serializable {
         ).apply(sc2ApiAvailableAbility).orElse(DEFAULT_REQUIRES_POINT);
     }
 
+    private AvailableAbility(Ability ability, boolean requiresPoint) {
+        this.ability = ability;
+        this.requiresPoint = requiresPoint;
+    }
+
     public static AvailableAbility from(Common.AvailableAbility sc2ApiAvailableAbility) {
         require("sc2api available ability", sc2ApiAvailableAbility);
         return new AvailableAbility(sc2ApiAvailableAbility);
@@ -67,6 +74,11 @@ public final class AvailableAbility implements Serializable {
 
     public boolean isRequiresPoint() {
         return requiresPoint;
+    }
+
+    @Override
+    public AvailableAbility generalizeAbility(UnaryOperator<Ability> generalize) {
+        return new AvailableAbility(generalize.apply(ability), requiresPoint);
     }
 
     @Override
@@ -90,4 +102,5 @@ public final class AvailableAbility implements Serializable {
     public String toString() {
         return Strings.toJson(this);
     }
+
 }

@@ -39,7 +39,7 @@
         <Logger name="com.github.ocraft.s2client.api.log.DataFlowTracer" level="trace" additivity="false">
             <AppenderRef ref="Tracer"/>
         </Logger>
-        <Root level="debug">
+        <Root level="info">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>

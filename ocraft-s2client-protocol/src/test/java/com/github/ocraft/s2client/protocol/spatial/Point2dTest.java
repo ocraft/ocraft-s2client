@@ -97,6 +97,19 @@ class Point2dTest {
     }
 
     @Test
+    void performsBasicMathOperations() {
+        Point2d p0 = Point2d.of(2, 4);
+        Point2d p1 = Point2d.of(5, 8);
+
+        assertThat(p0.add(p1)).isEqualTo(Point2d.of(7, 12));
+        assertThat(p1.sub(p0)).isEqualTo(Point2d.of(3, 4));
+        assertThat(p0.div(2)).isEqualTo(Point2d.of(1, 2));
+        assertThat(p1.mul(2)).isEqualTo(Point2d.of(10, 16));
+        assertThat(p0.dot(p1)).isEqualTo(42);
+        assertThat(p0.distance(p1)).isEqualTo(5.0);
+    }
+
+    @Test
     void fulfillsEqualsContract() {
         EqualsVerifier.forClass(Point2d.class).verify();
     }

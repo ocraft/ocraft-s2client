@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.api.vertx;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.Arrays.asList;
 
@@ -44,7 +45,7 @@ class OnConnect extends DefaultObserver<WebSocket> implements ConnectionHandler 
     private final Set<ConnectionHandler> connectionHandlers = new HashSet<>();
     private final Runnable connect;
     private final VertxChannel channel;
-    private boolean done;
+    private AtomicBoolean done = new AtomicBoolean(false);
 
     OnConnect(VertxChannel channel, Runnable connect, ConnectionHandler... onConnect) {
         this.connect = connect;
@@ -61,7 +62,7 @@ class OnConnect extends DefaultObserver<WebSocket> implements ConnectionHandler 
 
     @Override
     public void onError(Throwable e) {
-        log.debug("OnConnect.onError", e);
+        log.error("OnConnect.onError", e);
         channel.error(e);
     }
 
@@ -77,13 +78,15 @@ class OnConnect extends DefaultObserver<WebSocket> implements ConnectionHandler 
     }
 
     private void onConnectionVerified(WebSocket webSocket) {
+        channel.connected();
         connectionHandlers.forEach(handler -> handler.onConnected(webSocket));
     }
 
     @Override
     public void onConnectionLost() {
-        if (!done) {
+        if (!done.get()) {
             log.info("Connection lost.");
+            channel.disconnected();
             connectionHandlers.forEach(ConnectionHandler::onConnectionLost);
             cancel();
             connect.run();
@@ -91,6 +94,7 @@ class OnConnect extends DefaultObserver<WebSocket> implements ConnectionHandler 
     }
 
     void close() {
-        this.done = true;
+        done.compareAndSet(false, true);
+        channel.disconnected();
     }
 }

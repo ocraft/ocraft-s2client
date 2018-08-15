@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.spatial;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -83,6 +83,37 @@ public final class PointI implements Sc2ApiSerializable<Common.PointI> {
 
     public int getY() {
         return y;
+    }
+
+    public PointI add(PointI pointToAdd) {
+        return new PointI(x + pointToAdd.getX(), y + pointToAdd.getY());
+    }
+
+    public PointI sub(PointI pointToSubtract) {
+        return new PointI(x - pointToSubtract.getX(), y - pointToSubtract.getY());
+    }
+
+    public PointI div(int divBy) {
+        return new PointI(x / divBy, y / divBy);
+    }
+
+    public PointI mul(int mulBy) {
+        return new PointI(x * mulBy, y * mulBy);
+    }
+
+    public int dot(PointI b) {
+        return x * b.getX() + y * b.getY();
+    }
+
+    public double distance(PointI b) {
+        int x1 = x - b.getX();
+        int y1 = y - b.getY();
+
+        return Math.sqrt((double) x1 * x1 + y1 * y1);
+    }
+
+    public Point2d toPoint2d() {
+        return Point2d.of(x, y);
     }
 
     @Override

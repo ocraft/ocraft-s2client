@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.action.raw;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,10 +28,13 @@ package com.github.ocraft.s2client.protocol.action.raw;
 
 import SC2APIProtocol.Raw;
 import com.github.ocraft.s2client.protocol.data.Abilities;
+import com.github.ocraft.s2client.protocol.data.Ability;
 import com.github.ocraft.s2client.protocol.spatial.Point;
 import com.github.ocraft.s2client.protocol.unit.Tag;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
+
+import java.util.function.UnaryOperator;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.Fixtures.*;
@@ -95,31 +98,55 @@ class ActionRawTest {
 
     @Test
     void serializesToSc2ApiActionRawWithToggleAutocast() {
-        Raw.ActionRaw sc2ApiActionRaw = ActionRaw.of(
-                toggleAutocast().ofAbility(Abilities.ATTACK).forUnits(Tag.of(UNIT_TAG)).build()).toSc2Api();
+        Raw.ActionRaw sc2ApiActionRaw = actionRawWithToggleAutocast().toSc2Api();
         assertThat(sc2ApiActionRaw.hasToggleAutocast()).as("sc2api action raw: case of action is toggle autocast")
                 .isTrue();
         assertThat(sc2ApiActionRaw.hasCameraMove()).as("sc2api action raw: case of action is camera move").isFalse();
         assertThat(sc2ApiActionRaw.hasUnitCommand()).as("sc2api action raw: case of action is unit command").isFalse();
     }
 
+    private ActionRaw actionRawWithToggleAutocast() {
+        return ActionRaw.of(
+                toggleAutocast().ofAbility(Abilities.ATTACK).forUnits(Tag.of(UNIT_TAG)).build());
+    }
+
     @Test
     void serializesToSc2ApiActionRawWithUnitCommand() {
-        Raw.ActionRaw sc2ApiActionRaw = ActionRaw.of(
-                unitCommand().forUnits(Tag.of(UNIT_TAG)).useAbility(Abilities.ATTACK).build()).toSc2Api();
+        Raw.ActionRaw sc2ApiActionRaw = actionRawWithUnitCommand().toSc2Api();
         assertThat(sc2ApiActionRaw.hasToggleAutocast()).as("sc2api action raw: case of action is toggle autocast")
                 .isFalse();
         assertThat(sc2ApiActionRaw.hasCameraMove()).as("sc2api action raw: case of action is camera move").isFalse();
         assertThat(sc2ApiActionRaw.hasUnitCommand()).as("sc2api action raw: case of action is unit command").isTrue();
     }
 
+    private ActionRaw actionRawWithUnitCommand() {
+        return ActionRaw.of(
+                unitCommand().forUnits(Tag.of(UNIT_TAG)).useAbility(Abilities.ATTACK).build());
+    }
+
     @Test
     void serializesToSc2ApiActionRawWithCameraMove() {
-        Raw.ActionRaw sc2ApiActionRaw = ActionRaw.of(cameraMove().to(Point.of(1, 1, 1)).build()).toSc2Api();
+        Raw.ActionRaw sc2ApiActionRaw = actionRawWithCameraMove().toSc2Api();
         assertThat(sc2ApiActionRaw.hasToggleAutocast()).as("sc2api action raw: case of action is toggle autocast")
                 .isFalse();
         assertThat(sc2ApiActionRaw.hasCameraMove()).as("sc2api action raw: case of action is camera move").isTrue();
         assertThat(sc2ApiActionRaw.hasUnitCommand()).as("sc2api action raw: case of action is unit command").isFalse();
+    }
+
+    private ActionRaw actionRawWithCameraMove() {
+        return ActionRaw.of(cameraMove().to(Point.of(1, 1, 1)).build());
+    }
+
+    @Test
+    void createsCopyWithGeneralizedAbility() {
+        ActionRaw actionRawWithCameraMove = actionRawWithCameraMove();
+        ActionRaw actionRawWithToggleAutocast = actionRawWithToggleAutocast();
+        ActionRaw actionRawWithUnitCommand = actionRawWithUnitCommand();
+
+        UnaryOperator<Ability> generalize = ability -> Abilities.ATTACK_REDIRECT;
+        assertThat(actionRawWithCameraMove.generalizeAbility(generalize)).isSameAs(actionRawWithCameraMove);
+        assertThat(actionRawWithToggleAutocast.generalizeAbility(generalize)).isNotEqualTo(actionRawWithToggleAutocast);
+        assertThat(actionRawWithUnitCommand.generalizeAbility(generalize)).isNotEqualTo(actionRawWithUnitCommand);
     }
 
     @Test

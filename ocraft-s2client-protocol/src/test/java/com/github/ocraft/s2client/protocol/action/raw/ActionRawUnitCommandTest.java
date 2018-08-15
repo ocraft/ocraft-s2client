@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.action.raw;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -172,6 +172,29 @@ class ActionRawUnitCommandTest {
         assertThat(sc2ApiActionRawUnitCommand.getTargetUnitTag()).as("case of target is unit").isEqualTo(UNIT_TAG);
         assertThat(sc2ApiActionRawUnitCommand.hasTargetWorldSpacePos()).as("case of target is world position")
                 .isFalse();
+    }
+
+    @Test
+    void createsCopyWithGeneralizedAbility() {
+        ActionRawUnitCommand specific = unitCommand()
+                .forUnits(Tag.from(UNIT_TAG))
+                .useAbility(Abilities.EFFECT_PSI_STORM)
+                .target(Tag.from(UNIT_ENGAGED_TARGET_TAG))
+                .queued()
+                .build();
+        Abilities generalizedAbility = Abilities.EFFECT_CHRONO_BOOST;
+        ActionRawUnitCommand generalized = specific.generalizeAbility(ability -> generalizedAbility);
+
+        assertThatGeneralizationIsEqualToSpecific(specific, generalized);
+        assertThat(generalized.getAbility()).as("generalized ability").isEqualTo(generalizedAbility);
+    }
+
+    private void assertThatGeneralizationIsEqualToSpecific(
+            ActionRawUnitCommand specific, ActionRawUnitCommand generalized) {
+        assertThat(generalized.getTargetedUnitTag()).isEqualTo(specific.getTargetedUnitTag());
+        assertThat(generalized.getUnitTags()).isEqualTo(specific.getUnitTags());
+        assertThat(generalized.getTargetedWorldSpacePosition()).isEqualTo(specific.getTargetedWorldSpacePosition());
+        assertThat(generalized.isQueued()).isEqualTo(specific.isQueued());
     }
 
     @Test

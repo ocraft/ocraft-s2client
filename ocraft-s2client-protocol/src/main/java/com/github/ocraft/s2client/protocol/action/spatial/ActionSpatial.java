@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.action.spatial;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,17 +27,21 @@ package com.github.ocraft.s2client.protocol.action.spatial;
  */
 
 import SC2APIProtocol.Spatial;
+import com.github.ocraft.s2client.protocol.GeneralizableAbility;
 import com.github.ocraft.s2client.protocol.Sc2ApiSerializable;
 import com.github.ocraft.s2client.protocol.Strings;
+import com.github.ocraft.s2client.protocol.data.Ability;
 
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
 
-public final class ActionSpatial implements Sc2ApiSerializable<Spatial.ActionSpatial> {
+public final class ActionSpatial
+        implements Sc2ApiSerializable<Spatial.ActionSpatial>, GeneralizableAbility<ActionSpatial> {
 
     private static final long serialVersionUID = -1843366180196100686L;
 
@@ -153,6 +157,13 @@ public final class ActionSpatial implements Sc2ApiSerializable<Spatial.ActionSpa
 
     public Optional<ActionSpatialUnitSelectionRect> getUnitSelectionRect() {
         return Optional.ofNullable(unitSelectionRect);
+    }
+
+    @Override
+    public ActionSpatial generalizeAbility(UnaryOperator<Ability> generalize) {
+        return getUnitCommand()
+                .map(command -> ActionSpatial.of(command.generalizeAbility(generalize)))
+                .orElse(this);
     }
 
     @Override

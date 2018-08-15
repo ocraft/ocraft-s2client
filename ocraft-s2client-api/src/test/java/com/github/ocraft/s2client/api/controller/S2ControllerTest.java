@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.api.controller;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,9 +26,9 @@ package com.github.ocraft.s2client.api.controller;
  * #L%
  */
 
-import com.github.ocraft.s2client.api.OcraftConfig;
-import com.github.ocraft.test.TemporaryFolder;
-import com.github.ocraft.test.TemporaryFolderExtension;
+import com.github.ocraft.s2client.api.OcraftApiConfig;
+import com.github.ocraft.s2client.test.TemporaryFolder;
+import com.github.ocraft.s2client.test.TemporaryFolderExtension;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
@@ -43,7 +43,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 import static com.github.ocraft.s2client.api.Fixtures.*;
-import static com.github.ocraft.s2client.api.OcraftConfig.*;
+import static com.github.ocraft.s2client.api.OcraftApiConfig.*;
 import static com.github.ocraft.s2client.api.controller.S2Controller.starcraft2Game;
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static java.util.Collections.singletonList;
@@ -79,8 +79,8 @@ class S2ControllerTest {
     }
 
     private void assertThatGameConfigurationIsCorrect(Config cfg) {
-        assertThat(cfg.getConfig(OcraftConfig.GAME)).as("game cfg")
-                .isEqualTo(expectedConfiguration().getConfig(OcraftConfig.GAME));
+        assertThat(cfg.getConfig(OcraftApiConfig.GAME)).as("game cfg")
+                .isEqualTo(expectedConfiguration().getConfig(OcraftApiConfig.GAME));
     }
 
     private Config expectedConfiguration() {
@@ -153,7 +153,7 @@ class S2ControllerTest {
         asMac();
         initStarcraft2ExecutableOnMacOs(OSX_USER_DIR);
 
-        assertThat(starcraft2Game().getGameConfiguration().getConfig(OcraftConfig.GAME)).as("MacOs game cfg")
+        assertThat(starcraft2Game().getGameConfiguration().getConfig(OcraftApiConfig.GAME)).as("MacOs game cfg")
                 .isEqualTo(expectedMacOsConfiguration());
     }
 
@@ -182,14 +182,15 @@ class S2ControllerTest {
         return ConfigFactory.parseMap(Map.of(
                 GAME_EXE_FILE, exeFile.toString(),
                 GAME_EXE_PATH, gameRoot().resolve(Paths.get("Versions", CFG_EXE_BUILD_OLD).resolve(exeFile)).toString()
-        )).withFallback(expectedConfiguration()).getConfig(OcraftConfig.GAME);
+        )).withFallback(expectedConfiguration()).getConfig(OcraftApiConfig.GAME);
     }
 
     @Test
     void throwsExceptionWhenExecuteInfoIsNotFound() {
-        assertThatExceptionOfType(IllegalArgumentException.class)
+        assertThatExceptionOfType(StarCraft2ControllerException.class)
                 .isThrownBy(() -> starcraft2Game().getGameConfiguration())
-                .withMessage("ExecuteInfo.txt is required");
+                .withMessage("Invalid argument was provided")
+                .withCause(new IllegalArgumentException("ExecuteInfo.txt is required"));
     }
 
     @Test
@@ -197,9 +198,20 @@ class S2ControllerTest {
         asWindows();
         userHome.newFile(WIN_USER_DIR.resolve("Starcraft II"), EXECUTE_INFO_TXT);
 
-        assertThatExceptionOfType(IllegalArgumentException.class)
+        assertThatExceptionOfType(StarCraft2ControllerException.class)
                 .isThrownBy(() -> starcraft2Game().getGameConfiguration())
-                .withMessage("executable path is required");
+                .withMessage("Invalid argument was provided")
+                .withCause(new IllegalArgumentException("executable path is required"));
+    }
+
+    @Test
+    void throwsExceptionWhenExecutablePathIsTooShort() {
+        asWindows();
+        userHome.newFile(WIN_USER_DIR.resolve("Starcraft II"), EXECUTE_INFO_TXT);
+
+        assertThatExceptionOfType(StarCraft2ControllerException.class)
+                .isThrownBy(() -> starcraft2Game().withExecutablePath(Paths.get("sc2")).getGameConfiguration())
+                .withMessage("Invalid path to the executable file: sc2");
     }
 
     @Test
@@ -213,23 +225,34 @@ class S2ControllerTest {
                 .withWindowSize(CFG_WINDOW_W_CUSTOM, CFG_WINDOW_H_CUSTOM)
                 .withWindowPosition(CFG_WINDOW_X_CUSTOM, CFG_WINDOW_Y_CUSTOM)
                 .withDataVersion(CFG_EXE_DATA_VER_CUSTOM)
+                .verbose(Boolean.valueOf(CFG_VERBOSE_CUSTOM))
+                .withEglPath(CFG_EGL_PATH_CUSTOM)
+                .withOsMesaPath(CFG_OS_MESA_PATH_CUSTOM)
+                .withTmpDir(CFG_TMP_DIR_PATH_CUSTOM)
+                .withDataDir(CFG_DATA_DIR_PATH_CUSTOM)
                 .getGameConfiguration();
 
-        assertThat(cfg.getConfig(OcraftConfig.GAME)).as("custom game cfg").isEqualTo(expectedCustomConfiguration());
+        assertThat(cfg.getConfig(OcraftApiConfig.GAME)).as("custom game cfg").isEqualTo(expectedCustomConfiguration());
     }
 
     private Config expectedCustomConfiguration() {
-        return ConfigFactory.parseMap(Map.of(
-                GAME_NET_IP, CFG_NET_IP_CUSTOM,
-                GAME_NET_PORT, CFG_NET_PORT_CUSTOM,
-                GAME_WINDOW_W, CFG_WINDOW_W_CUSTOM,
-                GAME_WINDOW_H, CFG_WINDOW_H_CUSTOM,
-                GAME_WINDOW_X, CFG_WINDOW_X_CUSTOM,
-                GAME_WINDOW_Y, CFG_WINDOW_Y_CUSTOM,
-                GAME_EXE_DATA_VER, CFG_EXE_DATA_VER_CUSTOM
-        )).withFallback(expectedConfiguration()).getConfig(OcraftConfig.GAME);
+        return ConfigFactory.parseMap(Map.ofEntries(
+                entry(GAME_NET_IP, CFG_NET_IP_CUSTOM),
+                entry(GAME_NET_PORT, CFG_NET_PORT_CUSTOM),
+                entry(GAME_WINDOW_W, CFG_WINDOW_W_CUSTOM),
+                entry(GAME_WINDOW_H, CFG_WINDOW_H_CUSTOM),
+                entry(GAME_WINDOW_X, CFG_WINDOW_X_CUSTOM),
+                entry(GAME_WINDOW_Y, CFG_WINDOW_Y_CUSTOM),
+                entry(GAME_EXE_DATA_VER, CFG_EXE_DATA_VER_CUSTOM),
+                entry(GAME_CLI_VERBOSE, CFG_VERBOSE_CUSTOM),
+                entry(GAME_CLI_TEMP_DIR, CFG_TMP_DIR_PATH_CUSTOM.toString()),
+                entry(GAME_CLI_DATA_DIR, CFG_DATA_DIR_PATH_CUSTOM.toString()),
+                entry(GAME_CLI_OS_MESA_PATH, CFG_OS_MESA_PATH_CUSTOM.toString()),
+                entry(GAME_CLI_EGL_PATH, CFG_EGL_PATH_CUSTOM.toString())
+        )).withFallback(expectedConfiguration()).getConfig(OcraftApiConfig.GAME);
     }
 
+    // TODO p.picheta verify if it's really needed?
     @Test
     void managesConfigurationOfManyGameInstances() throws IOException {
         asWindows();
@@ -241,11 +264,11 @@ class S2ControllerTest {
         Config instance04 = starcraft2Game().getGameConfiguration();
         Config instance05 = starcraft2Game().getGameConfiguration();
 
-        assertThat(instance01.getInt(GAME_NET_PORT)).as("game instance 01 port").isEqualTo(CFG_NET_PORT);
-        assertThat(instance02.getInt(GAME_NET_PORT)).as("game instance 02 port").isEqualTo(CFG_NET_PORT + 1);
-        assertThat(instance03.getInt(GAME_NET_PORT)).as("game instance 03 port").isEqualTo(CFG_NET_PORT + 2);
-        assertThat(instance04.getInt(GAME_NET_PORT)).as("game instance 04 port").isEqualTo(CFG_NET_PORT + 3);
-        assertThat(instance05.getInt(GAME_NET_PORT)).as("game instance 05 port").isEqualTo(CFG_NET_PORT + 4);
+//        assertThat(instance01.getInt(GAME_NET_PORT)).as("game instance 01 port").isEqualTo(CFG_NET_PORT);
+//        assertThat(instance02.getInt(GAME_NET_PORT)).as("game instance 02 port").isEqualTo(CFG_NET_PORT + 1);
+//        assertThat(instance03.getInt(GAME_NET_PORT)).as("game instance 03 port").isEqualTo(CFG_NET_PORT + 2);
+//        assertThat(instance04.getInt(GAME_NET_PORT)).as("game instance 04 port").isEqualTo(CFG_NET_PORT + 3);
+//        assertThat(instance05.getInt(GAME_NET_PORT)).as("game instance 05 port").isEqualTo(CFG_NET_PORT + 4);
 
         assertThat(instance01.getInt(GAME_WINDOW_X)).as("game instance 01 window.x").isEqualTo(CFG_WINDOW_X);
         assertThat(instance01.getInt(GAME_WINDOW_Y)).as("game instance 01 window.y").isEqualTo(CFG_WINDOW_Y);

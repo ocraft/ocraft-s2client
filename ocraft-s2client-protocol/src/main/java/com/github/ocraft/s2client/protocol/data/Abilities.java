@@ -530,6 +530,11 @@ public enum Abilities implements Ability {
         }
 
         @Override
+        public boolean isKnown() {
+            return false;
+        }
+
+        @Override
         public String toString() {
             return "ABILITY_" + abilityId;
         }

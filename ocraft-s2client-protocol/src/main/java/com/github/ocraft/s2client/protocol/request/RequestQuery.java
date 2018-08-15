@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.request;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,6 +34,7 @@ import com.github.ocraft.s2client.protocol.query.QueryAvailableAbilities;
 import com.github.ocraft.s2client.protocol.query.QueryBuildingPlacement;
 import com.github.ocraft.s2client.protocol.query.QueryPathing;
 import com.github.ocraft.s2client.protocol.query.QueryPathingBuilder;
+import com.github.ocraft.s2client.protocol.response.ResponseType;
 import com.github.ocraft.s2client.protocol.syntax.query.QueryAvailableAbilitiesBuilder;
 import com.github.ocraft.s2client.protocol.syntax.query.QueryBuildingPlacementBuilder;
 import com.github.ocraft.s2client.protocol.syntax.request.RequestQuerySyntax;
@@ -102,11 +103,17 @@ public final class RequestQuery extends Request {
             return this;
         }
 
+        public BuilderSyntax<RequestQuery> ignoreResourceRequirements(boolean value) {
+            this.ignoreResourceRequirements = value;
+            return this;
+        }
+
         @Override
         public RequestQuery build() {
             oneOfIsNotEmpty("query", pathings, abilities, placements);
             return new RequestQuery(this);
         }
+
     }
 
     private RequestQuery(Builder builder) {
@@ -132,6 +139,11 @@ public final class RequestQuery extends Request {
                         .setIgnoreResourceRequirements(ignoreResourceRequirements)
                         .build())
                 .build();
+    }
+
+    @Override
+    public ResponseType responseType() {
+        return ResponseType.QUERY;
     }
 
     public List<QueryPathing> getPathings() {

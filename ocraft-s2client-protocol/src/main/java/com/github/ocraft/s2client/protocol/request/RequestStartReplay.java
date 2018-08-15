@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.request;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,6 +31,7 @@ import com.github.ocraft.s2client.protocol.BuilderSyntax;
 import com.github.ocraft.s2client.protocol.Immutables;
 import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.game.InterfaceOptions;
+import com.github.ocraft.s2client.protocol.response.ResponseType;
 import com.github.ocraft.s2client.protocol.syntax.request.*;
 import com.google.protobuf.ByteString;
 
@@ -127,6 +128,12 @@ public final class RequestStartReplay extends Request {
         }
 
         @Override
+        public BuilderSyntax<RequestStartReplay> realtime(boolean value) {
+            this.realtime = value;
+            return this;
+        }
+
+        @Override
         public RequestStartReplay build() {
             oneOfIsSet("replay case", replayDataInBytes, replayPath);
             require("interface option", interfaceOptions);
@@ -154,6 +161,11 @@ public final class RequestStartReplay extends Request {
         return Sc2Api.Request.newBuilder()
                 .setStartReplay(aSc2ApiRequestStartReplay.build())
                 .build();
+    }
+
+    @Override
+    public ResponseType responseType() {
+        return ResponseType.START_REPLAY;
     }
 
     public Optional<Path> getReplayPath() {

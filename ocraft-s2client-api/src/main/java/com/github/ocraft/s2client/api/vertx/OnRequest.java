@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.api.vertx;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,7 +26,7 @@ package com.github.ocraft.s2client.api.vertx;
  * #L%
  */
 
-import com.github.ocraft.s2client.api.OcraftConfig;
+import com.github.ocraft.s2client.api.OcraftApiConfig;
 import io.reactivex.observers.DefaultObserver;
 import io.vertx.reactivex.core.http.WebSocket;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.ocraft.s2client.api.OcraftConfig.cfg;
+import static com.github.ocraft.s2client.api.OcraftApiConfig.cfg;
 import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
 
 class OnRequest extends DefaultObserver<byte[]> implements ConnectionHandler {
@@ -66,14 +66,14 @@ class OnRequest extends DefaultObserver<byte[]> implements ConnectionHandler {
 
     @Override
     public void onError(Throwable e) {
-        log.debug("OnRequest.onError", e);
+        log.error("OnRequest.onError", e);
         channel.error(e);
     }
 
     @Override
     public void onNext(byte[] msg) {
         log.debug("input stream: received message");
-        if (counter.incrementAndGet() > cfg().getInt(OcraftConfig.CLIENT_BUFFER_SIZE_REQUEST_QUEUE)) {
+        if (counter.incrementAndGet() > cfg().getInt(OcraftApiConfig.CLIENT_BUFFER_SIZE_REQUEST_QUEUE)) {
             cancel();
             onError(new BufferOverflowException());
             return;

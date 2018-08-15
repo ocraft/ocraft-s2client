@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.api;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,13 +34,10 @@ import com.github.ocraft.s2client.protocol.spatial.Point2d;
 import com.github.ocraft.s2client.protocol.spatial.PointI;
 import com.github.ocraft.s2client.protocol.spatial.RectangleI;
 import com.github.ocraft.s2client.protocol.unit.Unit;
+import com.github.ocraft.s2client.test.TestFiles;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.data.Units.TERRAN_COMMAND_CENTER;
@@ -49,9 +46,9 @@ import static com.github.ocraft.s2client.protocol.data.Units.TERRAN_SCV;
 public class Fixtures {
 
     static final Path REPLAY_PATH = Paths.get(
-            relativeFile("ffd95a7de213d9fa6965ae049adc5e317cc4cc3cbed283c98b9a6f2ddd3bcbef.SC2Replay")
+            TestFiles.relativeFile("ffd95a7de213d9fa6965ae049adc5e317cc4cc3cbed283c98b9a6f2ddd3bcbef.SC2Replay")
     ).toAbsolutePath();
-    static final Path MAP_PATH = Paths.get(relativeFile("AbyssalReefLE.SC2Map")).toAbsolutePath();
+    static final Path MAP_PATH = Paths.get(TestFiles.relativeFile("AbyssalReefLE.SC2Map")).toAbsolutePath();
     static final Path TMP_PATH = Paths.get("test.SC2Map");
     static final int PLAYER_ID = 1;
     static final int PLAYER_COUNT = 2;
@@ -82,6 +79,11 @@ public class Fixtures {
     public static final int CFG_WINDOW_X_CUSTOM = 100;
     public static final int CFG_WINDOW_Y_CUSTOM = 150;
     public static final String CFG_EXE_DATA_VER_CUSTOM = "5BD7C31B44525DAB46E64C4602A81DC2";
+    public static final Path CFG_EGL_PATH_CUSTOM = Paths.get("tmp", "egl");
+    public static final Path CFG_OS_MESA_PATH_CUSTOM = Paths.get("tmp", "mesa");
+    public static final Path CFG_TMP_DIR_PATH_CUSTOM = Paths.get("tmp");
+    public static final Path CFG_DATA_DIR_PATH_CUSTOM = Paths.get("tmp", "data");
+    public static final String CFG_VERBOSE_CUSTOM = "true";
 
     private Fixtures() {
         throw new AssertionError("private constructor");
@@ -133,19 +135,6 @@ public class Fixtures {
                 .getUnits().stream()
                 .filter(unit -> unit.getType().equals(unitType))
                 .findAny().orElseThrow(required(unitType.name()));
-    }
-
-    private static URI relativeFile(String fileName) {
-        URL resource = Fixtures.class.getClassLoader().getResource(fileName);
-        return Optional.ofNullable(resource).map(Fixtures::asUri).orElseThrow(required("file [" + fileName + "]"));
-    }
-
-    private static URI asUri(URL url) {
-        try {
-            return url.toURI();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 }

@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.debug;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -35,6 +35,16 @@ import static com.github.ocraft.s2client.protocol.Preconditions.between;
 public final class Color implements Sc2ApiSerializable<Debug.Color> {
 
     private static final long serialVersionUID = 7724713021780585305L;
+
+    public static final Color WHITE = new Color(255, 255, 255);
+    public static final Color RED = new Color(255, 0, 0);
+    public static final Color GREEN = new Color(0, 255, 0);
+    public static final Color YELLOW = new Color(255, 255, 0);
+    public static final Color BLUE = new Color(0, 0, 255);
+    public static final Color TEAL = new Color(0, 255, 255);
+    public static final Color PURPLE = new Color(255, 0, 255);
+    public static final Color BLACK = new Color(0, 0, 0);
+    public static final Color GRAY = new Color(128, 128, 128);
 
     private final int r;
     private final int g;

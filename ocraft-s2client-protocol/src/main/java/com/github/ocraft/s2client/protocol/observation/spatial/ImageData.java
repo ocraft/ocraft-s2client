@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.observation.spatial;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,6 +29,7 @@ package com.github.ocraft.s2client.protocol.observation.spatial;
 import SC2APIProtocol.Common;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.ocraft.s2client.protocol.Strings;
+import com.github.ocraft.s2client.protocol.spatial.Point2d;
 import com.github.ocraft.s2client.protocol.spatial.Size2dI;
 import com.google.protobuf.ByteString;
 
@@ -109,6 +110,7 @@ public final class ImageData implements Serializable {
         return size;
     }
 
+    @JsonIgnore
     public byte[] getData() {
         return copyOf(data);
     }
@@ -123,6 +125,10 @@ public final class ImageData implements Serializable {
         byte[] imgData = ((DataBufferByte) bufferedImage.getRaster().getDataBuffer()).getData();
         System.arraycopy(imageBytes, 0, imgData, 0, imageBytes.length);
         return bufferedImage;
+    }
+
+    public int sample(Point2d point) {
+        return data[(int) point.getX() + (size.getY() - 1 - (int) point.getY()) * size.getX()] & 0xFF;
     }
 
     @Override

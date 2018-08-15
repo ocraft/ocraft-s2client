@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.observation.spatial;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,6 +28,7 @@ package com.github.ocraft.s2client.protocol.observation.spatial;
 
 import SC2APIProtocol.Common;
 import com.github.ocraft.s2client.protocol.Images;
+import com.github.ocraft.s2client.protocol.spatial.Point2d;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
@@ -106,6 +107,13 @@ class ImageDataTest {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> ImageData.from(sc2ApiImageDataWithTwoBitPerPixel()))
                 .withMessage("Unsupported image type with bits per pixel [2]. Expected {1, 8, 32}.");
+    }
+
+    @Test
+    void samplesPointOnImage() {
+        ImageData imageData = ImageData.from(sc2ApiImageData());
+
+        assertThat(imageData.sample(Point2d.of(57.0f, 63.0f))).as("image sample").isEqualTo(121);
     }
 
     @Test

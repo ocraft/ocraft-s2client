@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.unit;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -71,6 +71,22 @@ class UnitOrderTest {
                 .isThrownBy(() -> UnitOrder.from(
                         without(() -> sc2ApiUnitOrder().toBuilder(), Raw.UnitOrder.Builder::clearAbilityId).build()))
                 .withMessage("ability is required");
+    }
+
+    @Test
+    void createsCopyWithGeneralizedAbility() {
+        UnitOrder specific = UnitOrder.from(sc2ApiUnitOrder());
+        Abilities generalizedAbility = Abilities.EFFECT_CHRONO_BOOST;
+        UnitOrder generalized = specific.generalizeAbility(ability -> generalizedAbility);
+
+        assertThatGeneralizationIsEqualToSpecific(specific, generalized);
+        assertThat(generalized.getAbility()).as("generalized ability").isEqualTo(generalizedAbility);
+    }
+
+    private void assertThatGeneralizationIsEqualToSpecific(UnitOrder specific, UnitOrder generalized) {
+        assertThat(generalized.getTargetedUnitTag()).isEqualTo(specific.getTargetedUnitTag());
+        assertThat(generalized.getTargetedWorldSpacePosition()).isEqualTo(specific.getTargetedWorldSpacePosition());
+        assertThat(generalized.getProgress()).isEqualTo(specific.getProgress());
     }
 
     @Test

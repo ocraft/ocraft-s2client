@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.query;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,7 +27,9 @@ package com.github.ocraft.s2client.protocol.query;
  */
 
 import SC2APIProtocol.Query;
+import com.github.ocraft.s2client.protocol.GeneralizableAbility;
 import com.github.ocraft.s2client.protocol.Strings;
+import com.github.ocraft.s2client.protocol.data.Ability;
 import com.github.ocraft.s2client.protocol.data.UnitType;
 import com.github.ocraft.s2client.protocol.data.Units;
 import com.github.ocraft.s2client.protocol.observation.AvailableAbility;
@@ -36,13 +38,14 @@ import com.github.ocraft.s2client.protocol.unit.Tag;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
 import static java.util.stream.Collectors.toSet;
 
-public final class AvailableAbilities implements Serializable {
+public final class AvailableAbilities implements Serializable, GeneralizableAbility<AvailableAbilities> {
 
     private static final long serialVersionUID = 366573550138386426L;
 
@@ -64,6 +67,12 @@ public final class AvailableAbilities implements Serializable {
         ).apply(sc2ApiResponseQueryAvailableAbilities).map(Units::from).orElseThrow(required("unit type"));
     }
 
+    private AvailableAbilities(Set<AvailableAbility> abilities, Tag unitTag, UnitType unitType) {
+        this.abilities = abilities;
+        this.unitTag = unitTag;
+        this.unitType = unitType;
+    }
+
     public static AvailableAbilities from(Query.ResponseQueryAvailableAbilities sc2ApiResponseQueryAvailableAbilities) {
         require("sc2api response query available abilities", sc2ApiResponseQueryAvailableAbilities);
         return new AvailableAbilities(sc2ApiResponseQueryAvailableAbilities);
@@ -79,6 +88,16 @@ public final class AvailableAbilities implements Serializable {
 
     public UnitType getUnitType() {
         return unitType;
+    }
+
+    @Override
+    public AvailableAbilities generalizeAbility(UnaryOperator<Ability> generalize) {
+        return new AvailableAbilities(
+                abilities.stream()
+                        .map(availableAbility -> availableAbility.generalizeAbility(generalize))
+                        .collect(toSet()),
+                unitTag,
+                unitType);
     }
 
     @Override
@@ -103,4 +122,5 @@ public final class AvailableAbilities implements Serializable {
     public String toString() {
         return Strings.toJson(this);
     }
+
 }

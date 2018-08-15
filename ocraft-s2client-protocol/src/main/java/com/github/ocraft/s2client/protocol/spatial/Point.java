@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.spatial;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -97,6 +97,43 @@ public final class Point implements Sc2ApiSerializable<Common.Point> {
 
     public float getZ() {
         return z;
+    }
+
+
+    public Point add(Point pointToAdd) {
+        return new Point(x + pointToAdd.getX(), y + pointToAdd.getY(), z + pointToAdd.getZ());
+    }
+
+    public Point sub(Point pointToSubtract) {
+        return new Point(x - pointToSubtract.getX(), y - pointToSubtract.getY(), z - pointToSubtract.getZ());
+    }
+
+    public Point sub(float subX, float subY, float subZ) {
+        return new Point(x - subX, y - subY, z - subZ);
+    }
+
+    public Point div(float divBy) {
+        return new Point(x / divBy, y / divBy, z / divBy);
+    }
+
+    public Point mul(float mulBy) {
+        return new Point(x * mulBy, y * mulBy, z * mulBy);
+    }
+
+    public double distance(Point b) {
+        float x1 = x - b.getX();
+        float y1 = y - b.getY();
+        float z1 = z - b.getZ();
+
+        return Math.sqrt(x1 * x1 + y1 * y1 + z1 * z1);
+    }
+
+    public float dot(Point b) {
+        return x * b.getX() + y * b.getY() + z * b.getZ();
+    }
+
+    public Point2d toPoint2d() {
+        return Point2d.of(x, y);
     }
 
     @Override

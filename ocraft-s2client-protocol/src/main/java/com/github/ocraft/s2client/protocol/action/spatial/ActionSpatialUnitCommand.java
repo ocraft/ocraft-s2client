@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.action.spatial;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,6 +27,7 @@ package com.github.ocraft.s2client.protocol.action.spatial;
  */
 
 import SC2APIProtocol.Spatial;
+import com.github.ocraft.s2client.protocol.GeneralizableAbility;
 import com.github.ocraft.s2client.protocol.Sc2ApiSerializable;
 import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.data.Abilities;
@@ -38,13 +39,15 @@ import com.github.ocraft.s2client.protocol.syntax.action.spatial.QueuedSyntax;
 import com.github.ocraft.s2client.protocol.syntax.action.spatial.TargetSyntax;
 
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
 
-public final class ActionSpatialUnitCommand implements Sc2ApiSerializable<Spatial.ActionSpatialUnitCommand> {
+public final class ActionSpatialUnitCommand implements
+        Sc2ApiSerializable<Spatial.ActionSpatialUnitCommand>, GeneralizableAbility<ActionSpatialUnitCommand> {
 
     private static final long serialVersionUID = 971041079611803562L;
 
@@ -156,6 +159,18 @@ public final class ActionSpatialUnitCommand implements Sc2ApiSerializable<Spatia
 
     public boolean isQueued() {
         return queued;
+    }
+
+    @Override
+    public ActionSpatialUnitCommand generalizeAbility(UnaryOperator<Ability> generalize) {
+        Builder builder = new Builder();
+
+        builder.ability = generalize.apply(this.ability);
+        builder.targetInScreenCoord = this.targetInScreenCoord;
+        builder.targetInMinimapCoord = this.targetInMinimapCoord;
+        builder.queued = this.queued;
+
+        return new ActionSpatialUnitCommand(builder);
     }
 
     @Override

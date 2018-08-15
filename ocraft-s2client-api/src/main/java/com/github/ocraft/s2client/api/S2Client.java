@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.api;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,9 +28,9 @@ package com.github.ocraft.s2client.api;
 
 import com.github.ocraft.s2client.api.controller.S2Controller;
 import com.github.ocraft.s2client.api.log.DataFlowTracer;
+import com.github.ocraft.s2client.api.syntax.OptionsSyntax;
 import com.github.ocraft.s2client.api.syntax.S2ClientSyntax;
 import com.github.ocraft.s2client.api.syntax.StartSyntax;
-import com.github.ocraft.s2client.api.syntax.TracedSyntax;
 import com.github.ocraft.s2client.api.syntax.WithTracerSyntax;
 import com.github.ocraft.s2client.api.vertx.VertxChannelProvider;
 import com.github.ocraft.s2client.protocol.BuilderSyntax;
@@ -38,21 +38,30 @@ import com.github.ocraft.s2client.protocol.RequestSerializer;
 import com.github.ocraft.s2client.protocol.ResponseParser;
 import com.github.ocraft.s2client.protocol.request.Request;
 import com.github.ocraft.s2client.protocol.response.Response;
+import com.github.ocraft.s2client.protocol.response.ResponseError;
+import com.github.ocraft.s2client.protocol.response.ResponseType;
+import com.jayway.awaitility.Awaitility;
+import com.jayway.awaitility.core.ConditionTimeoutException;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.MaybeSubject;
 import io.reactivex.subscribers.DefaultSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.concurrent.Phaser;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.github.ocraft.s2client.api.OcraftConfig.CLIENT_BUFFER_SIZE_RESPONSE_STREAM;
-import static com.github.ocraft.s2client.api.OcraftConfig.cfg;
+import static com.github.ocraft.s2client.api.OcraftApiConfig.CLIENT_BUFFER_SIZE_RESPONSE_STREAM;
+import static com.github.ocraft.s2client.api.OcraftApiConfig.cfg;
 import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
+import static java.lang.String.format;
 
 public class S2Client extends DefaultSubscriber<Response> {
 
@@ -63,44 +72,68 @@ public class S2Client extends DefaultSubscriber<Response> {
 
     private final String connectToIp;
     private final Integer connectToPort;
+    private final int requestTimeoutInMillis;
+    private final int connectTimeoutInMillis;
     private final AtomicBoolean done = new AtomicBoolean(false);
     private final boolean traced;
     private final DataFlowTracer tracer;
     private final Phaser await = new Phaser(1);
     private final S2Controller game;
 
-    public static class Builder implements S2ClientSyntax, TracedSyntax, WithTracerSyntax {
+    public static class Builder implements S2ClientSyntax, OptionsSyntax, WithTracerSyntax {
 
-        private String connectToIp = cfg().getString(OcraftConfig.CLIENT_NET_IP);
-        private Integer connectToPort = cfg().getInt(OcraftConfig.CLIENT_NET_PORT);
-        private boolean traced = cfg().getBoolean(OcraftConfig.CLIENT_TRACED);
+        private String connectToIp = cfg().getString(OcraftApiConfig.CLIENT_NET_IP);
+        private Integer connectToPort = cfg().getInt(OcraftApiConfig.CLIENT_NET_PORT);
+        private boolean traced = cfg().getBoolean(OcraftApiConfig.CLIENT_TRACED);
+        private int requestTimeoutInMillis = cfg().getInt(OcraftApiConfig.CLIENT_NET_SYNCH_REQUEST_TIMEOUT);
+        private int connectTimeoutInMillis = cfg().getInt(OcraftApiConfig.CLIENT_NET_CONNECT_TIMEOUT);
         private S2Controller game;
         private DataFlowTracer tracer = new DataFlowTracer();
+        private Runnable onConnectionLost;
 
         @Override
-        public TracedSyntax connectTo(String gameListenIp, int gameListenPort) {
-            connectToIp = gameListenIp;
-            connectToPort = gameListenPort;
+        public OptionsSyntax connectTo(String gameListenIp, Integer gameListenPort) {
+            if (isSet(gameListenIp)) connectToIp = gameListenIp;
+            if (isSet(gameListenPort)) connectToPort = gameListenPort;
             return this;
         }
 
         @Override
-        public TracedSyntax connectTo(S2Controller theGame) {
-            this.connectToIp = theGame.getConfig().getString(OcraftConfig.GAME_NET_IP);
-            this.connectToPort = theGame.getConfig().getInt(OcraftConfig.GAME_NET_PORT);
+        public OptionsSyntax connectTo(S2Controller theGame) {
+            require("game", theGame);
+            this.connectToIp = theGame.getConfig().getString(OcraftApiConfig.GAME_NET_IP);
+            this.connectToPort = theGame.getConfig().getInt(OcraftApiConfig.GAME_NET_PORT);
             this.game = theGame;
             return this;
         }
 
         @Override
-        public WithTracerSyntax traced(boolean traced) {
-            this.traced = traced;
+        public OptionsSyntax requestTimeout(Integer timeoutInMillis) {
+            if (isSet(timeoutInMillis)) this.requestTimeoutInMillis = timeoutInMillis;
+            return this;
+        }
+
+        @Override
+        public OptionsSyntax connectTimeout(Integer timeoutInMillis) {
+            if (isSet(timeoutInMillis)) this.connectTimeoutInMillis = timeoutInMillis;
+            return this;
+        }
+
+        @Override
+        public OptionsSyntax onConnectionLost(Runnable callback) {
+            if (isSet(callback)) this.onConnectionLost = callback;
+            return this;
+        }
+
+        @Override
+        public WithTracerSyntax traced(Boolean traced) {
+            if (isSet(traced)) this.traced = traced;
             return this;
         }
 
         @Override
         public StartSyntax<S2Client> withTracer(DataFlowTracer tracer) {
-            this.tracer = tracer;
+            if (isSet(tracer)) this.tracer = tracer;
             return this;
         }
 
@@ -111,6 +144,7 @@ public class S2Client extends DefaultSubscriber<Response> {
             if (traced) require("data flow tracer", tracer);
             return new S2Client(this);
         }
+
     }
 
     public static S2ClientSyntax starcraft2Client() {
@@ -121,6 +155,8 @@ public class S2Client extends DefaultSubscriber<Response> {
 
         connectToIp = builder.connectToIp;
         connectToPort = builder.connectToPort;
+        requestTimeoutInMillis = builder.requestTimeoutInMillis;
+        connectTimeoutInMillis = builder.connectTimeoutInMillis;
         traced = builder.traced;
         tracer = builder.tracer;
         game = builder.game;
@@ -128,10 +164,11 @@ public class S2Client extends DefaultSubscriber<Response> {
         log.info("Starting: {}", this);
 
         Channel channel = channelProvider.getChannel();
+        channel.onConnectionLost(builder.onConnectionLost);
         responseStream = channel.outputStream().mergeWith(channel.errorStream())
                 .map(this::prepareResponse)
                 .toFlowable(BackpressureStrategy.ERROR)
-                .onBackpressureBuffer(cfg().getInt(OcraftConfig.CLIENT_BUFFER_SIZE_RESPONSE_BACKPRESSURE))
+                .onBackpressureBuffer(cfg().getInt(OcraftApiConfig.CLIENT_BUFFER_SIZE_RESPONSE_BACKPRESSURE))
                 .observeOn(Schedulers.computation(), false, cfg().getInt(CLIENT_BUFFER_SIZE_RESPONSE_STREAM))
                 .publish()
                 .autoConnect()
@@ -146,13 +183,17 @@ public class S2Client extends DefaultSubscriber<Response> {
             await.arriveAndDeregister();
         });
 
-        channelProvider.start(connectToIp, connectToPort);
+        channelProvider.start(connectToIp, connectToPort, connectTimeoutInMillis);
     }
 
     private Response prepareResponse(byte[] responseBytes) {
-        Response response = new ResponseParser().apply(responseBytes);
-        if (traced) tracer.fire(response);
-        return response;
+        try {
+            Response response = new ResponseParser().apply(responseBytes);
+            if (traced) tracer.fire(response);
+            return response;
+        } catch (IllegalArgumentException e) {
+            throw new ResponseParseException(e);
+        }
     }
 
     public Flowable<Response> responseStream() {
@@ -173,6 +214,40 @@ public class S2Client extends DefaultSubscriber<Response> {
         request(requestDataBuilder.build());
     }
 
+    public <T extends Request> Response requestSync(T requestData) {
+        Maybe<Response> responseMaybe = waitForResponse(requestData.responseType());
+        request(requestData);
+        return responseMaybe.blockingGet();
+    }
+
+    public Maybe<Response> waitForResponse(ResponseType responseType) {
+        MaybeSubject<Response> maybeSubject = MaybeSubject.create();
+        responseStream()
+                .filter(response -> response.is(responseType) || response.is(ResponseType.ERROR))
+                .firstElement()
+                .timeout(requestTimeoutInMillis, TimeUnit.MILLISECONDS)
+                .subscribe(maybeSubject);
+        return maybeSubject;
+    }
+
+    public <T extends Request> Response requestSync(BuilderSyntax<T> requestDataBuilder) {
+        return requestSync(requestDataBuilder.build());
+    }
+
+    public <T extends Request, S extends Response> S requestSync(T requestData, Class<S> responseClass) {
+        Response response = requestSync(requestData);
+        response.as(ResponseError.class).ifPresent(responseError -> {
+            throw ResponseErrorException.from(responseError);
+        });
+
+        return responseClass.cast(response);
+    }
+
+    public <T extends Request, S extends Response> S requestSync(
+            BuilderSyntax<T> requestDataBuilder, Class<S> responseClass) {
+        return requestSync(requestDataBuilder.build(), responseClass);
+    }
+
     public boolean isDone() {
         return done.get();
     }
@@ -187,12 +262,17 @@ public class S2Client extends DefaultSubscriber<Response> {
         }
     }
 
-    public void await() {
-        await.arriveAndAwaitAdvance();
-        stop();
+    public boolean fullStop() {
+        boolean status = stop();
         if (isSet(game)) {
             game.stop();
         }
+        return status;
+    }
+
+    public boolean await() {
+        await.arriveAndAwaitAdvance();
+        return fullStop();
     }
 
     Channel channel() {
@@ -206,7 +286,9 @@ public class S2Client extends DefaultSubscriber<Response> {
 
     @Override
     public void onError(Throwable throwable) {
-        stop();
+        if (!(throwable instanceof ResponseParseException)) {
+            stop();
+        }
     }
 
     @Override
@@ -222,8 +304,37 @@ public class S2Client extends DefaultSubscriber<Response> {
         return connectToPort;
     }
 
+    public int getRequestTimeoutInMillis() {
+        return requestTimeoutInMillis;
+    }
+
+    public int getConnectTimeoutInMillis() {
+        return connectTimeoutInMillis;
+    }
+
     public boolean isTraced() {
         return traced;
+    }
+
+    public S2Client untilReady() throws TimeoutException {
+        return untilReady(() -> {
+        });
+    }
+
+    public S2Client untilReady(Runnable onPull) throws TimeoutException {
+        try {
+            Awaitility.await()
+                    .pollInterval(1, TimeUnit.SECONDS)
+                    .conditionEvaluationListener(evaluatedCondition -> onPull.run())
+                    .atMost(connectTimeoutInMillis, TimeUnit.MILLISECONDS)
+                    .until(() -> isDone() || channel().ready());
+            if (isDone()) {
+                throw new IllegalStateException("Client is already closed.");
+            }
+            return this;
+        } catch (ConditionTimeoutException e) {
+            throw new TimeoutException(format("connection timeout exceeded: %d ms", connectTimeoutInMillis));
+        }
     }
 
     @Override
@@ -231,6 +342,8 @@ public class S2Client extends DefaultSubscriber<Response> {
         return "S2Client{" +
                 "connectToIp='" + connectToIp + '\'' +
                 ", connectToPort=" + connectToPort +
+                ", requestTimeoutInMillis=" + requestTimeoutInMillis +
+                ", connectTimeoutInMillis=" + connectTimeoutInMillis +
                 ", done=" + done +
                 ", traced=" + traced +
                 '}';

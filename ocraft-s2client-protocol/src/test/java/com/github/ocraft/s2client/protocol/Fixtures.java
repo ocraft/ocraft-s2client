@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -220,7 +220,7 @@ public final class Fixtures {
     public static final String ABILITY_BUTTON_NAME = "TerranInfantryWeaponsLevel1";
     public static final String ABILITY_FRIENDLY_NAME = "Research TerranInfantryWeaponsLevel1";
     public static final String ABILITY_HOTKEY = "E";
-    public static final int ABILITY_REMAPS_TO_ID = 3698;
+    public static final Ability ABILITY_REMAPS_TO_ID = Abilities.RESEARCH_TERRAN_INFANTRY_WEAPONS;
     public static final boolean ABILITY_AVAILABLE = true;
     public static final boolean ABILITY_ALLOW_MINIMAP = true;
     public static final boolean ABILITY_ALLOW_AUTOCAST = true;
@@ -928,7 +928,7 @@ public final class Fixtures {
                 .setButtonName(ABILITY_BUTTON_NAME)
                 .setFriendlyName(ABILITY_FRIENDLY_NAME)
                 .setHotkey(ABILITY_HOTKEY)
-                .setRemapsToAbilityId(ABILITY_REMAPS_TO_ID)
+                .setRemapsToAbilityId(ABILITY_REMAPS_TO_ID.getAbilityId())
                 .setAvailable(ABILITY_AVAILABLE)
                 .setTarget(Data.AbilityData.Target.None)
                 .setAllowMinimap(ABILITY_ALLOW_MINIMAP)

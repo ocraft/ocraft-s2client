@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.request;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,6 +32,7 @@ import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.game.BattlenetMap;
 import com.github.ocraft.s2client.protocol.game.LocalMap;
 import com.github.ocraft.s2client.protocol.game.PlayerSetup;
+import com.github.ocraft.s2client.protocol.response.ResponseType;
 import com.github.ocraft.s2client.protocol.syntax.request.*;
 
 import java.util.ArrayList;
@@ -110,6 +111,12 @@ public final class RequestCreateGame extends Request {
         }
 
         @Override
+        public WithRandomSeedSyntax realTime(boolean value) {
+            this.realTime = value;
+            return this;
+        }
+
+        @Override
         public BuilderSyntax<RequestCreateGame> withRandomSeed(int randomSeed) {
             this.randomSeed = randomSeed;
             return this;
@@ -137,6 +144,11 @@ public final class RequestCreateGame extends Request {
         playerSetups.stream().map(PlayerSetup::toSc2Api).forEach(aSc2ApiCreateGame::addPlayerSetup);
 
         return Sc2Api.Request.newBuilder().setCreateGame(aSc2ApiCreateGame.build()).build();
+    }
+
+    @Override
+    public ResponseType responseType() {
+        return ResponseType.CREATE_GAME;
     }
 
     public boolean isDisableFog() {

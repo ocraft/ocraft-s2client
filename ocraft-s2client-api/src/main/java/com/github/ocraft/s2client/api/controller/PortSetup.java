@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.api.controller;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,27 +26,59 @@ package com.github.ocraft.s2client.api.controller;
  * #L%
  */
 
-import static com.github.ocraft.s2client.api.OcraftConfig.GAME_NET_PORT;
-import static com.github.ocraft.s2client.api.OcraftConfig.cfg;
+public final class PortSetup {
+    private int portCounter = 0;
+    private int lastPort;
+    private int portStart;
 
-final class PortSetup {
-    private static int portCounter = 0;
-    private static int lastPort;
-
-    private PortSetup() {
-        throw new AssertionError("private constructor");
+    private PortSetup(int portStart) {
+        reset();
+        this.portStart = portStart;
     }
 
-    static synchronized int fetchPort() {
-        lastPort = cfg().getInt(GAME_NET_PORT) + portCounter++;
+    public static synchronized PortSetup init(int portStart) {
+        return new PortSetup(portStart);
+    }
+
+    public synchronized int fetchPort() {
+        lastPort = portStart + portCounter++;
         return lastPort;
     }
 
-    static synchronized void reset() {
+    public synchronized void reset() {
         portCounter = 0;
     }
 
-    static int getLastPort() {
+    public int lastPort() {
         return lastPort;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PortSetup portSetup = (PortSetup) o;
+
+        if (portCounter != portSetup.portCounter) return false;
+        if (lastPort != portSetup.lastPort) return false;
+        return portStart == portSetup.portStart;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = portCounter;
+        result = 31 * result + lastPort;
+        result = 31 * result + portStart;
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "PortSetup{" +
+                "portCounter=" + portCounter +
+                ", lastPort=" + lastPort +
+                ", portStart=" + portStart +
+                '}';
     }
 }

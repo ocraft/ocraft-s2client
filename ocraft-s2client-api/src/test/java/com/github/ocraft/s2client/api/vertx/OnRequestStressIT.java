@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.api.vertx;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,11 +26,12 @@ package com.github.ocraft.s2client.api.vertx;
  * #L%
  */
 
-import com.github.ocraft.s2client.api.OcraftConfig;
-import com.github.ocraft.test.MultiThreadedStressTester;
+import com.github.ocraft.s2client.api.OcraftApiConfig;
+import com.github.ocraft.s2client.test.MultiThreadedStressTester;
 import io.vertx.reactivex.core.http.WebSocket;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -41,6 +42,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Tag("integration")
 class OnRequestStressIT {
 
     private static final int THREAD_COUNT = 10;
@@ -48,15 +50,15 @@ class OnRequestStressIT {
 
     @BeforeEach
     void setUp() {
-        System.setProperty(OcraftConfig.CLIENT_BUFFER_SIZE_REQUEST_EVENT_BUS, String.valueOf(ITERATION_COUNT));
-        System.setProperty(OcraftConfig.CLIENT_BUFFER_SIZE_REQUEST_QUEUE, String.valueOf(ITERATION_COUNT));
+        System.setProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_REQUEST_EVENT_BUS, String.valueOf(ITERATION_COUNT));
+        System.setProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_REQUEST_QUEUE, String.valueOf(ITERATION_COUNT));
         refreshConfig();
     }
 
     @AfterEach
     void tearDown() {
-        System.clearProperty(OcraftConfig.CLIENT_BUFFER_SIZE_REQUEST_EVENT_BUS);
-        System.clearProperty(OcraftConfig.CLIENT_BUFFER_SIZE_REQUEST_QUEUE);
+        System.clearProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_REQUEST_EVENT_BUS);
+        System.clearProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_REQUEST_QUEUE);
         refreshConfig();
     }
 

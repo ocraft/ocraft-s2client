@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.action.spatial;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -150,6 +150,27 @@ class ActionSpatialUnitCommandTest {
         Spatial.ActionSpatialUnitCommand sc2ApiActionSpatialUnitCommand = unitCommand.toSc2Api();
         assertThat(sc2ApiActionSpatialUnitCommand.hasTargetMinimapCoord()).as("case of target is on screen").isTrue();
         assertThat(sc2ApiActionSpatialUnitCommand.hasTargetScreenCoord()).as("case of target is on minimap").isFalse();
+    }
+
+    @Test
+    void createsCopyWithGeneralizedAbility() {
+        ActionSpatialUnitCommand specific = unitCommand()
+                .useAbility(Abilities.EFFECT_PSI_STORM)
+                .onScreen(PointI.of(10, 15))
+                .queued()
+                .build();
+        Abilities generalizedAbility = Abilities.EFFECT_CHRONO_BOOST;
+        ActionSpatialUnitCommand generalized = specific.generalizeAbility(ability -> generalizedAbility);
+
+        assertThatGeneralizationIsEqualToSpecific(specific, generalized);
+        assertThat(generalized.getAbility()).as("generalized ability").isEqualTo(generalizedAbility);
+    }
+
+    private void assertThatGeneralizationIsEqualToSpecific(
+            ActionSpatialUnitCommand specific, ActionSpatialUnitCommand generalized) {
+        assertThat(generalized.getTargetInMinimapCoord()).isEqualTo(specific.getTargetInMinimapCoord());
+        assertThat(generalized.getTargetInScreenCoord()).isEqualTo(specific.getTargetInScreenCoord());
+        assertThat(generalized.isQueued()).isEqualTo(specific.isQueued());
     }
 
     @Test
