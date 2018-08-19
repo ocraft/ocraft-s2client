@@ -95,7 +95,11 @@ public class UnitInPool {
     /**
      * Helper function used to discover whether a unit is carrying minerals or not. You could use this function in
      * GetUnits to get all units carrying minerals:
+     * <pre>
+     * {@code
      * List<UnitInPool> units = observation().getUnits(Alliance.SELF, UnitInPool.isCarryingMinerals());
+     * }
+     * </pre>
      *
      * @return Returns true if the unit is carrying minerals, false otherwise.
      */
@@ -108,7 +112,11 @@ public class UnitInPool {
     /**
      * Helper function used to discover whether a unit is carrying vespene or not. You could use this function in
      * GetUnits to get all units carrying vespene:
+     * <pre>
+     * {@code
      * List<UnitInPool> units = observation().getUnits(Alliance.SELF, UnitInPool.isCarryingVespene);
+     * }
+     * </pre>
      *
      * @return Returns true if the unit is carrying vespene, false otherwise.
      */

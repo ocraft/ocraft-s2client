@@ -26,7 +26,7 @@ sc2client-api should be valid or similar by analogy in this Java Api. More info 
 <dependency>
     <groupId>com.github.ocraft</groupId>
     <artifactId>ocraft-s2client-bot</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
 </dependency>
 ----
 
@@ -111,7 +111,7 @@ analyze in many different tools.
 <dependency>
     <groupId>com.github.ocraft</groupId>
     <artifactId>ocraft-s2client-api</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
 </dependency>
 ----
 
