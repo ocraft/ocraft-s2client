@@ -59,7 +59,6 @@ public class SampleLadderBot {
         TestBot bot = new TestBot();
         S2Coordinator s2Coordinator = S2Coordinator.setup()
                 .loadLadderSettings(args)
-                .setTraced(true)
                 .setParticipants(S2Coordinator.createParticipant(Race.TERRAN, bot))
                 .connectToLadder()
                 .joinGame();
