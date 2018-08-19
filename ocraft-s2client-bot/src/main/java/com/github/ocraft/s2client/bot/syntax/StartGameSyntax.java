@@ -39,4 +39,9 @@ public interface StartGameSyntax {
      * Attaches to a running Starcraft.
      */
     S2Coordinator connect(String ip, Integer port);
+
+    /**
+     * Attaches to a ladder server;
+     */
+    S2Coordinator connectToLadder();
 }

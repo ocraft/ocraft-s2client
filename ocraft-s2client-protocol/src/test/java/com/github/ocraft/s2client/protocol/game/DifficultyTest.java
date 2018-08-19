@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.game;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -75,4 +75,8 @@ class DifficultyTest {
                 .withMessage("sc2api difficulty is required");
     }
 
+    @Test
+    void createsDifficultyFromName() {
+        assertThat(Difficulty.forName("veryHard")).isEqualTo(Difficulty.VERY_HARD);
+    }
 }

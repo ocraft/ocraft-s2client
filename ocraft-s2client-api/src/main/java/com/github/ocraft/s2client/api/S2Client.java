@@ -40,8 +40,6 @@ import com.github.ocraft.s2client.protocol.request.Request;
 import com.github.ocraft.s2client.protocol.response.Response;
 import com.github.ocraft.s2client.protocol.response.ResponseError;
 import com.github.ocraft.s2client.protocol.response.ResponseType;
-import com.jayway.awaitility.Awaitility;
-import com.jayway.awaitility.core.ConditionTimeoutException;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -52,9 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
-import java.util.concurrent.Phaser;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.github.ocraft.s2client.api.OcraftApiConfig.CLIENT_BUFFER_SIZE_RESPONSE_STREAM;
@@ -323,17 +319,43 @@ public class S2Client extends DefaultSubscriber<Response> {
 
     public S2Client untilReady(Runnable onPull) throws TimeoutException {
         try {
-            Awaitility.await()
-                    .pollInterval(1, TimeUnit.SECONDS)
-                    .conditionEvaluationListener(evaluatedCondition -> onPull.run())
-                    .atMost(connectTimeoutInMillis, TimeUnit.MILLISECONDS)
-                    .until(() -> isDone() || channel().ready());
+            Boolean connectionResult = pullConnectionStatus(onPull);
+
             if (isDone()) {
                 throw new IllegalStateException("Client is already closed.");
             }
+            if (!connectionResult) {
+                throw new IllegalStateException("Connection failed.");
+            }
             return this;
-        } catch (ConditionTimeoutException e) {
+        } catch (TimeoutException e) {
             throw new TimeoutException(format("connection timeout exceeded: %d ms", connectTimeoutInMillis));
+        } catch (InterruptedException e) {
+            log.debug("Thread was interrupted.", e);
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(e);
+        } catch (ExecutionException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private Boolean pullConnectionStatus(Runnable onPull)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        try {
+            CompletableFuture<Boolean> completionFuture = new CompletableFuture<>();
+            final ScheduledFuture<?> checkFuture = executor.scheduleAtFixedRate(() -> {
+                onPull.run();
+                if (isDone() || channel().ready()) {
+                    completionFuture.complete(true);
+                }
+            }, 0, 1, TimeUnit.SECONDS);
+            return completionFuture
+                    .whenComplete((result, thrown) -> checkFuture.cancel(true))
+                    .exceptionally(throwable -> completionFuture.complete(false))
+                    .get(connectTimeoutInMillis, TimeUnit.MILLISECONDS);
+        } finally {
+            executor.shutdownNow();
         }
     }
 

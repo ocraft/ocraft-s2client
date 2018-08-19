@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.spatial;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -80,19 +80,19 @@ class Point2dTest {
     @Test
     void throwsExceptionWhenPoint2dIsNotInValidRange() {
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> Point2d.of(-1, 1))
+                .isThrownBy(() -> Point2d.of(-1, 1).toSc2Api())
                 .withMessage("point 2d [x] has value -1.0 and is lower than 0.0");
 
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> Point2d.of(256, 1))
+                .isThrownBy(() -> Point2d.of(256, 1).toSc2Api())
                 .withMessage("point 2d [x] has value 256.0 and is greater than 255.0");
 
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> Point2d.of(1, -1))
+                .isThrownBy(() -> Point2d.of(1, -1).toSc2Api())
                 .withMessage("point 2d [y] has value -1.0 and is lower than 0.0");
 
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> Point2d.of(1, 256))
+                .isThrownBy(() -> Point2d.of(1, 256).toSc2Api())
                 .withMessage("point 2d [y] has value 256.0 and is greater than 255.0");
     }
 

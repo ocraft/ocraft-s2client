@@ -65,8 +65,6 @@ public final class Point implements Sc2ApiSerializable<Common.Point> {
         this.x = x;
         this.y = y;
         this.z = z;
-
-        validate();
     }
 
     public static Point of(float x, float y) {
@@ -84,6 +82,7 @@ public final class Point implements Sc2ApiSerializable<Common.Point> {
 
     @Override
     public Common.Point toSc2Api() {
+        validate();
         return Common.Point.newBuilder().setX(x).setY(y).setZ(z).build();
     }
 
@@ -143,7 +142,9 @@ public final class Point implements Sc2ApiSerializable<Common.Point> {
 
         Point point = (Point) o;
 
-        return Float.compare(point.x, x) == 0 && Float.compare(point.y, y) == 0 && Float.compare(point.z, z) == 0;
+        if (Float.compare(point.x, x) != 0) return false;
+        if (Float.compare(point.y, y) != 0) return false;
+        return Float.compare(point.z, z) == 0;
     }
 
     @Override

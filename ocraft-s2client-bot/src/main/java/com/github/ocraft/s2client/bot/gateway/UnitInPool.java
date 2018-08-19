@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.bot.gateway;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,6 +26,7 @@ package com.github.ocraft.s2client.bot.gateway;
  * #L%
  */
 
+import com.github.ocraft.s2client.protocol.data.Buffs;
 import com.github.ocraft.s2client.protocol.data.UnitType;
 import com.github.ocraft.s2client.protocol.unit.Tag;
 import com.github.ocraft.s2client.protocol.unit.Unit;
@@ -89,6 +90,33 @@ public class UnitInPool {
 
     public static Predicate<UnitInPool> isUnit(UnitType type) {
         return unitInPool -> unitInPool.getUnit().isPresent() && unitInPool.getUnit().get().getType().equals(type);
+    }
+
+    /**
+     * Helper function used to discover whether a unit is carrying minerals or not. You could use this function in
+     * GetUnits to get all units carrying minerals:
+     * List<UnitInPool> units = observation().getUnits(Alliance.SELF, UnitInPool.isCarryingMinerals());
+     *
+     * @return Returns true if the unit is carrying minerals, false otherwise.
+     */
+    public static Predicate<UnitInPool> isCarryingMinerals() {
+        return unitInPool -> unitInPool.getUnit().isPresent() && (
+                unitInPool.unit().getBuffs().contains(Buffs.CARRY_MINERAL_FIELD_MINERALS) ||
+                        unitInPool.unit().getBuffs().contains(Buffs.CARRY_HIGH_YIELD_MINERAL_FIELD_MINERALS));
+    }
+
+    /**
+     * Helper function used to discover whether a unit is carrying vespene or not. You could use this function in
+     * GetUnits to get all units carrying vespene:
+     * List<UnitInPool> units = observation().getUnits(Alliance.SELF, UnitInPool.isCarryingVespene);
+     *
+     * @return Returns true if the unit is carrying vespene, false otherwise.
+     */
+    public static Predicate<UnitInPool> isCarryingVespene() {
+        return unitInPool -> unitInPool.getUnit().isPresent() && (
+                unitInPool.unit().getBuffs().contains(Buffs.CARRY_HARVESTABLE_VESPANE_GEYSER_GAS) ||
+                        unitInPool.unit().getBuffs().contains(Buffs.CARRY_HARVESTABLE_VESPANE_GEYSER_GAS_PROTOSS) ||
+                        unitInPool.unit().getBuffs().contains(Buffs.CARRY_HARVESTABLE_VESPANE_GEYSER_GAS_ZERG));
     }
 
     @Override

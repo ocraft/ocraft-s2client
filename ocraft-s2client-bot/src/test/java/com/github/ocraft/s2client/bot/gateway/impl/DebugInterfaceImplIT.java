@@ -38,8 +38,8 @@ import com.github.ocraft.s2client.protocol.unit.Unit;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import static com.github.ocraft.s2client.bot.gateway.impl.Fixtures.OLD_01_UNIT_TAG;
-import static com.github.ocraft.s2client.bot.gateway.impl.Fixtures.mockUnit;
+import static com.github.ocraft.s2client.bot.Fixtures.OLD_01_UNIT_TAG;
+import static com.github.ocraft.s2client.bot.Fixtures.mockUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Tag("integration")

@@ -72,7 +72,7 @@ public class SampleReplayObserver {
         TestReplayObserver replayObserver = new TestReplayObserver();
         S2Coordinator s2Coordinator = S2Coordinator.setup()
                 .setReplayPath(GameSettings.libraryPath(Paths.get("replays"), Paths.get("/"))
-                        .orElseThrow(() -> new AssertionError("replay path is needed")))
+                        .orElseThrow(() -> new AssertionError("replay path is required")))
                 .addReplayObserver(replayObserver)
                 .launchStarcraft();
 

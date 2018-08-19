@@ -105,7 +105,7 @@ class GameSetup {
 
     private GameSetup connect() {
         assertThat(controlInterface.connect(new ProcessSettings()
-                .setPortStart(GAME_SERVER_PORT)
+                .setConnection("localhost", GAME_SERVER_PORT)
                 .setRequestTimeoutMS(requestTimeoutMs)
                 .setConnectionTimeoutMS(connectTimeoutMs)
                 .setTraced(true))

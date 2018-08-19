@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.bot;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -51,6 +51,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.Errors.required;
@@ -104,7 +105,12 @@ public class S2Coordinator {
         replaySettings = builder.replaySettings;
         useGeneralizedAbilityId = builder.useGeneralizedAbilityId;
 
-        processSettings.lastPort().ifPresent(portStart -> setupPorts(agents.size(), portStart, true));
+        if (processSettings.isLadderGame() && !builder.ladderSettings.getComputerOpponent()) {
+            setupPorts(agents.size() + 1, () -> processSettings.getPortSetup().fetchPort(), false);
+        } else {
+            setupPorts(agents.size(), () -> processSettings.getPortSetup().fetchPort(), true);
+        }
+
         gameSettings.resolveMap(processSettings);
     }
 
@@ -115,7 +121,7 @@ public class S2Coordinator {
      * @param portStart      Starting port number
      * @param checkSingle    Checks if the game is a single player or multiplayer game
      */
-    private void setupPorts(int numberOfAgents, int portStart, boolean checkSingle) {
+    public void setupPorts(int numberOfAgents, Supplier<Integer> portStart, boolean checkSingle) {
         int bots;
         if (checkSingle) {
             bots = (int) gameSettings.getPlayerSettings().stream()
@@ -125,7 +131,7 @@ public class S2Coordinator {
             bots = numberOfAgents;
         }
         if (bots > 1) {
-            gameSettings.setMultiplayerOptions(multiplayerSetupFor(portStart, bots));
+            gameSettings.setMultiplayerOptions(multiplayerSetupFor(portStart.get(), bots));
         }
     }
 
@@ -143,6 +149,7 @@ public class S2Coordinator {
         private ReplaySettings replaySettings = new ReplaySettings();
         private GameSettings gameSettings = new GameSettings();
         private CliSettings cliSettings = new CliSettings();
+        private LadderSettings ladderSettings = new LadderSettings();
 
         private SpatialCameraSetup featureLayerSettings;
         private SpatialCameraSetup renderSettings;
@@ -203,6 +210,40 @@ public class S2Coordinator {
         private void printHelp() {
             CommandLine.usage(cliSettings, System.out);
         }
+
+        @Override
+        public SettingsSyntax loadLadderSettings(String[] args) {
+            try {
+                CommandLine cmd = new CommandLine(ladderSettings);
+                cmd.registerConverter(Race.class, Race::forName);
+                cmd.registerConverter(Difficulty.class, Difficulty::forName);
+                cmd.parse(args);
+
+                if (ladderSettings.isUsageHelpRequested()) {
+                    printLadderHelp();
+                    System.exit(0);
+                }
+
+                setPortStart(ladderSettings.getStartPort());
+                processSettings.setConnection(ladderSettings.getLadderServer(), ladderSettings.getGamePort());
+                if (ladderSettings.getComputerOpponent()) {
+                    setParticipants(createComputer(
+                            ladderSettings.getComputerRace().orElseThrow(required("computer race")),
+                            ladderSettings.getComputerDifficulty().orElseThrow(required("computer difficulty"))));
+                }
+
+            } catch (Exception e) {
+                printLadderHelp();
+                throw e;
+            }
+
+            return this;
+        }
+
+        private void printLadderHelp() {
+            CommandLine.usage(ladderSettings, System.out);
+        }
+
 
         @Override
         public SettingsSyntax setMultithreaded(Boolean value) {
@@ -369,6 +410,18 @@ public class S2Coordinator {
                 return new S2Coordinator(this);
             } catch (Exception e) {
                 printHelp();
+                throw e;
+            }
+        }
+
+        @Override
+        public S2Coordinator connectToLadder() {
+            try {
+                processSettings.setWithGameController(false);
+                processSettings.setLadderGame(true);
+                return new S2Coordinator(this);
+            } catch (Exception e) {
+                printLadderHelp();
                 throw e;
             }
         }

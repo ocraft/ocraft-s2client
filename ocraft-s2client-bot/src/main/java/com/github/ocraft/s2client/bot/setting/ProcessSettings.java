@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.bot.setting;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,12 +30,14 @@ import com.github.ocraft.s2client.api.controller.PortSetup;
 import com.github.ocraft.s2client.bot.OcraftBotConfig;
 
 import java.nio.file.Path;
-import java.util.Optional;
+
+import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
 
 public class ProcessSettings {
 
     private String ip;
     private Integer port;
+    private Integer portStart;
     private Boolean multithreaded = OcraftBotConfig.cfg().getBoolean(OcraftBotConfig.BOT_MULTITHREADED);
     private Boolean realtime = OcraftBotConfig.cfg().getBoolean(OcraftBotConfig.BOT_REALTIME);
     private Integer stepSize = OcraftBotConfig.cfg().getInt(OcraftBotConfig.BOT_STEP_SIZE);
@@ -58,10 +60,14 @@ public class ProcessSettings {
     private Path actualProcessPath;
     private Integer baseBuild;
     private Boolean traced = OcraftBotConfig.cfg().getBoolean(OcraftBotConfig.BOT_TRACED);
+    private boolean ladderGame;
 
     public ProcessSettings setConnection(String ip, Integer port) {
         this.ip = ip;
-        setPortStart(port);
+        this.port = port;
+        if (!isSet(portStart)) {
+            setPortStart(port);
+        }
         return this;
     }
 
@@ -138,16 +144,16 @@ public class ProcessSettings {
 
     public ProcessSettings setPortStart(Integer portStart) {
         portSetup = PortSetup.init(portStart);
-        port = portSetup.fetchPort();
+        this.portStart = portStart;
         return this;
+    }
+
+    public Integer getPortStart() {
+        return portStart;
     }
 
     public PortSetup getPortSetup() {
         return portSetup;
-    }
-
-    public Optional<Integer> lastPort() {
-        return Optional.ofNullable(portSetup).map(PortSetup::lastPort);
     }
 
     public ProcessSettings setWindowSize(Integer width, Integer height) {
@@ -268,6 +274,15 @@ public class ProcessSettings {
         return traced;
     }
 
+    public boolean isLadderGame() {
+        return ladderGame;
+    }
+
+    public ProcessSettings setLadderGame(boolean ladderGame) {
+        this.ladderGame = ladderGame;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -275,8 +290,10 @@ public class ProcessSettings {
 
         ProcessSettings that = (ProcessSettings) o;
 
+        if (ladderGame != that.ladderGame) return false;
         if (ip != null ? !ip.equals(that.ip) : that.ip != null) return false;
         if (port != null ? !port.equals(that.port) : that.port != null) return false;
+        if (portStart != null ? !portStart.equals(that.portStart) : that.portStart != null) return false;
         if (multithreaded != null ? !multithreaded.equals(that.multithreaded) : that.multithreaded != null)
             return false;
         if (realtime != null ? !realtime.equals(that.realtime) : that.realtime != null) return false;
@@ -310,6 +327,7 @@ public class ProcessSettings {
     public int hashCode() {
         int result = ip != null ? ip.hashCode() : 0;
         result = 31 * result + (port != null ? port.hashCode() : 0);
+        result = 31 * result + (portStart != null ? portStart.hashCode() : 0);
         result = 31 * result + (multithreaded != null ? multithreaded.hashCode() : 0);
         result = 31 * result + (realtime != null ? realtime.hashCode() : 0);
         result = 31 * result + (stepSize != null ? stepSize.hashCode() : 0);
@@ -332,6 +350,7 @@ public class ProcessSettings {
         result = 31 * result + (actualProcessPath != null ? actualProcessPath.hashCode() : 0);
         result = 31 * result + (baseBuild != null ? baseBuild.hashCode() : 0);
         result = 31 * result + (traced != null ? traced.hashCode() : 0);
+        result = 31 * result + (ladderGame ? 1 : 0);
         return result;
     }
 
@@ -340,6 +359,7 @@ public class ProcessSettings {
         return "ProcessSettings{" +
                 "ip='" + ip + '\'' +
                 ", port=" + port +
+                ", portStart=" + portStart +
                 ", multithreaded=" + multithreaded +
                 ", realtime=" + realtime +
                 ", stepSize=" + stepSize +
@@ -362,6 +382,7 @@ public class ProcessSettings {
                 ", actualProcessPath=" + actualProcessPath +
                 ", baseBuild=" + baseBuild +
                 ", traced=" + traced +
+                ", ladderGame=" + ladderGame +
                 '}';
     }
 }

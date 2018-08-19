@@ -70,7 +70,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.github.ocraft.s2client.bot.gateway.impl.Fixtures.*;
+import static com.github.ocraft.s2client.bot.Fixtures.*;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

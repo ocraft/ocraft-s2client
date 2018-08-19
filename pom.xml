@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -70,7 +72,7 @@
         <maven.compiler.target>1.9</maven.compiler.target>
 
         <test.integration.skip>true</test.integration.skip>
-        <test.integration.groups />
+        <test.integration.groups/>
 
         <version.protobuf>3.6.1</version.protobuf>
         <version.vertx>3.5.3</version.vertx>
@@ -87,7 +89,7 @@
         <version.junit-jupiter>5.2.0</version.junit-jupiter>
         <version.mockito>2.21.0</version.mockito>
         <version.assertj>3.10.0</version.assertj>
-        <version.equalsverifier>2.5.1</version.equalsverifier>
+        <version.equalsverifier>2.5.2</version.equalsverifier>
         <version.objectdiff>0.95</version.objectdiff>
         <version.awaitility>1.7.0</version.awaitility>
 
@@ -312,12 +314,6 @@
                 <version>${version.cli}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.jayway.awaitility</groupId>
-                <artifactId>awaitility</artifactId>
-                <version>${version.awaitility}</version>
-            </dependency>
-
             <!-- test -->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
@@ -359,6 +355,12 @@
                 <groupId>de.danielbechler</groupId>
                 <artifactId>java-object-diff</artifactId>
                 <version>${version.objectdiff}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.jayway.awaitility</groupId>
+                <artifactId>awaitility</artifactId>
+                <version>${version.awaitility}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.debug;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -102,7 +102,7 @@ class DebugTextTest {
     void throwsExceptionWhenPointIsNotInValidRange() {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> text().of(DEBUG_TEXT).on(Point.of(-1, 1)).build())
-                .withMessage("point [x] has value -1.0 and is lower than 0.0");
+                .withMessage("virtualized point 2d [x] has value -1.0 and is lower than 0.0");
 
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> text().of(DEBUG_TEXT).on(Point.of(1.1f, 1)).build())
@@ -110,7 +110,7 @@ class DebugTextTest {
 
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> text().of(DEBUG_TEXT).on(Point.of(1.0f, -1)).build())
-                .withMessage("point [y] has value -1.0 and is lower than 0.0");
+                .withMessage("virtualized point 2d [y] has value -1.0 and is lower than 0.0");
 
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> text().of(DEBUG_TEXT).on(Point.of(1.0f, 1.1f)).build())

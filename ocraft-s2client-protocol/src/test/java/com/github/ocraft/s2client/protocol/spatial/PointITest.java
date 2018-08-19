@@ -79,11 +79,11 @@ class PointITest {
     @Test
     void throwsExceptionWhenPointIIsNotInValidRange() {
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> PointI.of(-1, 1))
+                .isThrownBy(() -> PointI.of(-1, 1).toSc2Api())
                 .withMessage("pointi [x] has value -1 and is lower than 0");
 
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> PointI.of(1, -1))
+                .isThrownBy(() -> PointI.of(1, -1).toSc2Api())
                 .withMessage("pointi [y] has value -1 and is lower than 0");
     }
 

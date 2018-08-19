@@ -94,7 +94,7 @@ public final class QueryBuildingPlacement implements Sc2ApiSerializable<Query.Re
         placingUnitTag = builder.placingUnitTag;
     }
 
-    public static Builder placeBuilding() {
+    public static QueryBuildingPlacementSyntax placeBuilding() {
         return new Builder();
     }
 

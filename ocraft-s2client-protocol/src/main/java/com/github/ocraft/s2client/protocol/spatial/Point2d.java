@@ -60,8 +60,6 @@ public final class Point2d implements Sc2ApiSerializable<Common.Point2D> {
     private Point2d(float x, float y) {
         this.x = x;
         this.y = y;
-
-        validate();
     }
 
     public static Point2d of(float x, float y) {
@@ -75,6 +73,7 @@ public final class Point2d implements Sc2ApiSerializable<Common.Point2D> {
 
     @Override
     public Common.Point2D toSc2Api() {
+        validate();
         return Common.Point2D.newBuilder().setX(x).setY(y).build();
     }
 
@@ -128,7 +127,8 @@ public final class Point2d implements Sc2ApiSerializable<Common.Point2D> {
 
         Point2d point2d = (Point2d) o;
 
-        return Float.compare(point2d.x, x) == 0 && Float.compare(point2d.y, y) == 0;
+        if (Float.compare(point2d.x, x) != 0) return false;
+        return Float.compare(point2d.y, y) == 0;
     }
 
     @Override

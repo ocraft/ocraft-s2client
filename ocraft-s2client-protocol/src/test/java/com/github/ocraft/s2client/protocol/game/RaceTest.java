@@ -68,4 +68,9 @@ class RaceTest {
                 .withMessage("sc2api race is required");
     }
 
+    @Test
+    void createsRaceFromName() {
+        assertThat(Race.forName("proTosS")).isEqualTo(Race.PROTOSS);
+    }
+
 }

@@ -18,8 +18,7 @@ package com.github.ocraft.s2client.protocol.spatial;
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+c r54t  rt43w * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
@@ -59,8 +58,6 @@ public final class PointI implements Sc2ApiSerializable<Common.PointI> {
     private PointI(int x, int y) {
         this.x = x;
         this.y = y;
-
-        validate();
     }
 
     public static PointI from(Common.PointI sc2ApiPointI) {
@@ -74,6 +71,7 @@ public final class PointI implements Sc2ApiSerializable<Common.PointI> {
 
     @Override
     public Common.PointI toSc2Api() {
+        validate();
         return Common.PointI.newBuilder().setX(x).setY(y).build();
     }
 

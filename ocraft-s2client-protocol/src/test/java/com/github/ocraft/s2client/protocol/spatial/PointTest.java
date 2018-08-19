@@ -88,27 +88,27 @@ class PointTest {
     @Test
     void throwsExceptionWhenPointIsNotInValidRange() {
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> Point.of(-1, 1, 1))
+                .isThrownBy(() -> Point.of(-1, 1, 1).toSc2Api())
                 .withMessage("point [x] has value -1.0 and is lower than 0.0");
 
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> Point.of(256, 1, 1))
+                .isThrownBy(() -> Point.of(256, 1, 1).toSc2Api())
                 .withMessage("point [x] has value 256.0 and is greater than 255.0");
 
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> Point.of(1, -1, 1))
+                .isThrownBy(() -> Point.of(1, -1, 1).toSc2Api())
                 .withMessage("point [y] has value -1.0 and is lower than 0.0");
 
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> Point.of(1, 256, 1))
+                .isThrownBy(() -> Point.of(1, 256, 1).toSc2Api())
                 .withMessage("point [y] has value 256.0 and is greater than 255.0");
 
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> Point.of(1, 1, -1))
+                .isThrownBy(() -> Point.of(1, 1, -1).toSc2Api())
                 .withMessage("point [z] has value -1.0 and is lower than 0.0");
 
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> Point.of(1, 1, 256))
+                .isThrownBy(() -> Point.of(1, 1, 256).toSc2Api())
                 .withMessage("point [z] has value 256.0 and is greater than 255.0");
     }
 

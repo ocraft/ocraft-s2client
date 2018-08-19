@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.bot;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -110,7 +110,7 @@ class S2CoordinatorTest {
         ControlInterface controlInterface = mock(ControlInterface.class);
         doAnswer(invocationOnMock -> {
             ProcessSettings settings = invocationOnMock.getArgument(0);
-            if (isSet(settings.getPortSetup())) settings.getPortSetup().fetchPort();
+            if (isSet(settings.getPortSetup()) && settings.withGameController()) settings.getPortSetup().fetchPort();
             return true;
         }).when(controlInterface).connect(any(ProcessSettings.class));
         when(agent.control()).thenReturn(controlInterface);
@@ -135,6 +135,9 @@ class S2CoordinatorTest {
     }
 
     private ProcessSettings fetchPortsFor(ProcessSettings processSettings, int agentCount) {
+        if (processSettings.withGameController()) {
+            processSettings.getPortSetup().fetchPort();
+        }
         Stream.iterate(0, i -> i < agentCount, i -> i + 1).forEach(i -> processSettings.getPortSetup().fetchPort());
         return processSettings;
     }
@@ -154,7 +157,7 @@ class S2CoordinatorTest {
 
         ProcessSettings expectedProcessSettings = expectedProcessSettingsForConnect();
 
-        assertThat(s2Coordinator.getProcessSettings()).isEqualTo(fetchPortsFor(expectedProcessSettings, 1));
+        assertThat(s2Coordinator.getProcessSettings()).isEqualTo(fetchPortsFor(expectedProcessSettings, 0));
         assertThat(s2Coordinator.getAgents()).containsExactly(agent01);
 
         verify(agent01.control()).connect(expectedProcessSettings);
@@ -165,6 +168,7 @@ class S2CoordinatorTest {
                 .setMultithreaded(CFG_MULTITHREADED)
                 .setRealtime(CFG_REALTIME)
                 .setStepSize(CFG_STEP_SIZE)
+                .setPortStart(CFG_PORT)
                 .setConnection(CFG_IP, CFG_PORT)
                 .setWithGameController(false);
     }
@@ -207,7 +211,7 @@ class S2CoordinatorTest {
                 .setRequestTimeoutMS(CFG_TIMEOUT_IN_MILLIS)
                 .setConnectionTimeoutMS(CFG_TIMEOUT_IN_MILLIS);
 
-        assertThat(s2Coordinator.getProcessSettings()).isEqualTo(fetchPortsFor(expectedProcessSettings, 1));
+        assertThat(s2Coordinator.getProcessSettings()).isEqualTo(fetchPortsFor(expectedProcessSettings, 0));
 
         assertThat(s2Coordinator.getGameSettings())
                 .isEqualTo(new GameSettings()
@@ -236,6 +240,68 @@ class S2CoordinatorTest {
                 .isThrownBy(() -> S2Coordinator.setup().setParticipants().launchStarcraft())
                 .withMessage("one of agents or replay observers is required");
     }
+
+    @Test
+    void connectsToTheLadderServerWithComputerOpponent() {
+        S2Agent agent = makeAgent();
+        int portStart = 7890;
+
+        S2Coordinator s2Coordinator = S2Coordinator.setup()
+                .loadLadderSettings(new String[]{
+                        "-g", String.valueOf(CFG_PORT),
+                        "-o", String.valueOf(portStart),
+                        "-l", CFG_IP,
+                        "-c", "true",
+                        "-a", "Zerg",
+                        "-d", "VeryHard",
+                })
+                .setParticipants(createParticipant(Race.PROTOSS, agent))
+                .connectToLadder();
+
+        ProcessSettings expectedProcessSettings = expectedProcessSettingsForLadder(portStart);
+
+        assertThat(s2Coordinator.getProcessSettings()).isEqualTo(fetchPortsFor(expectedProcessSettings, 0));
+        assertThat(s2Coordinator.getAgents()).containsExactly(agent);
+        assertThat(s2Coordinator.getGameSettings().getMultiplayerOptions()).isNull();
+        assertThat(s2Coordinator.getGameSettings().getPlayerSettings()).hasSize(2);
+
+
+        verify(agent.control()).connect(expectedProcessSettings);
+    }
+
+    private ProcessSettings expectedProcessSettingsForLadder(Integer portStart) {
+        return new ProcessSettings()
+                .setPortStart(portStart)
+                .setConnection(CFG_IP, CFG_PORT)
+                .setLadderGame(true)
+                .setWithGameController(false);
+    }
+
+    @Test
+    void connectsToTheLadderServer() {
+        S2Agent agent = makeAgent();
+        int portStart = 7890;
+
+        S2Coordinator s2Coordinator = S2Coordinator.setup()
+                .loadLadderSettings(new String[]{
+                        "-g", String.valueOf(CFG_PORT),
+                        "-o", String.valueOf(portStart),
+                        "-l", CFG_IP
+                })
+                .setParticipants(createParticipant(Race.PROTOSS, agent))
+                .connectToLadder();
+
+        ProcessSettings expectedProcessSettings = expectedProcessSettingsForLadder(portStart);
+
+        assertThat(s2Coordinator.getProcessSettings()).isEqualTo(fetchPortsFor(expectedProcessSettings, 1));
+        assertThat(s2Coordinator.getAgents()).containsExactly(agent);
+        assertThat(s2Coordinator.getGameSettings().getMultiplayerOptions()).isNotNull();
+        assertThat(s2Coordinator.getGameSettings().getPlayerSettings()).hasSize(1);
+
+
+        verify(agent.control()).connect(expectedProcessSettings);
+    }
+
 
     // TODO p.picheta setReplayPath/loadreplayList/setReplayRecovery/addReplayObserver
 }
