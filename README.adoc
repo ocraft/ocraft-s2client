@@ -11,6 +11,10 @@ Ocraft S2Client consist of two modules:
 * <<ocraft.bot>> - High-level framework based on https://github.com/Blizzard/s2client-api.
 * <<ocraft.api>> - Low-level asynchronous and reactive api.
 
+.Discord Server
+  * Unofficial server for discussing AI questions and projects.
+  * https://discord.gg/qTZ65sh[Invite Link] // see #java-api channel
+
 [[ocraft.bot]]
 == Ocraft S2Client Bot
 
