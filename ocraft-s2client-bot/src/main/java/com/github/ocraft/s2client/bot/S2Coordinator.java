@@ -132,6 +132,7 @@ public class S2Coordinator {
         }
         if (bots > 1) {
             gameSettings.setMultiplayerOptions(multiplayerSetupFor(portStart.get(), bots));
+            log.info("Setting multiplayer options: {}", gameSettings.getMultiplayerOptions());
         }
     }
 

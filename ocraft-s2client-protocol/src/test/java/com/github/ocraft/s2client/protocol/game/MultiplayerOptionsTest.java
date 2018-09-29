@@ -76,7 +76,7 @@ class MultiplayerOptionsTest {
         assertThat(multiplayerOptions.getServerPort()).as("multiplayer port setup: server port")
                 .isEqualTo(PortSet.of(5002, 5003));
         assertThat(multiplayerOptions.getClientPorts()).as("multiplayer port setup: client ports")
-                .containsExactly(PortSet.of(5004, 5005), PortSet.of(5006, 5007));
+                .containsExactly(PortSet.of(5004, 5005));
     }
 
     @Test

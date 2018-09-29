@@ -103,7 +103,7 @@ public final class MultiplayerOptions implements Serializable {
         int sharedPort = ++portStart;
         PortSet serverPort = PortSet.of(++portStart, ++portStart);
         Set<PortSet> clientPorts = new HashSet<>(playerCount);
-        for (int i = 0; i < playerCount; i++) {
+        for (int i = 1; i < playerCount; i++) {
             clientPorts.add(PortSet.of(++portStart, ++portStart));
         }
         return multiplayerSetup().sharedPort(sharedPort).serverPort(serverPort).clientPorts(clientPorts).build();
