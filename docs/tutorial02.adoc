@@ -1,0 +1,325 @@
+ifdef::env-github[:outfilesuffix: .adoc]
+:ext-relative: {outfilesuffix}
+
+[[ocraft.s2client.bot.doc.tut02]]
+== Tutorial 2: SCVs and Supply Depots
+
+The goal in this tutorial will be to build scvs and supply depots.
+
+. Building SCVs.
+. Building Supply Depots.
+. Managing idle SCVs.
+
+As a starting point you should have the code from the end of tutorial 1 compiling and running.
+This tutorial will start where the last one left off.
+
+[[ocraft.s2client.bot.doc.tut02.build_scv]]
+=== Building SCVs
+
+The library provides many events for your convenience, a big one we will use for this tutorial is
+the `onUnitIdle` event. This function will get called each time a unit has been built and has no orders
+or the unit had orders in the previous step and currently does not.
+
+TIP: In both the Starcraft 2 engine and library both buildings and units are considered units and are represented
+with a `Unit` object.
+
+Add the following code to your Bot class.
+
+[source,java]
+----
+// In your bot class.
+@Override
+public void onUnitIdle(UnitInPool unitInPool) {
+   Unit unit = unitInPool.unit();
+   switch ((Units) unit.getType()) {
+       case TERRAN_COMMAND_CENTER:
+           actions().unitCommand(unit, Abilities.TRAIN_SCV, false);
+           break;
+       default:
+           break;
+   }
+}
+----
+
+As you can see we are going to try to build an SCV with the idle unit if it is a Command Center.
+
+TIP: The Units enum holds the ids of common units you are likely to find in 1v1 matches. Feel free to look at
+com.github.ocraft.s2client.protocol.data.Units to see a list of units and their corresponding id.
+
+[[ocraft.s2client.bot.doc.tut02.build_supply]]
+=== Building Supply Depots
+
+Compile and run your bot now. You will see the Command Center making scvs up until the supply cap.
+That seems pretty good! We just need to build some supply depots now, lets replace the code in onStep
+with the following.
+
+[source,java]
+----
+@Override
+public void onStep() {
+    tryBuildSupplyDepot();
+}
+----
+
+Implement `tryBuildSupplyDepot` and `tryBuildStructure` as methods of our bot class.
+
+[source,java]
+----
+private boolean tryBuildSupplyDepot() {
+   // If we are not supply capped, don't build a supply depot.
+   if (observation().getFoodUsed() <= observation().getFoodCap() - 2) {
+       return false;
+   }
+
+   // Try and build a depot. Find a random TERRAN_SCV and give it the order.
+   return tryBuildStructure(Abilities.BUILD_SUPPLY_DEPOT, Units.TERRAN_SCV);
+}
+
+private boolean tryBuildStructure(Ability abilityTypeForStructure, UnitType unitType) {
+   // If a unit already is building a supply structure of this type, do nothing.
+   if (!observation().getUnits(Alliance.SELF, doesBuildWith(abilityTypeForStructure)).isEmpty()) {
+       return false;
+   }
+
+   // Just try a random location near the unit.
+   Optional<UnitInPool> unitInPool = getRandomUnit(unitType);
+   if (unitInPool.isPresent()) {
+       Unit unit = unitInPool.get().unit();
+       actions().unitCommand(
+               unit,
+               abilityTypeForStructure,
+               unit.getPosition().toPoint2d().add(Point2d.of(getRandomScalar(), getRandomScalar()).mul(15.0f)),
+               false);
+       return true;
+   } else {
+       return false;
+   }
+
+}
+
+private Predicate<UnitInPool> doesBuildWith(Ability abilityTypeForStructure) {
+   return unitInPool -> unitInPool.unit()
+           .getOrders()
+           .stream()
+           .anyMatch(unitOrder -> abilityTypeForStructure.equals(unitOrder.getAbility()));
+}
+
+private Optional<UnitInPool> getRandomUnit(UnitType unitType) {
+   List<UnitInPool> units = observation().getUnits(Alliance.SELF, UnitInPool.isUnit(unitType));
+   return units.isEmpty()
+           ? Optional.empty()
+           : Optional.of(units.get(ThreadLocalRandom.current().nextInt(units.size())));
+}
+
+private float getRandomScalar() {
+   return ThreadLocalRandom.current().nextFloat() * 2 - 1;
+}
+----
+
+Compile and run your bot now. It's mining and building supply depots, it's almost ready for ladder!
+You'll notice when the SCV is done building a supply depot it sits idle, how useless. Lets fix that now.
+
+[[ocraft.s2client.bot.doc.tut02.idle]]
+=== Managing Idle SCVs
+
+We have already hooked into the on idle event for building SCVs, we can use that same function to manage idle ones.
+Refactor your `onUnitIdle` function with the following.
+
+[source,java]
+----
+@Override
+public void onUnitIdle(UnitInPool unitInPool) {
+    Unit unit = unitInPool.unit();
+    switch ((Units) unit.getType()) {
+        case TERRAN_COMMAND_CENTER:
+            actions().unitCommand(unit, Abilities.TRAIN_SCV, false);
+            break;
+        case TERRAN_SCV:
+            findNearestMineralPatch(unit.getPosition().toPoint2d()).ifPresent(mineralPath ->
+                    actions().unitCommand(unit, Abilities.SMART, mineralPath, false));
+            break;
+        default:
+            break;
+    }
+}
+----
+
+TIP: The ability type of SMART is equivalent to a right click in Starcraft 2 when you have a unit selected.
+
+Now we just need to implement `findNearestMineralPatch` and we can fix our lazy SCV.
+
+[source,java]
+----
+private Optional<Unit> findNearestMineralPatch(Point2d start) {
+   List<UnitInPool> units = observation().getUnits(Alliance.NEUTRAL);
+   double distance = Double.MAX_VALUE;
+   Unit target = null;
+   for (UnitInPool unitInPool : units) {
+       Unit unit = unitInPool.unit();
+       if (unit.getType().equals(Units.NEUTRAL_MINERAL_FIELD)) {
+           double d = unit.getPosition().toPoint2d().distance(start);
+           if (d < distance) {
+               distance = d;
+               target = unit;
+           }
+       }
+   }
+   return Optional.ofNullable(target);
+}
+----
+
+[[ocraft.s2client.bot.doc.tut02.excercise]]
+=== Exercises
+
+TIP: These exercises are very optional, so feel free to move onto the next tutorial. Otherwise, they act as a fun way to
+discover more about the API.
+
+. As you build more scvs you'll want to start building supply depots at a higher rate. Try modifying the code to build
+multiple supply depots instead of just 1 at a time.
+. (Challenging) Build two refineries and start mining gas. You can use code similar to `findNearestMineralPatch` to
+find a geyser. You'll then want to detect when the refinery is either created or becomes idle and begin gathering gas
+with 3 scvs.
+
+[[ocraft.s2client.bot.doc.tut02.full_src]]
+=== Full Source Code
+
+[source,java]
+----
+package com.github.ocraft.s2client.sample;
+
+import com.github.ocraft.s2client.bot.S2Agent;
+import com.github.ocraft.s2client.bot.S2Coordinator;
+import com.github.ocraft.s2client.bot.gateway.UnitInPool;
+import com.github.ocraft.s2client.protocol.data.Abilities;
+import com.github.ocraft.s2client.protocol.data.Ability;
+import com.github.ocraft.s2client.protocol.data.UnitType;
+import com.github.ocraft.s2client.protocol.data.Units;
+import com.github.ocraft.s2client.protocol.game.BattlenetMap;
+import com.github.ocraft.s2client.protocol.game.Difficulty;
+import com.github.ocraft.s2client.protocol.game.Race;
+import com.github.ocraft.s2client.protocol.spatial.Point2d;
+import com.github.ocraft.s2client.protocol.unit.Alliance;
+import com.github.ocraft.s2client.protocol.unit.Unit;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Predicate;
+
+public class TutorialBot {
+
+    private static class Bot extends S2Agent {
+
+        @Override
+        public void onGameStart() {
+            System.out.println("Hello world of Starcraft II bots!");
+        }
+
+        @Override
+        public void onStep() {
+            tryBuildSupplyDepot();
+        }
+
+        private boolean tryBuildSupplyDepot() {
+            // If we are not supply capped, don't build a supply depot.
+            if (observation().getFoodUsed() <= observation().getFoodCap() - 2) {
+                return false;
+            }
+
+            // Try and build a depot. Find a random TERRAN_SCV and give it the order.
+            return tryBuildStructure(Abilities.BUILD_SUPPLY_DEPOT, Units.TERRAN_SCV);
+        }
+
+        private boolean tryBuildStructure(Ability abilityTypeForStructure, UnitType unitType) {
+            // If a unit already is building a supply structure of this type, do nothing.
+            if (!observation().getUnits(Alliance.SELF, doesBuildWith(abilityTypeForStructure)).isEmpty()) {
+                return false;
+            }
+
+            // Just try a random location near the unit.
+            Optional<UnitInPool> unitInPool = getRandomUnit(unitType);
+            if (unitInPool.isPresent()) {
+                Unit unit = unitInPool.get().unit();
+                actions().unitCommand(
+                        unit,
+                        abilityTypeForStructure,
+                        unit.getPosition().toPoint2d().add(Point2d.of(getRandomScalar(), getRandomScalar()).mul(15.0f)),
+                        false);
+                return true;
+            } else {
+                return false;
+            }
+
+        }
+
+        private Predicate<UnitInPool> doesBuildWith(Ability abilityTypeForStructure) {
+            return unitInPool -> unitInPool.unit()
+                    .getOrders()
+                    .stream()
+                    .anyMatch(unitOrder -> abilityTypeForStructure.equals(unitOrder.getAbility()));
+        }
+
+        private Optional<UnitInPool> getRandomUnit(UnitType unitType) {
+            List<UnitInPool> units = observation().getUnits(Alliance.SELF, UnitInPool.isUnit(unitType));
+            return units.isEmpty()
+                    ? Optional.empty()
+                    : Optional.of(units.get(ThreadLocalRandom.current().nextInt(units.size())));
+        }
+
+        private float getRandomScalar() {
+            return ThreadLocalRandom.current().nextFloat() * 2 - 1;
+        }
+
+
+        @Override
+        public void onUnitIdle(UnitInPool unitInPool) {
+            Unit unit = unitInPool.unit();
+            switch ((Units) unit.getType()) {
+                case TERRAN_COMMAND_CENTER:
+                    actions().unitCommand(unit, Abilities.TRAIN_SCV, false);
+                    break;
+                case TERRAN_SCV:
+                    findNearestMineralPatch(unit.getPosition().toPoint2d()).ifPresent(mineralPath ->
+                            actions().unitCommand(unit, Abilities.SMART, mineralPath, false));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private Optional<Unit> findNearestMineralPatch(Point2d start) {
+            List<UnitInPool> units = observation().getUnits(Alliance.NEUTRAL);
+            double distance = Double.MAX_VALUE;
+            Unit target = null;
+            for (UnitInPool unitInPool : units) {
+                Unit unit = unitInPool.unit();
+                if (unit.getType().equals(Units.NEUTRAL_MINERAL_FIELD)) {
+                    double d = unit.getPosition().toPoint2d().distance(start);
+                    if (d < distance) {
+                        distance = d;
+                        target = unit;
+                    }
+                }
+            }
+            return Optional.ofNullable(target);
+        }
+
+    }
+
+    public static void main(String[] args) {
+        Bot bot = new Bot();
+        S2Coordinator s2Coordinator = S2Coordinator.setup()
+                .loadSettings(args)
+                .setParticipants(
+                        S2Coordinator.createParticipant(Race.TERRAN, bot),
+                        S2Coordinator.createComputer(Race.ZERG, Difficulty.VERY_EASY))
+                .launchStarcraft()
+                .startGame(BattlenetMap.of("Cloud Kingdom LE"));
+
+        while (s2Coordinator.update()) {
+        }
+
+        s2Coordinator.quit();
+    }
+}
+----

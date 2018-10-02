@@ -496,7 +496,7 @@ class ControlInterfaceImplIT {
         when(playerCommon.getWarpGateCount()).thenReturn(Optional.of(1));
 
         Observation observation = mock(Observation.class);
-        when(observation.getGameLoop()).thenReturn(1);
+        when(observation.getGameLoop()).thenReturn(2);
         when(observation.getRaw()).thenReturn(Optional.of(observationRaw));
         when(observation.getPlayerCommon()).thenReturn(playerCommon);
         when(observation.getScore()).thenReturn(Optional.of(mock(Score.class)));

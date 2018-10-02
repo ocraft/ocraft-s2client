@@ -1,0 +1,355 @@
+ifdef::env-github[:outfilesuffix: .adoc]
+:ext-relative: {outfilesuffix}
+
+[[ocraft.s2client.bot.doc.tut03]]
+== Tutorial 3: Building Marines and Scouting
+
+So far we've been focused on some of the simpler macro abilities required to make a bot. You've gotten your
+bot to build scv's and supply depots when it's running near the supply cap. In this tutorial we'll learn
+the following.
+
+. Building a Barracks.
+. Building Marines from said Barracks.
+. Scouting Your Opponent.
+
+This tutorial builds on the previous so make sure the code from the last tutorial is copy pasted into
+TutorialBot.java and you can build/run it.
+
+[[ocraft.s2client.bot.doc.tut03.build_barracks]]
+=== Building a Barracks
+
+The first step to any good Terran build is to build marines, and to build marines we must first build a barracks.
+We've already seen how to construct supply depots so lets create some similar code for constructing a barracks.
+Modify your `onStep` method to the following.
+
+[source,java]
+----
+@Override
+public void onStep() {
+    tryBuildSupplyDepot();
+    tryBuildBarracks();
+}
+----
+
+TIP: We'll implement tryBuildBarracks shortly.
+
+First, we have some constraints we must satisfy to build a barracks, primarily, we need a supply depot. We'd also like
+to only build one for this this tutorial so lets create a helper function for counting unit types and we'll use that in
+`tryBuildBarracks` in order to determine if we should build one or not.
+
+[source,java]
+----
+private int countUnitType(Units unitType) {
+    return observation().getUnits(Alliance.SELF, UnitInPool.isUnit(unitType)).size();
+}
+----
+
+That function is counting the number of a certain unit type the player owns. `getUnits` takes a Predicate parameter that
+allows you to remove units that don't meet a certain condition. In this case that condition is that the units are of
+the desired `UnitType`.
+
+
+We now have the necessary helper methods to implement `tryBuildBarracks`.
+
+[source,java]
+----
+private boolean tryBuildBarracks() {
+    if (countUnitType(Units.TERRAN_SUPPLY_DEPOT) < 1) {
+        return false;
+    }
+
+    if (countUnitType(Units.TERRAN_BARRACKS) > 0) {
+        return false;
+    }
+
+    return tryBuildStructure(Abilities.BUILD_BARRACKS, Units.TERRAN_SCV);
+}
+----
+
+You can build and run your code at this point, if you'd like, you should see your bot building a barracks after it
+completes its first supply depot. We'd now like that barracks to actually do something. Recall we've overwritten
+a `onUnitIdle` event in an earlier tutorial, completion of the barracks should trigger that event!
+
+[[ocraft.s2client.bot.doc.tut03.build_marines]]
+=== Building Marines
+
+Similar to how we construct SCVs we can now produce marines. Add the following code to the switch case in `onUnitIdle`.
+The entire function should look like the following, the new code is the `Units.TERRAN_BARRACKS` case:
+
+[source,java]
+----
+@Override
+public void onUnitIdle(UnitInPool unitInPool) {
+   Unit unit = unitInPool.unit();
+   switch ((Units) unit.getType()) {
+       case TERRAN_COMMAND_CENTER:
+           actions().unitCommand(unit, Abilities.TRAIN_SCV, false);
+           break;
+       case TERRAN_SCV:
+           findNearestMineralPatch(unit.getPosition().toPoint2d()).ifPresent(mineralPath ->
+                   actions().unitCommand(unit, Abilities.SMART, mineralPath, false));
+           break;
+       case TERRAN_BARRACKS: {
+           actions().unitCommand(unit, Abilities.TRAIN_MARINE, false);
+           break;
+       }
+       default:
+           break;
+   }
+}
+----
+
+Notice how easy that is! In general, `onUnitIdle` is an excellent function to add code to to control unit production and
+orders. At this point if you build and run the code your bot should build a barracks and start producing marines with
+them. Our last step should be to scout the enemy.
+
+[[ocraft.s2client.bot.doc.tut03.scout]]
+=== Scouting Your Opponent
+
+In a normal match when the game begins the minimap is pinged with all possible starting locations of enemies, the api
+contains that same information in the link:{ObservationInterface}[ObservationInterface]. You can retrieve it via
+`getGameInfo()`. Lets use that method in our onUnitIdle so a newly spawned marine will attack move towards the enemy as
+soon as it's spawned. It will be fun to see countless marines walk to their demise.
+
+In your `onUnitIdle` add the following code to your switch case:
+
+[source,java]
+----
+@Override
+public void onUnitIdle(UnitInPool unitInPool) {
+    Unit unit = unitInPool.unit();
+    switch ((Units) unit.getType()) {
+        case TERRAN_COMMAND_CENTER:
+            actions().unitCommand(unit, Abilities.TRAIN_SCV, false);
+            break;
+        case TERRAN_SCV:
+            findNearestMineralPatch(unit.getPosition().toPoint2d()).ifPresent(mineralPath ->
+                    actions().unitCommand(unit, Abilities.SMART, mineralPath, false));
+            break;
+        case TERRAN_BARRACKS: {
+            actions().unitCommand(unit, Abilities.TRAIN_MARINE, false);
+            break;
+        }
+        case TERRAN_MARINE: {
+            findEnemyPosition().ifPresent(point2d ->
+                    actions().unitCommand(unit, Abilities.ATTACK_ATTACK, point2d, false));
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+// Tries to find a random location that can be pathed to on the map.
+// Returns Point2d if a new, random location has been found that is pathable by the unit.
+private Optional<Point2d> findEnemyPosition() {
+   ResponseGameInfo gameInfo = observation().getGameInfo();
+
+   Optional<StartRaw> startRaw = gameInfo.getStartRaw();
+   if (startRaw.isPresent()) {
+       Set<Point2d> startLocations = startRaw.get().getStartLocations();
+       startLocations.remove(observation().getStartLocation().toPoint2d());
+       if (startLocations.isEmpty()) return Optional.empty();
+       return Optional.of(new ArrayList<>(startLocations)
+               .get(ThreadLocalRandom.current().nextInt(startLocations.size())));
+   } else {
+       return Optional.empty();
+   }
+}
+----
+
+How fun, build and run and you can watch marines endlessly walk to their death.
+
+[[ocraft.s2client.bot.doc.tut03.excercise]]
+=== Exercises
+
+. Try building and producing marines from three barracks instead of one.
+. (Challenging) Perform a simple rush, from your three barracks wait until you've gathered 10-20 marines then attack
+move to your enemy.
+
+[[ocraft.s2client.bot.doc.tut03.full_src]]
+=== Full Source Code
+
+[source,java]
+----
+package com.github.ocraft.s2client.sample;
+
+import com.github.ocraft.s2client.bot.S2Agent;
+import com.github.ocraft.s2client.bot.S2Coordinator;
+import com.github.ocraft.s2client.bot.gateway.UnitInPool;
+import com.github.ocraft.s2client.protocol.data.Abilities;
+import com.github.ocraft.s2client.protocol.data.Ability;
+import com.github.ocraft.s2client.protocol.data.UnitType;
+import com.github.ocraft.s2client.protocol.data.Units;
+import com.github.ocraft.s2client.protocol.game.BattlenetMap;
+import com.github.ocraft.s2client.protocol.game.Difficulty;
+import com.github.ocraft.s2client.protocol.game.Race;
+import com.github.ocraft.s2client.protocol.game.raw.StartRaw;
+import com.github.ocraft.s2client.protocol.response.ResponseGameInfo;
+import com.github.ocraft.s2client.protocol.spatial.Point2d;
+import com.github.ocraft.s2client.protocol.unit.Alliance;
+import com.github.ocraft.s2client.protocol.unit.Unit;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Predicate;
+
+public class TutorialBot {
+
+    private static class Bot extends S2Agent {
+
+        @Override
+        public void onGameStart() {
+            System.out.println("Hello world of Starcraft II bots!");
+        }
+
+        @Override
+        public void onStep() {
+            tryBuildSupplyDepot();
+            tryBuildBarracks();
+        }
+
+        private boolean tryBuildSupplyDepot() {
+            // If we are not supply capped, don't build a supply depot.
+            if (observation().getFoodUsed() <= observation().getFoodCap() - 2) {
+                return false;
+            }
+
+            // Try and build a depot. Find a random TERRAN_SCV and give it the order.
+            return tryBuildStructure(Abilities.BUILD_SUPPLY_DEPOT, Units.TERRAN_SCV);
+        }
+
+        private boolean tryBuildStructure(Ability abilityTypeForStructure, UnitType unitType) {
+            // If a unit already is building a supply structure of this type, do nothing.
+            if (!observation().getUnits(Alliance.SELF, doesBuildWith(abilityTypeForStructure)).isEmpty()) {
+                return false;
+            }
+
+            // Just try a random location near the unit.
+            Optional<UnitInPool> unitInPool = getRandomUnit(unitType);
+            if (unitInPool.isPresent()) {
+                Unit unit = unitInPool.get().unit();
+                actions().unitCommand(
+                        unit,
+                        abilityTypeForStructure,
+                        unit.getPosition().toPoint2d().add(Point2d.of(getRandomScalar(), getRandomScalar()).mul(15.0f)),
+                        false);
+                return true;
+            } else {
+                return false;
+            }
+
+        }
+
+        private Predicate<UnitInPool> doesBuildWith(Ability abilityTypeForStructure) {
+            return unitInPool -> unitInPool.unit()
+                    .getOrders()
+                    .stream()
+                    .anyMatch(unitOrder -> abilityTypeForStructure.equals(unitOrder.getAbility()));
+        }
+
+        private Optional<UnitInPool> getRandomUnit(UnitType unitType) {
+            List<UnitInPool> units = observation().getUnits(Alliance.SELF, UnitInPool.isUnit(unitType));
+            return units.isEmpty()
+                    ? Optional.empty()
+                    : Optional.of(units.get(ThreadLocalRandom.current().nextInt(units.size())));
+        }
+
+        private float getRandomScalar() {
+            return ThreadLocalRandom.current().nextFloat() * 2 - 1;
+        }
+
+        @Override
+        public void onUnitIdle(UnitInPool unitInPool) {
+            Unit unit = unitInPool.unit();
+            switch ((Units) unit.getType()) {
+                case TERRAN_COMMAND_CENTER:
+                    actions().unitCommand(unit, Abilities.TRAIN_SCV, false);
+                    break;
+                case TERRAN_SCV:
+                    findNearestMineralPatch(unit.getPosition().toPoint2d()).ifPresent(mineralPath ->
+                            actions().unitCommand(unit, Abilities.SMART, mineralPath, false));
+                    break;
+                case TERRAN_BARRACKS:
+                    actions().unitCommand(unit, Abilities.TRAIN_MARINE, false);
+                    break;
+                case TERRAN_MARINE:
+                    findEnemyPosition().ifPresent(point2d ->
+                            actions().unitCommand(unit, Abilities.ATTACK_ATTACK, point2d, false));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private Optional<Unit> findNearestMineralPatch(Point2d start) {
+            List<UnitInPool> units = observation().getUnits(Alliance.NEUTRAL);
+            double distance = Double.MAX_VALUE;
+            Unit target = null;
+            for (UnitInPool unitInPool : units) {
+                Unit unit = unitInPool.unit();
+                if (unit.getType().equals(Units.NEUTRAL_MINERAL_FIELD)) {
+                    double d = unit.getPosition().toPoint2d().distance(start);
+                    if (d < distance) {
+                        distance = d;
+                        target = unit;
+                    }
+                }
+            }
+            return Optional.ofNullable(target);
+        }
+
+        private boolean tryBuildBarracks() {
+            if (countUnitType(Units.TERRAN_SUPPLY_DEPOT) < 1) {
+                return false;
+            }
+
+            if (countUnitType(Units.TERRAN_BARRACKS) > 0) {
+                return false;
+            }
+
+            return tryBuildStructure(Abilities.BUILD_BARRACKS, Units.TERRAN_SCV);
+        }
+
+        private int countUnitType(Units unitType) {
+            return observation().getUnits(Alliance.SELF, UnitInPool.isUnit(unitType)).size();
+        }
+
+        // Tries to find a random location that can be pathed to on the map.
+        // Returns Point2d if a new, random location has been found that is pathable by the unit.
+        private Optional<Point2d> findEnemyPosition() {
+            ResponseGameInfo gameInfo = observation().getGameInfo();
+
+            Optional<StartRaw> startRaw = gameInfo.getStartRaw();
+            if (startRaw.isPresent()) {
+                Set<Point2d> startLocations = startRaw.get().getStartLocations();
+                startLocations.remove(observation().getStartLocation().toPoint2d());
+                if (startLocations.isEmpty()) return Optional.empty();
+                return Optional.of(new ArrayList<>(startLocations)
+                        .get(ThreadLocalRandom.current().nextInt(startLocations.size())));
+            } else {
+                return Optional.empty();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Bot bot = new Bot();
+        S2Coordinator s2Coordinator = S2Coordinator.setup()
+                .loadSettings(args)
+                .setParticipants(
+                        S2Coordinator.createParticipant(Race.TERRAN, bot),
+                        S2Coordinator.createComputer(Race.ZERG, Difficulty.VERY_EASY))
+                .launchStarcraft()
+                .startGame(BattlenetMap.of("Cloud Kingdom LE"));
+
+        while (s2Coordinator.update()) {
+        }
+
+        s2Coordinator.quit();
+    }
+}
+----

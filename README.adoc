@@ -9,8 +9,11 @@ The StarCraft II Java API provides access to in-game state observation and unit 
 defined protocol over a websocket connection.
 
 .Discord Server
-  * Unofficial server for discussing AI questions and projects.
-  * https://discord.gg/qTZ65sh[Invite Link] // see #java-api channel
+* Unofficial server for discussing AI questions and projects.
+* https://discord.gg/qTZ65sh[Invite Link] // see #java-api channel
+
+.Documentation
+*link:http://ocraft.github.io/ocraft-s2client-bot[]*
 
 [[ocraft.bot]]
 == Ocraft S2Client Bot
@@ -27,7 +30,7 @@ sc2client-api should be valid or similar by analogy in this Java Api. More info 
 <dependency>
     <groupId>com.github.ocraft</groupId>
     <artifactId>ocraft-s2client-bot</artifactId>
-    <version>0.2.2</version>
+    <version>0.2.3</version>
 </dependency>
 ----
 

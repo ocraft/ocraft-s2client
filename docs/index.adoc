@@ -1,0 +1,61 @@
+ifdef::env-github[:outfilesuffix: .adoc]
+:ext-relative: {outfilesuffix}
+:toc: left
+:toclevels: 4
+:ObservationInterface: apidocs/com/github/ocraft/s2client/bot/gateway/ObservationInterface.html
+:ActionInterface: apidocs/com/github/ocraft/s2client/bot/gateway/ActionInterface.html
+:S2Agent: apidocs/com/github/ocraft/s2client/bot/S2Agent.html
+:S2Coordinator: apidocs/com/github/ocraft/s2client/bot/S2Coordinator.html
+:ClientEvents: apidocs/com/github/ocraft/s2client/bot/ClientEvents.html
+
+[[ocraft.s2client.bot.doc]]
+= Java Api: ocraft-s2client-bot documentation
+
+link:apidocs//index.html?overview-summary.html[>>> JavaDoc for ocraft-s2client-bot <<<]
+
+Some quick start guides, strongly based on tutorial for c++ api (https://blizzard.github.io/s2client-api):
+
+<<ocraft.s2client.bot.doc.build, How to Build>> - How to get started building this project.
+
+<<ocraft.s2client.bot.doc.start, Getting Started with JavaApi>> - How to run examples.
+
+<<ocraft.s2client.bot.doc.tut01, Tutorial 01>> - Create a simple bot.
+
+<<ocraft.s2client.bot.doc.tut02, Tutorial 02>> - Make your bot build SCV's and Supply Depots.
+
+<<ocraft.s2client.bot.doc.tut03, Tutorial 03>> - Building marines and scouting.
+
+If you're looking for the underlying protocol to communicate with the SC2 executable service see:
+
+link:https://github.com/Blizzard/s2client-proto[StarCraft II Client Protocol (s2client-proto)]
+
+[[ocraft.s2client.bot.doc.interfaces]]
+== Important Interfaces
+
+The two most important interfaces you will use are the link:{ObservationInterface}[ObservationInterface] and the
+link:{ActionInterface}[ActionInterface] which are available to your link:{S2Agent}[S2Agent]. Get the
+link:{ObservationInterface}[ObservationInterface] by calling `observation()`, and the
+link:{ActionInterface}[ActionInterface] by calling `actions()` from your link:{S2Agent}[S2Agent].
+
+An `S2Agent` is your bot, capable of performing actions in a game -- a player.
+
+An `Observation` is a snapshot of the game's state at any given point in time, which is available at any time when
+a game or replay is running. The Observation Interface provides access to a list of units, including your Bot's units
+and enemy units that are visible to your units.
+
+An `Action` is a command given to units, for example to attack, move or build a structure.
+
+[[ocraft.s2client.bot.doc.notes]]
+== Important Notes
+
+Structures are a type of unit, and are included when you call `observation().getUnits()`.
+
+include::building.adoc[How to Build]
+
+include::getting_started.adoc[Getting Started with SC2API]
+
+include::tutorial01.adoc[Tutorial 1]
+
+include::tutorial02.adoc[Tutorial 2]
+
+include::tutorial03.adoc[Tutorial 3]

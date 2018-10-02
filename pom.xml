@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -41,7 +43,7 @@
     <developers>
         <developer>
             <name>Piotr Picheta</name>
-            <url>https://groups.google.com/d/forum/ocraft-s2client</url>
+            <url>https://discord.gg/qTZ65sh</url>
             <email>ocraftproject@gmail.com</email>
         </developer>
     </developers>
@@ -70,7 +72,7 @@
         <maven.compiler.target>1.9</maven.compiler.target>
 
         <test.integration.skip>true</test.integration.skip>
-        <test.integration.groups />
+        <test.integration.groups/>
 
         <version.protobuf>3.6.1</version.protobuf>
         <version.vertx>3.5.3</version.vertx>
@@ -105,6 +107,8 @@
         <version.plugin.staging>1.6.8</version.plugin.staging>
         <version.plugin.release>2.5.3</version.plugin.release>
         <version.plugin.license>1.16</version.plugin.license>
+        <version.plugin.asciidoctor>1.5.6</version.plugin.asciidoctor>
+        <version.plugin.ghpage>0.12</version.plugin.ghpage>
 
     </properties>
 
@@ -127,6 +131,7 @@
 
         <profile>
             <id>RELEASE</id>
+
             <build>
                 <plugins>
                     <plugin>
@@ -146,7 +151,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${version.plugin.javadoc}</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -197,6 +201,43 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>license-maven-plugin</artifactId>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>DOC</id>
+
+            <build>
+                <plugins>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctor-maven-plugin</artifactId>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>com.github.github</groupId>
+                        <artifactId>site-maven-plugin</artifactId>
+                        <version>${version.plugin.ghpage}</version>
+                        <configuration>
+                            <message>Creating site for ${project.version}</message>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>site</goal>
+                                </goals>
+                                <phase>site</phase>
+                            </execution>
+                        </executions>
                     </plugin>
 
                 </plugins>
@@ -361,6 +402,7 @@
                 <version>${version.awaitility}</version>
                 <scope>test</scope>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -416,6 +458,52 @@
                                 <goal>update-project-license</goal>
                             </goals>
                             <phase>process-sources</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${version.plugin.javadoc}</version>
+                    <configuration>
+                        <excludePackageNames>SC2APIProtocol</excludePackageNames>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>aggregate</id>
+                            <goals>
+                                <goal>aggregate</goal>
+                            </goals>
+                            <phase>site</phase>
+                            <configuration>
+                                <outputDirectory>${project.reporting.outputDirectory}/apidocs</outputDirectory>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.asciidoctor</groupId>
+                    <artifactId>asciidoctor-maven-plugin</artifactId>
+                    <version>${version.plugin.asciidoctor}</version>
+                    <inherited>false</inherited>
+                    <executions>
+                        <execution>
+                            <id>output-html</id>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>process-asciidoc</goal>
+                            </goals>
+                            <configuration>
+                                <sourceDirectory>docs</sourceDirectory>
+                                <outputDirectory>${project.build.directory}/site</outputDirectory>
+                                <preserveDirectories>true</preserveDirectories>
+                                <sourceHighlighter>coderay</sourceHighlighter>
+                                <backend>html5</backend>
+                                <doctype>docbook</doctype>
+                                <attributes>
+                                    <toc>left</toc>
+                                </attributes>
+                            </configuration>
                         </execution>
                     </executions>
                 </plugin>

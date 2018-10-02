@@ -663,7 +663,7 @@ class ControlInterfaceImpl implements ControlInterface {
     }
 
     private boolean hasPreviousState(Unit unit) {
-        return observationInternal().unitPool().previous().containsKey(unit.getTag());
+        return observation().getGameLoop() > 1 && observationInternal().unitPool().previous().containsKey(unit.getTag());
     }
 
     private void issueIdleEvent(UnitInPool unitInPool, List<Tag> commands) {

@@ -1,0 +1,175 @@
+ifdef::env-github[:outfilesuffix: .adoc]
+:ext-relative: {outfilesuffix}
+
+[[ocraft.s2client.bot.doc.tut01]]
+== Tutorial 1: Getting Started
+
+This first tutorial will cover the following concepts. The source code for this tutorial will be available, in full,
+at the bottom of this document. We will go over the following concepts.
+
+. Creating a simple bot class.
+. Starting a bot game with the link:{S2Coordinator}[S2Coordinator] class.
+. Running the game simulation.
+
+[[ocraft.s2client.bot.doc.tut01.simple_bot]]
+=== Creating A Simple Bot
+
+Open the file ocraft-s2client-sample/src/main/java/com/github/ocraft/s2client/sample/TutorialBot.java, this is where
+you'll be adding your code. It is already setup with the necessary include section and classpath to the api.
+
+In order to hook into and control game state using this library you'll want to inherit from the link:{S2Agent}[S2Agent]
+class and overwrite the events you are interested in.
+
+You can see a list of all events available to you in link:{ClientEvents}[ClientEvents]. We will start simple, our bot
+will start by printing hello world to console when the game starts so we will only overwrite the `onGameStart` event.
+Add the following code to TutorialBot.java.
+
+[source,java]
+----
+package com.github.ocraft.s2client.sample;
+
+import com.github.ocraft.s2client.bot.S2Agent;
+
+public class TutorialBot {
+    private static class Bot extends S2Agent {
+
+        @Override
+        public void onGameStart() {
+            System.out.println("Hello world of Starcraft II bots!");
+        }
+    }
+
+    public static void main(String[] args) {
+
+    }
+}
+----
+
+[[ocraft.s2client.bot.doc.tut01.start_game]]
+=== Starting The Game
+
+Now that we have our bot the next thing to do is start a game with the bot.
+
+Import link:{S2Coordinator}[S2Coordinator] class, you will use it to start and manage a game.
+
+TIP: The coordinator acts as a managing class for any running games and replays. Some of its responsibilities
+include starting the Starcraft 2 executable with the proper game settings, setting up multiplayer and stepping your
+bots.
+
+The coordinator requires some preliminary information to properly start and connect to the Starcraft executable.
+
+Replace the `main` method with the following code:
+
+[source,java]
+----
+public static void main(String[] args) {
+    Bot bot = new Bot();
+    S2Coordinator s2Coordinator = S2Coordinator.setup()
+            .loadSettings(args)
+            .setParticipants(
+                    S2Coordinator.createParticipant(Race.TERRAN, bot),
+                    S2Coordinator.createComputer(Race.ZERG, Difficulty.VERY_EASY))
+            .launchStarcraft()
+            .startGame(BattlenetMap.of("Cloud Kingdom LE"));
+    s2Coordinator.quit();
+}
+----
+
+IMPORTANT: If you have started the retail binary loadSettings should automatically load necessary settings.
+Otherwise you can provide the path to the game on the command line. Invoke the binary with --help to see more detailed
+instructions.
+
+In a future tutorial we will cover how you can specify settings as arguments via command line.
+
+At this point you should be able to build and run. The game should start on Cloud Kingdom LE map with you controlling
+the Terran against an AI zerg. You should see 'Hello world of Starcraft II bots!' print in the console when the game
+starts and then it will instantly shut down.
+
+By default the game is set to single step when using the library so you must step in manually.
+
+[[ocraft.s2client.bot.doc.tut01.run]]
+=== Running The Simulation
+
+Now you are ready to run the Starcraft 2 simulation. Overwrite the onStep method in your bot. For now we will simply
+print the game loop.
+
+Add to your bot the following function.
+
+[source,java]
+----
+@Override
+public void onStep() {
+    System.out.println(observation().getGameLoop());
+}
+----
+
+And the following to the bottom of the main function.
+
+[source,java]
+----
+while (s2Coordinator.update()) {
+}
+
+s2Coordinator.quit();
+----
+
+Your bots onStep method will be called each time the coordinator steps the simulation forward. The `observation()`
+method returns an interface that contains functions to examine the current game state. We are simply printing the game
+loop in this example.
+
+[[ocraft.s2client.bot.doc.tut01.excercise]]
+=== Exercises
+
+As a couple simple exercises try to do the following:
+
+. Print the number of minerals/vespene your bot currently has.
+(Hint: Use the link:{ObservationInterface}[ObservationInterface]).
+. Overwrite and utilize another event from link:{ClientEvents}[ClientEvents]. You can control Terran while the game is
+simulating, so you could, for example, overwrite onUnitCreated() and print the tag when an scv is made.
+
+[[ocraft.s2client.bot.doc.tut01.full_src]]
+=== Full Source Code
+
+[source,java]
+----
+package com.github.ocraft.s2client.sample;
+
+import com.github.ocraft.s2client.bot.S2Agent;
+import com.github.ocraft.s2client.bot.S2Coordinator;
+import com.github.ocraft.s2client.protocol.game.BattlenetMap;
+import com.github.ocraft.s2client.protocol.game.Difficulty;
+import com.github.ocraft.s2client.protocol.game.Race;
+
+public class TutorialBot {
+
+    private static class Bot extends S2Agent {
+
+        @Override
+        public void onGameStart() {
+            System.out.println("Hello world of Starcraft II bots!");
+        }
+
+        @Override
+        public void onStep() {
+            System.out.println(observation().getGameLoop());
+        }
+
+    }
+
+    public static void main(String[] args) {
+        Bot bot = new Bot();
+        S2Coordinator s2Coordinator = S2Coordinator.setup()
+                .loadSettings(args)
+                .setParticipants(
+                        S2Coordinator.createParticipant(Race.TERRAN, bot),
+                        S2Coordinator.createComputer(Race.ZERG, Difficulty.VERY_EASY))
+                .launchStarcraft()
+                .startGame(BattlenetMap.of("Cloud Kingdom LE"));
+
+        while (s2Coordinator.update()) {
+        }
+
+        s2Coordinator.quit();
+    }
+}
+----

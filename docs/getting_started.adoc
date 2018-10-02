@@ -1,0 +1,72 @@
+ifdef::env-github[:outfilesuffix: .adoc]
+:ext-relative: {outfilesuffix}
+
+[[ocraft.s2client.bot.doc.start]]
+== Getting Started
+
+This document assumes you have already built sc2api-client, if you have not follow the instructions in
+<<ocraft.s2client.bot.doc.build, building>> section. We will go over the following.
+
+. Running The Examples.
+. Running The Unit Tests.
+. Finding The Documentation.
+. Building Your Own Bot.
+
+[[ocraft.s2client.bot.doc.start.run_examples]]
+=== Running The Examples
+
+The code for examples can be found in ocraft-s2client-sample and provide some basic code on how to utilize various
+parts of the api.
+
+All the examples, at a minimum, require the path to Starcraft in order to run.
+
+On Windows and Mac, running the game manually once will automatically configure this path.
+On Linux, you will need to provide the path on the command line.
+
+All other options can be configured either on the command line or in code on the link:{S2Coordinator}[S2Coordinator]
+object.
+
+You can view available command line arguments with the "--help" option.
+
+----
+java -jar ocraft-s2client-sample-0.2.3.jar --help
+Usage: <main class> [-hr] [-e=<processPath>] [-m=<mapName>] [-p=<port>]
+                    [-s=<stepSize>] [-t=<timeout>]
+  -e, --executable=<processPath>
+                            The path to StarCraft II.
+  -h, --help                Display this help message.
+  -m, --map=<mapName>       Which map to run.
+  -p, --port=<port>         The port to make StarCraft II listen on.
+  -r, --realtime[=<realtime>]
+                            Whether to run StarCraft II in  real time or not.
+  -s, --step_size=<stepSize>
+                            How many steps to take per call.
+  -t, --timeout=<timeout>   Timeout for how long the library will block for a
+                              response.
+----
+
+[[ocraft.s2client.bot.doc.start.run_tests]]
+=== Running The Unit Tests
+
+This repo comes with a set of units and integration tests. They are located in the "src/test" folder inside of each of
+the project modules.
+
+Simply building and running this project will run through all of the unit tests. Any errors will be output to standard
+error. For more advanced tests use maven profiles: INTEGRATION_TEST (does not need installed game) and END_TO_END_TEST
+(requires installed game).
+
+[[ocraft.s2client.bot.doc.start.find_docs]]
+=== Finding The Documentation
+
+You can find documentation for the api in target/site, open index.html to view it in your browser.
+
+The api is also documented with javadoc.
+
+[[ocraft.s2client.bot.doc.start.build_bot]]
+==== Building Your Own Bot
+
+The sample module comes with a TutorialBot.java that is specifically stubbed out for you to follow our tutorial
+documents.
+
+More details instructions are provided in <<ocraft.s2client.bot.doc.tut01, Tutorial 01>> through
+<<ocraft.s2client.bot.doc.tut03, Tutorial 03>>. If you'd like hands on experience creating a bot please follow those!
