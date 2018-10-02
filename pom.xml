@@ -63,6 +63,8 @@
     <properties>
         <user.name>Ocraft Project</user.name>
 
+        <github.global.server>github</github.global.server>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -225,6 +227,7 @@
                         <groupId>com.github.github</groupId>
                         <artifactId>site-maven-plugin</artifactId>
                         <version>${version.plugin.ghpage}</version>
+                        <inherited>false</inherited>
                         <configuration>
                             <message>Creating site for ${project.version}</message>
                         </configuration>

@@ -13,7 +13,7 @@ defined protocol over a websocket connection.
 * https://discord.gg/qTZ65sh[Invite Link] // see #java-api channel
 
 .Documentation
-*link:http://ocraft.github.io/ocraft-s2client-bot[]*
+*link:http://ocraft.github.io/ocraft-s2client[]*
 
 [[ocraft.bot]]
 == Ocraft S2Client Bot
