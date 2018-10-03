@@ -11,7 +11,7 @@ ifdef::env-github[:outfilesuffix: .adoc]
 [[ocraft.s2client.bot.doc]]
 = Java Api: ocraft-s2client documentation
 
-link:apidocs//index.html?overview-summary.html[>>> JavaDoc for ocraft-s2client <<<]
+link:apidocs/index.html?overview-summary.html[>>> JavaDoc for ocraft-s2client <<<]
 
 Some quick start guides, strongly based on tutorial for c++ api (https://blizzard.github.io/s2client-api):
 
