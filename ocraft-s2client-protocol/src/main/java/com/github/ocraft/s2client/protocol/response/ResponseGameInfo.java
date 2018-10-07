@@ -37,6 +37,7 @@ import com.github.ocraft.s2client.protocol.spatial.Point2d;
 import com.github.ocraft.s2client.protocol.spatial.PointI;
 
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -46,6 +47,7 @@ import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
 import static com.github.ocraft.s2client.protocol.Preconditions.requireNotEmpty;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 public final class ResponseGameInfo extends Response {
@@ -70,7 +72,8 @@ public final class ResponseGameInfo extends Response {
         localMap = tryGet(Sc2Api.ResponseGameInfo::getLocalMapPath, Sc2Api.ResponseGameInfo::hasLocalMapPath)
                 .apply(sc2ApiResponseGameInfo).map(Paths::get).map(LocalMap::of).orElse(nothing());
 
-        playersInfo = sc2ApiResponseGameInfo.getPlayerInfoList().stream().map(PlayerInfo::from).collect(toSet());
+        playersInfo = sc2ApiResponseGameInfo.getPlayerInfoList().stream().map(PlayerInfo::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
         requireNotEmpty("players info", playersInfo);
 
@@ -97,7 +100,7 @@ public final class ResponseGameInfo extends Response {
     }
 
     public Set<String> getModNames() {
-        return new HashSet<>(modNames);
+        return modNames;
     }
 
     public Optional<LocalMap> getLocalMap() {
@@ -105,7 +108,7 @@ public final class ResponseGameInfo extends Response {
     }
 
     public Set<PlayerInfo> getPlayersInfo() {
-        return new HashSet<>(playersInfo);
+        return playersInfo;
     }
 
     public Optional<StartRaw> getStartRaw() {

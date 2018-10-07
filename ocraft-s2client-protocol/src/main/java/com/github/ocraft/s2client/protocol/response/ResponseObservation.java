@@ -35,12 +35,13 @@ import com.github.ocraft.s2client.protocol.observation.ChatReceived;
 import com.github.ocraft.s2client.protocol.observation.Observation;
 import com.github.ocraft.s2client.protocol.observation.PlayerResult;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
 public final class ResponseObservation extends Response {
@@ -57,15 +58,20 @@ public final class ResponseObservation extends Response {
         super(ResponseType.OBSERVATION, GameStatus.from(status));
 
         this.actions = sc2ApiResponseObservation.getActionsList().stream()
-                .filter(a -> a.getSerializedSize() > 0).map(Action::from).collect(toList());
+                .filter(a -> a.getSerializedSize() > 0).map(Action::from)
+                .collect(collectingAndThen(toList(), Collections::unmodifiableList));
+
         this.actionErrors = sc2ApiResponseObservation.getActionErrorsList().stream()
-                .map(ActionError::from).collect(toList());
+                .map(ActionError::from)
+                .collect(collectingAndThen(toList(), Collections::unmodifiableList));
         this.observation = tryGet(
                 Sc2Api.ResponseObservation::getObservation, Sc2Api.ResponseObservation::hasObservation
         ).apply(sc2ApiResponseObservation).map(Observation::from).orElseThrow(required("observation"));
         this.playerResults = sc2ApiResponseObservation.getPlayerResultList().stream()
-                .map(PlayerResult::from).collect(toList());
-        this.chat = sc2ApiResponseObservation.getChatList().stream().map(ChatReceived::from).collect(toList());
+                .map(PlayerResult::from)
+                .collect(collectingAndThen(toList(), Collections::unmodifiableList));
+        this.chat = sc2ApiResponseObservation.getChatList().stream().map(ChatReceived::from)
+                .collect(collectingAndThen(toList(), Collections::unmodifiableList));
     }
 
     public static ResponseObservation from(Sc2Api.Response sc2ApiResponse) {
@@ -80,11 +86,11 @@ public final class ResponseObservation extends Response {
     }
 
     public List<Action> getActions() {
-        return new ArrayList<>(actions);
+        return actions;
     }
 
     public List<ActionError> getActionErrors() {
-        return new ArrayList<>(actionErrors);
+        return actionErrors;
     }
 
     public Observation getObservation() {
@@ -92,11 +98,11 @@ public final class ResponseObservation extends Response {
     }
 
     public List<PlayerResult> getPlayerResults() {
-        return new ArrayList<>(playerResults);
+        return playerResults;
     }
 
     public List<ChatReceived> getChat() {
-        return new ArrayList<>(chat);
+        return chat;
     }
 
     @Override

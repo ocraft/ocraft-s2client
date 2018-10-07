@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.observation.raw;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,7 +31,7 @@ import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.unit.Unit;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
@@ -39,6 +39,7 @@ import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 public final class ObservationRaw implements Serializable {
@@ -56,7 +57,8 @@ public final class ObservationRaw implements Serializable {
                 Raw.ObservationRaw::getPlayer, Raw.ObservationRaw::hasPlayer
         ).apply(sc2ApiObservationRaw).map(PlayerRaw::from).orElseThrow(required("player"));
 
-        units = sc2ApiObservationRaw.getUnitsList().stream().map(Unit::from).collect(toSet());
+        units = sc2ApiObservationRaw.getUnitsList().stream().map(Unit::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
         mapState = tryGet(
                 Raw.ObservationRaw::getMapState, Raw.ObservationRaw::hasMapState
@@ -66,7 +68,8 @@ public final class ObservationRaw implements Serializable {
                 Raw.ObservationRaw::getEvent, Raw.ObservationRaw::hasEvent
         ).apply(sc2ApiObservationRaw).map(Event::from).orElse(nothing());
 
-        effects = sc2ApiObservationRaw.getEffectsList().stream().map(EffectLocations::from).collect(toSet());
+        effects = sc2ApiObservationRaw.getEffectsList().stream().map(EffectLocations::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
     }
 
     public static ObservationRaw from(Raw.ObservationRaw sc2ApiObservationRaw) {
@@ -79,7 +82,7 @@ public final class ObservationRaw implements Serializable {
     }
 
     public Set<Unit> getUnits() {
-        return new HashSet<>(units);
+        return units;
     }
 
     public MapState getMapState() {
@@ -91,7 +94,7 @@ public final class ObservationRaw implements Serializable {
     }
 
     public Set<EffectLocations> getEffects() {
-        return new HashSet<>(effects);
+        return effects;
     }
 
     @Override

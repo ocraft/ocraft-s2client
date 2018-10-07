@@ -28,8 +28,11 @@ package com.github.ocraft.s2client.protocol.response;
 
 import com.github.ocraft.s2client.protocol.game.GameStatus;
 import com.github.ocraft.s2client.protocol.unit.UnitInfo;
+import com.google.protobuf.ByteString;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
+
+import java.io.UnsupportedEncodingException;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.Fixtures.*;
@@ -89,12 +92,16 @@ class ResponseObservationTest {
     }
 
     @Test
-    void fulfillsEqualsContract() {
+    void fulfillsEqualsContract() throws UnsupportedEncodingException {
         EqualsVerifier.forClass(ResponseObservation.class)
                 .withIgnoredFields("nanoTime")
                 .withNonnullFields("type", "status", "actions", "actionErrors", "observation", "playerResults", "chat")
                 .withRedefinedSuperclass()
                 .withPrefabValues(UnitInfo.class, UnitInfo.from(sc2ApiUnitInfoAddOn()), UnitInfo.from(sc2ApiUnitInfo()))
+                .withPrefabValues(
+                        ByteString.class,
+                        ByteString.copyFrom("test", "UTF-8"),
+                        ByteString.copyFrom("test2", "UTF-8"))
                 .verify();
     }
 

@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.observation.raw;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,12 +33,13 @@ import com.github.ocraft.s2client.protocol.data.Effects;
 import com.github.ocraft.s2client.protocol.spatial.Point2d;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 public final class EffectLocations implements Serializable {
@@ -53,7 +54,8 @@ public final class EffectLocations implements Serializable {
                 Raw.Effect::getEffectId, Raw.Effect::hasEffectId
         ).apply(sc2ApiEffect).map(Effects::from).orElseThrow(required("effect"));
 
-        positions = sc2ApiEffect.getPosList().stream().map(Point2d::from).collect(toSet());
+        positions = sc2ApiEffect.getPosList().stream().map(Point2d::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
     }
 
     public static EffectLocations from(Raw.Effect sc2ApiEffect) {
@@ -66,7 +68,7 @@ public final class EffectLocations implements Serializable {
     }
 
     public Set<Point2d> getPositions() {
-        return new HashSet<>(positions);
+        return positions;
     }
 
     @Override

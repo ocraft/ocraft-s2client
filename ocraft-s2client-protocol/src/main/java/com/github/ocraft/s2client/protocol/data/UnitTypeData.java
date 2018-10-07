@@ -31,7 +31,7 @@ import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.game.Race;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
@@ -39,6 +39,7 @@ import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 public final class UnitTypeData implements Serializable {
@@ -116,7 +117,8 @@ public final class UnitTypeData implements Serializable {
         sightRange = tryGet(Data.UnitTypeData::getSightRange, Data.UnitTypeData::hasSightRange)
                 .apply(sc2ApiUnitTypeData).orElse(nothing());
 
-        techAliases = sc2ApiUnitTypeData.getTechAliasList().stream().map(Units::from).collect(toSet());
+        techAliases = sc2ApiUnitTypeData.getTechAliasList().stream().map(Units::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
         unitAlias = tryGet(Data.UnitTypeData::getUnitAlias, Data.UnitTypeData::hasUnitAlias)
                 .apply(sc2ApiUnitTypeData).map(Units::from).orElse(nothing());
@@ -127,7 +129,8 @@ public final class UnitTypeData implements Serializable {
         requireAttached = tryGet(Data.UnitTypeData::getRequireAttached, Data.UnitTypeData::hasRequireAttached)
                 .apply(sc2ApiUnitTypeData).orElse(false);
 
-        attributes = sc2ApiUnitTypeData.getAttributesList().stream().map(UnitAttribute::from).collect(toSet());
+        attributes = sc2ApiUnitTypeData.getAttributesList().stream().map(UnitAttribute::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
         movementSpeed = tryGet(Data.UnitTypeData::getMovementSpeed, Data.UnitTypeData::hasMovementSpeed)
                 .apply(sc2ApiUnitTypeData).orElse(nothing());
@@ -135,7 +138,8 @@ public final class UnitTypeData implements Serializable {
         armor = tryGet(Data.UnitTypeData::getArmor, Data.UnitTypeData::hasArmor)
                 .apply(sc2ApiUnitTypeData).orElse(nothing());
 
-        weapons = sc2ApiUnitTypeData.getWeaponsList().stream().map(Weapon::from).collect(toSet());
+        weapons = sc2ApiUnitTypeData.getWeaponsList().stream().map(Weapon::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
     }
 
     public static UnitTypeData from(Data.UnitTypeData sc2ApiUnitTypeData) {
@@ -200,7 +204,7 @@ public final class UnitTypeData implements Serializable {
     }
 
     public Set<UnitType> getTechAliases() {
-        return new HashSet<>(techAliases);
+        return techAliases;
     }
 
     public Optional<UnitType> getUnitAlias() {
@@ -216,7 +220,7 @@ public final class UnitTypeData implements Serializable {
     }
 
     public Set<UnitAttribute> getAttributes() {
-        return new HashSet<>(attributes);
+        return attributes;
     }
 
     public Optional<Float> getMovementSpeed() {
@@ -228,7 +232,7 @@ public final class UnitTypeData implements Serializable {
     }
 
     public Set<Weapon> getWeapons() {
-        return new HashSet<>(weapons);
+        return weapons;
     }
 
     @Override

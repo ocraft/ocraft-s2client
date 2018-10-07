@@ -26,6 +26,7 @@ package com.github.ocraft.s2client.bot.gateway.impl;
  * #L%
  */
 
+import SC2APIProtocol.Query;
 import SC2APIProtocol.Raw;
 import SC2APIProtocol.Sc2Api;
 import com.github.ocraft.s2client.bot.GameServerResponses;
@@ -55,6 +56,20 @@ class QueryInterfaceImplIT {
         assertThat(gameSetup.control().query().placement(Abilities.EFFECT_PSI_STORM, point2d, unit01)).isTrue();
         assertThat(gameSetup.control().query().placement(Abilities.EFFECT_PSI_STORM, point2d, unit01)).isTrue();
         assertThat(gameSetup.control().query().getAbilitiesForUnit(unit01, true)).isNotNull();
+
+        gameSetup.stop();
+    }
+
+    @Test
+    void returnsFalseForPlacementQueryOnEmptyResponse() {
+        GameSetup gameSetup = new GameSetup().mockObservation(false).start();
+        gameSetup.server().onRequest(Sc2Api.Request::hasQuery, () ->
+                Sc2Api.Response.newBuilder().setQuery(Query.ResponseQuery.newBuilder().build()).build());
+
+        Unit unit01 = mockUnit(OLD_01_UNIT_TAG, Raw.Alliance.Self, false, 1.0f);
+        Point2d point2d = Point2d.of(1.0f, 1.0f);
+
+        assertThat(gameSetup.control().query().placement(Abilities.EFFECT_PSI_STORM, point2d, unit01)).isFalse();
 
         gameSetup.stop();
     }

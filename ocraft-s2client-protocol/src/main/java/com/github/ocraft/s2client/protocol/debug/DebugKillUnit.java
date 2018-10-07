@@ -34,6 +34,7 @@ import com.github.ocraft.s2client.protocol.syntax.debug.DebugKillUnitSyntax;
 import com.github.ocraft.s2client.protocol.unit.Tag;
 import com.github.ocraft.s2client.protocol.unit.Unit;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -73,7 +74,7 @@ public final class DebugKillUnit implements Sc2ApiSerializable<Debug.DebugKillUn
     }
 
     private DebugKillUnit(Builder builder) {
-        unitTags = builder.unitTag;
+        unitTags = Collections.unmodifiableSet(builder.unitTag);
     }
 
     public static DebugKillUnitSyntax killUnit() {
@@ -88,7 +89,7 @@ public final class DebugKillUnit implements Sc2ApiSerializable<Debug.DebugKillUn
     }
 
     public Set<Tag> getUnitTags() {
-        return new HashSet<>(unitTags);
+        return unitTags;
     }
 
     @Override

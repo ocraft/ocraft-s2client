@@ -43,6 +43,8 @@ import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
 
 class OnRequest extends DefaultObserver<byte[]> implements ConnectionHandler {
 
+    private final int requestQueueMaxSize = cfg().getInt(OcraftApiConfig.CLIENT_BUFFER_SIZE_REQUEST_QUEUE);
+
     private Logger log = LoggerFactory.getLogger(OnRequest.class);
 
     private WebSocket webSocket;
@@ -73,7 +75,7 @@ class OnRequest extends DefaultObserver<byte[]> implements ConnectionHandler {
     @Override
     public void onNext(byte[] msg) {
         log.debug("input stream: received message");
-        if (counter.incrementAndGet() > cfg().getInt(OcraftApiConfig.CLIENT_BUFFER_SIZE_REQUEST_QUEUE)) {
+        if (counter.incrementAndGet() > requestQueueMaxSize) {
             cancel();
             onError(new BufferOverflowException());
             return;

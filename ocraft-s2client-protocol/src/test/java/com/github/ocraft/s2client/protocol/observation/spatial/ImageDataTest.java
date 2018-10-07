@@ -29,10 +29,12 @@ package com.github.ocraft.s2client.protocol.observation.spatial;
 import SC2APIProtocol.Common;
 import com.github.ocraft.s2client.protocol.Images;
 import com.github.ocraft.s2client.protocol.spatial.Point2d;
+import com.google.protobuf.ByteString;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
 import java.awt.image.BufferedImage;
+import java.io.UnsupportedEncodingException;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.Fixtures.*;
@@ -117,11 +119,15 @@ class ImageDataTest {
     }
 
     @Test
-    void fulfillsEqualsContract() {
+    void fulfillsEqualsContract() throws UnsupportedEncodingException {
         EqualsVerifier
                 .forClass(ImageData.class)
                 .withNonnullFields("size", "data")
                 .withIgnoredFields("imageType")
+                .withPrefabValues(
+                        ByteString.class,
+                        ByteString.copyFrom("test", "UTF-8"),
+                        ByteString.copyFrom("test2", "UTF-8"))
                 .withPrefabValues(
                         BufferedImage.class,
                         new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB),

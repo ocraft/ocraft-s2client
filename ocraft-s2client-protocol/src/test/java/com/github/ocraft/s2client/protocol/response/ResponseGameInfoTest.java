@@ -30,9 +30,11 @@ import SC2APIProtocol.Sc2Api;
 import com.github.ocraft.s2client.protocol.game.GameStatus;
 import com.github.ocraft.s2client.protocol.spatial.Point2d;
 import com.github.ocraft.s2client.protocol.spatial.PointI;
+import com.google.protobuf.ByteString;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
+import java.io.UnsupportedEncodingException;
 import java.util.function.Consumer;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
@@ -128,12 +130,16 @@ class ResponseGameInfoTest {
     }
 
     @Test
-    void fulfillsEqualsContract() {
+    void fulfillsEqualsContract() throws UnsupportedEncodingException {
         EqualsVerifier
                 .forClass(ResponseGameInfo.class)
                 .withIgnoredFields("nanoTime")
                 .withNonnullFields("type", "status", "mapName", "modNames", "playersInfo", "interfaceOptions")
                 .withRedefinedSuperclass()
+                .withPrefabValues(
+                        ByteString.class,
+                        ByteString.copyFrom("test", "UTF-8"),
+                        ByteString.copyFrom("test2", "UTF-8"))
                 .verify();
     }
 }

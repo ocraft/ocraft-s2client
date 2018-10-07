@@ -31,10 +31,11 @@ import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.unit.UnitInfo;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
 public final class MultiPanel implements Serializable {
@@ -44,7 +45,8 @@ public final class MultiPanel implements Serializable {
     private final List<UnitInfo> units;
 
     private MultiPanel(Ui.MultiPanel sc2ApiMultiPanel) {
-        units = sc2ApiMultiPanel.getUnitsList().stream().map(UnitInfo::from).collect(toList());
+        units = sc2ApiMultiPanel.getUnitsList().stream().map(UnitInfo::from)
+                .collect(collectingAndThen(toList(), Collections::unmodifiableList));
     }
 
     public static MultiPanel from(Ui.MultiPanel sc2ApiMultiPanel) {
@@ -53,7 +55,7 @@ public final class MultiPanel implements Serializable {
     }
 
     public List<UnitInfo> getUnits() {
-        return new ArrayList<>(units);
+        return units;
     }
 
     @Override

@@ -31,7 +31,7 @@ import com.github.ocraft.s2client.protocol.Strings;
 
 import java.io.Serializable;
 import java.nio.file.Paths;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
@@ -40,6 +40,7 @@ import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 public final class ReplayInfo implements Serializable {
@@ -68,7 +69,8 @@ public final class ReplayInfo implements Serializable {
         if (!mapInfoIsSet()) throw new IllegalArgumentException("map info (local or battlenet) is required");
 
         this.playerInfo = sc2ApiResponseReplayInfo.getPlayerInfoList().stream()
-                .map(PlayerInfoExtra::from).collect(toSet());
+                .map(PlayerInfoExtra::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
         this.gameDurationLoops = tryGet(
                 Sc2Api.ResponseReplayInfo::getGameDurationLoops, Sc2Api.ResponseReplayInfo::hasGameDurationLoops
@@ -114,7 +116,7 @@ public final class ReplayInfo implements Serializable {
     }
 
     public Set<PlayerInfoExtra> getPlayerInfo() {
-        return new HashSet<>(playerInfo);
+        return playerInfo;
     }
 
     public int getGameDurationLoops() {

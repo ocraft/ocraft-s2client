@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.observation.raw;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,12 +33,13 @@ import com.github.ocraft.s2client.protocol.data.Upgrades;
 import com.github.ocraft.s2client.protocol.spatial.Point;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 public final class PlayerRaw implements Serializable {
@@ -50,13 +51,15 @@ public final class PlayerRaw implements Serializable {
     private final Set<Upgrade> upgrades;
 
     private PlayerRaw(Raw.PlayerRaw sc2ApiPlayerRaw) {
-        powerSources = sc2ApiPlayerRaw.getPowerSourcesList().stream().map(PowerSource::from).collect(toSet());
+        powerSources = sc2ApiPlayerRaw.getPowerSourcesList().stream().map(PowerSource::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
         camera = tryGet(
                 Raw.PlayerRaw::getCamera, Raw.PlayerRaw::hasCamera
         ).apply(sc2ApiPlayerRaw).map(Point::from).orElseThrow(required("camera"));
 
-        upgrades = sc2ApiPlayerRaw.getUpgradeIdsList().stream().map(Upgrades::from).collect(toSet());
+        upgrades = sc2ApiPlayerRaw.getUpgradeIdsList().stream().map(Upgrades::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
     }
 
     public static PlayerRaw from(Raw.PlayerRaw sc2ApiPlayerRaw) {
@@ -65,7 +68,7 @@ public final class PlayerRaw implements Serializable {
     }
 
     public Set<PowerSource> getPowerSources() {
-        return new HashSet<>(powerSources);
+        return powerSources;
     }
 
     public Point getCamera() {
@@ -73,7 +76,7 @@ public final class PlayerRaw implements Serializable {
     }
 
     public Set<Upgrade> getUpgrades() {
-        return new HashSet<>(upgrades);
+        return upgrades;
     }
 
     @Override

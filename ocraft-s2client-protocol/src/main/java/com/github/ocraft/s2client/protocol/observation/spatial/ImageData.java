@@ -36,21 +36,19 @@ import com.google.protobuf.ByteString;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.Serializable;
-import java.util.Arrays;
 
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
-import static com.github.ocraft.s2client.protocol.Immutables.copyOf;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
 import static java.lang.String.format;
 
 public final class ImageData implements Serializable {
 
-    private static final long serialVersionUID = -6680326347092291741L;
+    private static final long serialVersionUID = -6095894861265443970L;
 
     private final int bitsPerPixel;
     private final Size2dI size;
-    private final byte[] data;
+    private final ByteString data;
     private final int imageType;
 
     private ImageData(Common.ImageData sc2ApiImageData) {
@@ -64,12 +62,12 @@ public final class ImageData implements Serializable {
 
         data = tryGet(
                 Common.ImageData::getData, Common.ImageData::hasData
-        ).apply(sc2ApiImageData).map(ByteString::toByteArray).orElseThrow(required("data"));
+        ).apply(sc2ApiImageData).orElseThrow(required("data"));
 
         int expectedSize = expectedSize();
         if (!imageSizeIsValid(expectedSize)) {
             throw new IllegalArgumentException(
-                    format("expected image size [%d] is not equal actual size [%d]", expectedSize, data.length));
+                    format("expected image size [%d] is not equal actual size [%d]", expectedSize, data.size()));
         }
 
         imageType = tryGetImageType();
@@ -80,7 +78,7 @@ public final class ImageData implements Serializable {
     }
 
     private boolean imageSizeIsValid(int expectedSize) {
-        return expectedSize == data.length;
+        return expectedSize == data.size();
     }
 
     private int tryGetImageType() {
@@ -112,12 +110,12 @@ public final class ImageData implements Serializable {
 
     @JsonIgnore
     public byte[] getData() {
-        return copyOf(data);
+        return data.toByteArray();
     }
 
     @JsonIgnore
     public BufferedImage getImage() {
-        return convertToImage(data);
+        return convertToImage(getData());
     }
 
     private BufferedImage convertToImage(byte[] imageBytes) {
@@ -128,7 +126,7 @@ public final class ImageData implements Serializable {
     }
 
     public int sample(Point2d point) {
-        return data[(int) point.getX() + (size.getY() - 1 - (int) point.getY()) * size.getX()] & 0xFF;
+        return data.byteAt((int) point.getX() + (size.getY() - 1 - (int) point.getY()) * size.getX()) & 0xFF;
     }
 
     @Override
@@ -138,16 +136,16 @@ public final class ImageData implements Serializable {
 
         ImageData imageData = (ImageData) o;
 
-        return bitsPerPixel == imageData.bitsPerPixel &&
-                size.equals(imageData.size) &&
-                Arrays.equals(data, imageData.data);
+        if (bitsPerPixel != imageData.bitsPerPixel) return false;
+        if (!size.equals(imageData.size)) return false;
+        return data.equals(imageData.data);
     }
 
     @Override
     public int hashCode() {
         int result = bitsPerPixel;
         result = 31 * result + size.hashCode();
-        result = 31 * result + Arrays.hashCode(data);
+        result = 31 * result + data.hashCode();
         return result;
     }
 

@@ -34,6 +34,7 @@ import com.github.ocraft.s2client.protocol.response.ResponseType;
 import com.github.ocraft.s2client.protocol.syntax.request.RequestDebugSyntax;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.ocraft.s2client.protocol.Preconditions.requireNotEmpty;
@@ -64,7 +65,7 @@ public final class RequestDebug extends Request {
     }
 
     private RequestDebug(Builder builder) {
-        commands = builder.commands;
+        commands = Collections.unmodifiableList(builder.commands);
     }
 
     public static RequestDebugSyntax debug() {
@@ -86,7 +87,7 @@ public final class RequestDebug extends Request {
     }
 
     public List<DebugCommand> getCommands() {
-        return new ArrayList<>(commands);
+        return commands;
     }
 
     @Override

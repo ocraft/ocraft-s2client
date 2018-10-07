@@ -33,10 +33,12 @@ import com.github.ocraft.s2client.protocol.game.GameStatus;
 import com.github.ocraft.s2client.protocol.game.LocalMap;
 
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 public final class ResponseAvailableMaps extends Response {
@@ -53,12 +55,13 @@ public final class ResponseAvailableMaps extends Response {
         this.battlenetMaps = new HashSet<>(sc2ApiResponseAvailableMaps.getBattlenetMapNamesList())
                 .stream()
                 .map(BattlenetMap::of)
-                .collect(toSet());
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
+
         this.localMaps = sc2ApiResponseAvailableMaps
                 .getLocalMapPathsList().stream()
                 .map(Paths::get)
                 .map(LocalMap::of)
-                .collect(toSet());
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
     }
 
     public static ResponseAvailableMaps from(Sc2Api.Response sc2ApiResponse) {
@@ -73,11 +76,11 @@ public final class ResponseAvailableMaps extends Response {
     }
 
     public Set<BattlenetMap> getBattlenetMaps() {
-        return new HashSet<>(this.battlenetMaps);
+        return this.battlenetMaps;
     }
 
     public Set<LocalMap> getLocalMaps() {
-        return new HashSet<>(this.localMaps);
+        return this.localMaps;
     }
 
     @Override

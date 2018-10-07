@@ -42,7 +42,7 @@
 
         <dependency>
             <groupId>com.github.ocraft</groupId>
-            <artifactId>ocraft-s2client-api</artifactId>
+            <artifactId>ocraft-s2client-bot</artifactId>
         </dependency>
     </dependencies>
 

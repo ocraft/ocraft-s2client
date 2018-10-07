@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.observation;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -35,7 +35,7 @@ import com.github.ocraft.s2client.protocol.observation.ui.ObservationUi;
 import com.github.ocraft.s2client.protocol.score.Score;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
@@ -44,6 +44,7 @@ import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 public final class Observation implements Serializable {
@@ -69,9 +70,11 @@ public final class Observation implements Serializable {
                 Sc2Api.Observation::getPlayerCommon, Sc2Api.Observation::hasPlayerCommon
         ).apply(sc2ApiObservation).map(PlayerCommon::from).orElseThrow(required("player common"));
 
-        alerts = sc2ApiObservation.getAlertsList().stream().map(Alert::from).collect(toSet());
+        alerts = sc2ApiObservation.getAlertsList().stream().map(Alert::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
-        availableAbilities = sc2ApiObservation.getAbilitiesList().stream().map(AvailableAbility::from).collect(toSet());
+        availableAbilities = sc2ApiObservation.getAbilitiesList().stream().map(AvailableAbility::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
         score = tryGet(
                 Sc2Api.Observation::getScore, Sc2Api.Observation::hasScore
@@ -114,11 +117,11 @@ public final class Observation implements Serializable {
     }
 
     public Set<Alert> getAlerts() {
-        return new HashSet<>(alerts);
+        return alerts;
     }
 
     public Set<AvailableAbility> getAvailableAbilities() {
-        return new HashSet<>(availableAbilities);
+        return availableAbilities;
     }
 
     public Optional<Score> getScore() {

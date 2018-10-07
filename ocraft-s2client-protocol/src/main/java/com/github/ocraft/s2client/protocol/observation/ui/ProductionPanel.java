@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.observation.ui;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,12 +31,13 @@ import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.unit.UnitInfo;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
 public final class ProductionPanel implements Serializable {
@@ -51,7 +52,8 @@ public final class ProductionPanel implements Serializable {
                 Ui.ProductionPanel::getUnit, Ui.ProductionPanel::hasUnit
         ).apply(sc2ApiProductionPanel).map(UnitInfo::from).orElseThrow(required("unit"));
 
-        buildQueue = sc2ApiProductionPanel.getBuildQueueList().stream().map(UnitInfo::from).collect(toList());
+        buildQueue = sc2ApiProductionPanel.getBuildQueueList().stream().map(UnitInfo::from)
+                .collect(collectingAndThen(toList(), Collections::unmodifiableList));
     }
 
     public static ProductionPanel from(Ui.ProductionPanel sc2ApiProductionPanel) {
@@ -64,7 +66,7 @@ public final class ProductionPanel implements Serializable {
     }
 
     public List<UnitInfo> getBuildQueue() {
-        return new ArrayList<>(buildQueue);
+        return buildQueue;
     }
 
     @Override

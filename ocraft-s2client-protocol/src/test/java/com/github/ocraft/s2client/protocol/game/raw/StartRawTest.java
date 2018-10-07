@@ -27,8 +27,11 @@ package com.github.ocraft.s2client.protocol.game.raw;
  */
 
 import SC2APIProtocol.Raw;
+import com.google.protobuf.ByteString;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
+
+import java.io.UnsupportedEncodingException;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.Fixtures.sc2ApiStartRaw;
@@ -99,9 +102,13 @@ class StartRawTest {
     }
 
     @Test
-    void fulfillsEqualsContract() {
+    void fulfillsEqualsContract() throws UnsupportedEncodingException {
         EqualsVerifier
                 .forClass(StartRaw.class)
+                .withPrefabValues(
+                        ByteString.class,
+                        ByteString.copyFrom("test", "UTF-8"),
+                        ByteString.copyFrom("test2", "UTF-8"))
                 .withNonnullFields("mapSize", "pathingGrid", "terrainHeight", "placementGrid", "playableArea",
                         "startLocations")
                 .verify();

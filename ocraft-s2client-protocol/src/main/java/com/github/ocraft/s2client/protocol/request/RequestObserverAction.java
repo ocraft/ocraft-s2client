@@ -34,6 +34,7 @@ import com.github.ocraft.s2client.protocol.response.ResponseType;
 import com.github.ocraft.s2client.protocol.syntax.request.RequestObserverActionSyntax;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.ocraft.s2client.protocol.Preconditions.requireNotEmpty;
@@ -65,7 +66,7 @@ public final class RequestObserverAction extends Request {
     }
 
     private RequestObserverAction(Builder builder) {
-        this.actions = builder.actions;
+        this.actions = Collections.unmodifiableList(builder.actions);
     }
 
     public static RequestObserverActionSyntax observerActions() {
@@ -87,7 +88,7 @@ public final class RequestObserverAction extends Request {
     }
 
     public List<ObserverAction> getActions() {
-        return new ArrayList<>(actions);
+        return actions;
     }
 
     @Override

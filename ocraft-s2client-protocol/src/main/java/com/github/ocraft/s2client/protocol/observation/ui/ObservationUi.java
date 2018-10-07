@@ -30,13 +30,14 @@ import SC2APIProtocol.Ui;
 import com.github.ocraft.s2client.protocol.Strings;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 public final class ObservationUi implements Serializable {
@@ -50,7 +51,8 @@ public final class ObservationUi implements Serializable {
     private final ProductionPanel productionPanel;
 
     private ObservationUi(Ui.ObservationUI sc2ApiObservationUi) {
-        controlGroups = sc2ApiObservationUi.getGroupsList().stream().map(ControlGroup::from).collect(toSet());
+        controlGroups = sc2ApiObservationUi.getGroupsList().stream().map(ControlGroup::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
         singlePanel = tryGet(Ui.ObservationUI::getSingle, Ui.ObservationUI::hasSingle)
                 .apply(sc2ApiObservationUi).map(SinglePanel::from).orElse(nothing());
@@ -71,7 +73,7 @@ public final class ObservationUi implements Serializable {
     }
 
     public Set<ControlGroup> getControlGroups() {
-        return new HashSet<>(controlGroups);
+        return controlGroups;
     }
 
     public Optional<SinglePanel> getSinglePanel() {

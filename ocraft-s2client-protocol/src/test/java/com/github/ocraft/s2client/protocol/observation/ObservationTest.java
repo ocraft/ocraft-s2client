@@ -28,8 +28,11 @@ package com.github.ocraft.s2client.protocol.observation;
 
 import SC2APIProtocol.Sc2Api;
 import com.github.ocraft.s2client.protocol.unit.UnitInfo;
+import com.google.protobuf.ByteString;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
+
+import java.io.UnsupportedEncodingException;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.Fixtures.*;
@@ -106,11 +109,15 @@ class ObservationTest {
     }
 
     @Test
-    void fulfillsEqualsContract() {
+    void fulfillsEqualsContract() throws UnsupportedEncodingException {
         EqualsVerifier
                 .forClass(Observation.class)
                 .withNonnullFields("playerCommon", "alerts", "availableAbilities")
                 .withPrefabValues(UnitInfo.class, UnitInfo.from(sc2ApiUnitInfoAddOn()), UnitInfo.from(sc2ApiUnitInfo()))
+                .withPrefabValues(
+                        ByteString.class,
+                        ByteString.copyFrom("test", "UTF-8"),
+                        ByteString.copyFrom("test2", "UTF-8"))
                 .verify();
     }
 }

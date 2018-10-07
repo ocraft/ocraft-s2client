@@ -34,6 +34,7 @@ import com.github.ocraft.s2client.protocol.syntax.request.ServerPortSyntax;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -51,7 +52,7 @@ public final class MultiplayerOptions implements Serializable {
     private MultiplayerOptions(Builder builder) {
         this.sharedPort = builder.sharedPort;
         this.serverPort = builder.serverPort;
-        this.clientPorts = builder.clientPorts;
+        this.clientPorts = Collections.unmodifiableSet(builder.clientPorts);
     }
 
     public static final class Builder implements MultiplayerOptionsSyntax, ServerPortSyntax, ClientPortsSyntax,
@@ -118,7 +119,7 @@ public final class MultiplayerOptions implements Serializable {
     }
 
     public Set<PortSet> getClientPorts() {
-        return new HashSet<>(clientPorts);
+        return clientPorts;
     }
 
     @Override

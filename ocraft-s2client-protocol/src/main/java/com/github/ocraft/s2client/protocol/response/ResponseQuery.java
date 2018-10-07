@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.response;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,10 +34,11 @@ import com.github.ocraft.s2client.protocol.query.AvailableAbilities;
 import com.github.ocraft.s2client.protocol.query.BuildingPlacement;
 import com.github.ocraft.s2client.protocol.query.Pathing;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
 public final class ResponseQuery extends Response {
@@ -51,9 +52,12 @@ public final class ResponseQuery extends Response {
     private ResponseQuery(Query.ResponseQuery sc2ApiResponseQuery, Sc2Api.Status status) {
         super(ResponseType.QUERY, GameStatus.from(status));
 
-        pathing = sc2ApiResponseQuery.getPathingList().stream().map(Pathing::from).collect(toList());
-        abilities = sc2ApiResponseQuery.getAbilitiesList().stream().map(AvailableAbilities::from).collect(toList());
-        placements = sc2ApiResponseQuery.getPlacementsList().stream().map(BuildingPlacement::from).collect(toList());
+        pathing = sc2ApiResponseQuery.getPathingList().stream().map(Pathing::from)
+                .collect(collectingAndThen(toList(), Collections::unmodifiableList));
+        abilities = sc2ApiResponseQuery.getAbilitiesList().stream().map(AvailableAbilities::from)
+                .collect(collectingAndThen(toList(), Collections::unmodifiableList));
+        placements = sc2ApiResponseQuery.getPlacementsList().stream().map(BuildingPlacement::from)
+                .collect(collectingAndThen(toList(), Collections::unmodifiableList));
     }
 
     public static ResponseQuery from(Sc2Api.Response sc2ApiResponse) {
@@ -68,15 +72,15 @@ public final class ResponseQuery extends Response {
     }
 
     public List<Pathing> getPathing() {
-        return new ArrayList<>(pathing);
+        return pathing;
     }
 
     public List<AvailableAbilities> getAbilities() {
-        return new ArrayList<>(abilities);
+        return abilities;
     }
 
     public List<BuildingPlacement> getPlacements() {
-        return new ArrayList<>(placements);
+        return placements;
     }
 
     @Override

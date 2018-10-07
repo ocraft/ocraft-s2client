@@ -34,12 +34,13 @@ import com.github.ocraft.s2client.protocol.spatial.RectangleI;
 import com.github.ocraft.s2client.protocol.spatial.Size2dI;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 public final class StartRaw implements Serializable {
@@ -69,7 +70,8 @@ public final class StartRaw implements Serializable {
         playableArea = tryGet(Raw.StartRaw::getPlayableArea, Raw.StartRaw::hasPlayableArea)
                 .apply(sc2ApiStartRaw).map(RectangleI::from).orElseThrow(required("playable area"));
 
-        startLocations = sc2ApiStartRaw.getStartLocationsList().stream().map(Point2d::from).collect(toSet());
+        startLocations = sc2ApiStartRaw.getStartLocationsList().stream().map(Point2d::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
     }
 
     public static StartRaw from(Raw.StartRaw sc2ApiStartRaw) {
@@ -98,7 +100,7 @@ public final class StartRaw implements Serializable {
     }
 
     public Set<Point2d> getStartLocations() {
-        return new HashSet<>(startLocations);
+        return startLocations;
     }
 
     @Override

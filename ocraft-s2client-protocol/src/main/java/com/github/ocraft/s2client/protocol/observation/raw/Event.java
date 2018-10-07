@@ -31,10 +31,11 @@ import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.unit.Tag;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 public final class Event implements Serializable {
@@ -44,7 +45,8 @@ public final class Event implements Serializable {
     private final Set<Tag> deadUnits;
 
     private Event(Raw.Event sc2ApiEvent) {
-        deadUnits = sc2ApiEvent.getDeadUnitsList().stream().map(Tag::from).collect(toSet());
+        deadUnits = sc2ApiEvent.getDeadUnitsList().stream().map(Tag::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
     }
 
     public static Event from(Raw.Event sc2ApiEvent) {
@@ -53,7 +55,7 @@ public final class Event implements Serializable {
     }
 
     public Set<Tag> getDeadUnits() {
-        return new HashSet<>(deadUnits);
+        return deadUnits;
     }
 
     @Override

@@ -40,6 +40,7 @@ import com.github.ocraft.s2client.protocol.syntax.query.QueryBuildingPlacementBu
 import com.github.ocraft.s2client.protocol.syntax.request.RequestQuerySyntax;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.ocraft.s2client.protocol.Preconditions.oneOfIsNotEmpty;
@@ -117,9 +118,9 @@ public final class RequestQuery extends Request {
     }
 
     private RequestQuery(Builder builder) {
-        pathings = builder.pathings;
-        abilities = builder.abilities;
-        placements = builder.placements;
+        pathings = Collections.unmodifiableList(builder.pathings);
+        abilities = Collections.unmodifiableList(builder.abilities);
+        placements = Collections.unmodifiableList(builder.placements);
         ignoreResourceRequirements = builder.ignoreResourceRequirements;
     }
 
@@ -147,15 +148,15 @@ public final class RequestQuery extends Request {
     }
 
     public List<QueryPathing> getPathings() {
-        return new ArrayList<>(pathings);
+        return pathings;
     }
 
     public List<QueryAvailableAbilities> getAbilities() {
-        return new ArrayList<>(abilities);
+        return abilities;
     }
 
     public List<QueryBuildingPlacement> getPlacements() {
-        return new ArrayList<>(placements);
+        return placements;
     }
 
     public boolean isIgnoreResourceRequirements() {

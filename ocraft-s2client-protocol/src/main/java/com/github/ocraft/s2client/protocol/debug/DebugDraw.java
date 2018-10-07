@@ -33,6 +33,7 @@ import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.syntax.debug.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.ocraft.s2client.protocol.Preconditions.oneOfIsNotEmpty;
@@ -111,10 +112,10 @@ public final class DebugDraw implements Sc2ApiSerializable<Debug.DebugDraw> {
     }
 
     private DebugDraw(Builder builder) {
-        texts = builder.texts;
-        lines = builder.lines;
-        boxes = builder.boxes;
-        spheres = builder.spheres;
+        texts = Collections.unmodifiableList(builder.texts);
+        lines = Collections.unmodifiableList(builder.lines);
+        boxes = Collections.unmodifiableList(builder.boxes);
+        spheres = Collections.unmodifiableList(builder.spheres);
     }
 
     public static DebugDrawSyntax draw() {
@@ -132,19 +133,19 @@ public final class DebugDraw implements Sc2ApiSerializable<Debug.DebugDraw> {
     }
 
     public List<DebugText> getTexts() {
-        return new ArrayList<>(texts);
+        return texts;
     }
 
     public List<DebugLine> getLines() {
-        return new ArrayList<>(lines);
+        return lines;
     }
 
     public List<DebugBox> getBoxes() {
-        return new ArrayList<>(boxes);
+        return boxes;
     }
 
     public List<DebugSphere> getSpheres() {
-        return new ArrayList<>(spheres);
+        return spheres;
     }
 
     @Override

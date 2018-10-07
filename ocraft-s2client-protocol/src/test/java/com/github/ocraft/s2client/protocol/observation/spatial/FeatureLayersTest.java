@@ -27,8 +27,11 @@ package com.github.ocraft.s2client.protocol.observation.spatial;
  */
 
 import SC2APIProtocol.Spatial;
+import com.google.protobuf.ByteString;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
+
+import java.io.UnsupportedEncodingException;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.Fixtures.sc2ApiFeatureLayers;
@@ -197,12 +200,16 @@ class FeatureLayersTest {
     }
 
     @Test
-    void fulfillsEqualsContract() {
+    void fulfillsEqualsContract() throws UnsupportedEncodingException {
         EqualsVerifier
                 .forClass(FeatureLayers.class)
                 .withNonnullFields("heightMap", "visibilityMap", "creep", "power", "playerId", "unitType", "selected",
                         "unitHitPoints", "unitHitPointsRatio", "unitEnergy", "unitShields", "playerRelative",
                         "unitDensityAa", "unitDensity")
+                .withPrefabValues(
+                        ByteString.class,
+                        ByteString.copyFrom("test", "UTF-8"),
+                        ByteString.copyFrom("test2", "UTF-8"))
                 .verify();
     }
 

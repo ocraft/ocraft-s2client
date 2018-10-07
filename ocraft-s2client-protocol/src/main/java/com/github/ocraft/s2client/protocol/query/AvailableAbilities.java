@@ -36,13 +36,14 @@ import com.github.ocraft.s2client.protocol.observation.AvailableAbility;
 import com.github.ocraft.s2client.protocol.unit.Tag;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 public final class AvailableAbilities implements Serializable, GeneralizableAbility<AvailableAbilities> {
@@ -55,7 +56,8 @@ public final class AvailableAbilities implements Serializable, GeneralizableAbil
 
     private AvailableAbilities(Query.ResponseQueryAvailableAbilities sc2ApiResponseQueryAvailableAbilities) {
         abilities = sc2ApiResponseQueryAvailableAbilities.getAbilitiesList().stream()
-                .map(AvailableAbility::from).collect(toSet());
+                .map(AvailableAbility::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
         unitTag = tryGet(
                 Query.ResponseQueryAvailableAbilities::getUnitTag, Query.ResponseQueryAvailableAbilities::hasUnitTag
@@ -79,7 +81,7 @@ public final class AvailableAbilities implements Serializable, GeneralizableAbil
     }
 
     public Set<AvailableAbility> getAbilities() {
-        return new HashSet<>(abilities);
+        return abilities;
     }
 
     public Tag getUnitTag() {
@@ -95,7 +97,7 @@ public final class AvailableAbilities implements Serializable, GeneralizableAbil
         return new AvailableAbilities(
                 abilities.stream()
                         .map(availableAbility -> availableAbility.generalizeAbility(generalize))
-                        .collect(toSet()),
+                        .collect(collectingAndThen(toSet(), Collections::unmodifiableSet)),
                 unitTag,
                 unitType);
     }

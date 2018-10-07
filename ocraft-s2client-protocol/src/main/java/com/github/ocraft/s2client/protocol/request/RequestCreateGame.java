@@ -36,6 +36,7 @@ import com.github.ocraft.s2client.protocol.response.ResponseType;
 import com.github.ocraft.s2client.protocol.syntax.request.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,7 +60,7 @@ public final class RequestCreateGame extends Request {
         this.disableFog = builder.disableFog;
         this.realTime = builder.realTime;
         this.randomSeed = builder.randomSeed;
-        this.playerSetups = builder.playerSetups;
+        this.playerSetups = Collections.unmodifiableList(builder.playerSetups);
         this.battlenetMap = builder.battlenetMap;
         this.localMap = builder.localMap;
     }
@@ -164,7 +165,7 @@ public final class RequestCreateGame extends Request {
     }
 
     public List<PlayerSetup> getPlayerSetups() {
-        return new ArrayList<>(playerSetups);
+        return playerSetups;
     }
 
     public Optional<BattlenetMap> getBattlenetMap() {

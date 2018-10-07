@@ -31,12 +31,13 @@ import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.unit.UnitInfo;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
 public final class CargoPanel implements Serializable {
@@ -52,7 +53,8 @@ public final class CargoPanel implements Serializable {
                 Ui.CargoPanel::getUnit, Ui.CargoPanel::hasUnit
         ).apply(sc2ApiCargoPanel).map(UnitInfo::from).orElseThrow(required("unit"));
 
-        passengers = sc2ApiCargoPanel.getPassengersList().stream().map(UnitInfo::from).collect(toList());
+        passengers = sc2ApiCargoPanel.getPassengersList().stream().map(UnitInfo::from)
+                .collect(collectingAndThen(toList(), Collections::unmodifiableList));
 
         cargoSize = tryGet(
                 Ui.CargoPanel::getSlotsAvailable, Ui.CargoPanel::hasSlotsAvailable
@@ -69,7 +71,7 @@ public final class CargoPanel implements Serializable {
     }
 
     public List<UnitInfo> getPassengers() {
-        return new ArrayList<>(passengers);
+        return passengers;
     }
 
     public int getCargoSize() {

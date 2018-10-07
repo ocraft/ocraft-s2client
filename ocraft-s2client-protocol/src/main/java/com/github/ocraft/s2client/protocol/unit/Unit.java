@@ -33,15 +33,17 @@ import com.github.ocraft.s2client.protocol.data.*;
 import com.github.ocraft.s2client.protocol.spatial.Point;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.UnaryOperator;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 public final class Unit implements Serializable, GeneralizableAbility<Unit> {
 
@@ -151,12 +153,14 @@ public final class Unit implements Serializable, GeneralizableAbility<Unit> {
 
         burrowed = tryGet(Raw.Unit::getIsBurrowed, Raw.Unit::hasIsBurrowed).apply(sc2ApiUnit).orElse(nothing());
 
-        orders = sc2ApiUnit.getOrdersList().stream().map(UnitOrder::from).collect(toList());
+        orders = sc2ApiUnit.getOrdersList().stream().map(UnitOrder::from)
+                .collect(collectingAndThen(toList(), Collections::unmodifiableList));
 
         addOnTag = tryGet(Raw.Unit::getAddOnTag, Raw.Unit::hasAddOnTag)
                 .apply(sc2ApiUnit).map(Tag::from).orElse(nothing());
 
-        passengers = sc2ApiUnit.getPassengersList().stream().map(PassengerUnit::from).collect(toList());
+        passengers = sc2ApiUnit.getPassengersList().stream().map(PassengerUnit::from)
+                .collect(collectingAndThen(toList(), Collections::unmodifiableList));
 
         cargoSpaceTaken = tryGet(Raw.Unit::getCargoSpaceTaken, Raw.Unit::hasCargoSpaceTaken)
                 .apply(sc2ApiUnit).orElse(nothing());
@@ -164,7 +168,8 @@ public final class Unit implements Serializable, GeneralizableAbility<Unit> {
         cargoSpaceMax = tryGet(Raw.Unit::getCargoSpaceMax, Raw.Unit::hasCargoSpaceMax)
                 .apply(sc2ApiUnit).orElse(nothing());
 
-        buffs = sc2ApiUnit.getBuffIdsList().stream().map(Buffs::from).collect(toSet());
+        buffs = sc2ApiUnit.getBuffIdsList().stream().map(Buffs::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
         assignedHarvesters = tryGet(Raw.Unit::getAssignedHarvesters, Raw.Unit::hasAssignedHarvesters)
                 .apply(sc2ApiUnit).orElse(nothing());
@@ -206,7 +211,9 @@ public final class Unit implements Serializable, GeneralizableAbility<Unit> {
         this.vespeneContents = original.vespeneContents;
         this.flying = original.flying;
         this.burrowed = original.burrowed;
-        this.orders = original.orders.stream().map(order -> order.generalizeAbility(generalize)).collect(toList());
+        this.orders = original.orders.stream()
+                .map(order -> order.generalizeAbility(generalize))
+                .collect(collectingAndThen(toList(), Collections::unmodifiableList));
         this.addOnTag = original.addOnTag;
         this.passengers = original.passengers;
         this.cargoSpaceTaken = original.cargoSpaceTaken;
@@ -328,7 +335,7 @@ public final class Unit implements Serializable, GeneralizableAbility<Unit> {
     }
 
     public List<UnitOrder> getOrders() {
-        return new ArrayList<>(orders);
+        return orders;
     }
 
     public Optional<Tag> getAddOnTag() {
@@ -336,7 +343,7 @@ public final class Unit implements Serializable, GeneralizableAbility<Unit> {
     }
 
     public List<PassengerUnit> getPassengers() {
-        return new ArrayList<>(passengers);
+        return passengers;
     }
 
     public Optional<Integer> getCargoSpaceTaken() {
@@ -348,7 +355,7 @@ public final class Unit implements Serializable, GeneralizableAbility<Unit> {
     }
 
     public Set<Buff> getBuffs() {
-        return new HashSet<>(buffs);
+        return buffs;
     }
 
     public Optional<Integer> getAssignedHarvesters() {

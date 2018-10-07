@@ -38,6 +38,7 @@ import com.github.ocraft.s2client.protocol.syntax.action.raw.ForUnitsSyntax;
 import com.github.ocraft.s2client.protocol.unit.Tag;
 import com.github.ocraft.s2client.protocol.unit.Unit;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.UnaryOperator;
@@ -48,6 +49,7 @@ import static com.github.ocraft.s2client.protocol.Preconditions.require;
 import static com.github.ocraft.s2client.protocol.Preconditions.requireNotEmpty;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 public final class ActionRawToggleAutocast
@@ -101,7 +103,8 @@ public final class ActionRawToggleAutocast
         ).apply(sc2ApiActionRawToggleAutocast).map(Abilities::from).orElseThrow(required("ability id"));
 
         this.unitTags = sc2ApiActionRawToggleAutocast.getUnitTagsList().stream()
-                .map(Tag::from).collect(toSet());
+                .map(Tag::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
         requireNotEmpty("unit tag list", unitTags);
     }
@@ -128,7 +131,7 @@ public final class ActionRawToggleAutocast
     }
 
     public Set<Tag> getUnitTags() {
-        return new HashSet<>(unitTags);
+        return unitTags;
     }
 
     @Override

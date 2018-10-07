@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.data;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,12 +30,13 @@ import SC2APIProtocol.Data;
 import com.github.ocraft.s2client.protocol.Strings;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 public final class Weapon implements Serializable {
@@ -76,7 +77,8 @@ public final class Weapon implements Serializable {
         damage = tryGet(Data.Weapon::getDamage, Data.Weapon::hasDamage)
                 .apply(sc2ApiWeapon).orElseThrow(required("damage"));
 
-        damageBonuses = sc2ApiWeapon.getDamageBonusList().stream().map(DamageBonus::from).collect(toSet());
+        damageBonuses = sc2ApiWeapon.getDamageBonusList().stream().map(DamageBonus::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
         attacks = tryGet(Data.Weapon::getAttacks, Data.Weapon::hasAttacks)
                 .apply(sc2ApiWeapon).orElseThrow(required("attacks"));
@@ -102,7 +104,7 @@ public final class Weapon implements Serializable {
     }
 
     public Set<DamageBonus> getDamageBonuses() {
-        return new HashSet<>(damageBonuses);
+        return damageBonuses;
     }
 
     public int getAttacks() {

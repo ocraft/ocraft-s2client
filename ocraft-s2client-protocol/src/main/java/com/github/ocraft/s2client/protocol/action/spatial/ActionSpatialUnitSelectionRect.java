@@ -34,6 +34,7 @@ import com.github.ocraft.s2client.protocol.syntax.action.spatial.ActionSpatialUn
 import com.github.ocraft.s2client.protocol.syntax.action.spatial.ActionSpatialUnitSelectionRectSyntax;
 import com.github.ocraft.s2client.protocol.syntax.action.spatial.AddSyntax;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,6 +42,7 @@ import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
 import static com.github.ocraft.s2client.protocol.Preconditions.requireNotEmpty;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 public final class ActionSpatialUnitSelectionRect
@@ -87,7 +89,7 @@ public final class ActionSpatialUnitSelectionRect
 
         selectionsInScreenCoord = sc2ApiActionSpatialUnitSelectionRect.getSelectionScreenCoordList().stream()
                 .map(RectangleI::from)
-                .collect(toSet());
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
         requireNotEmpty("selection list", selectionsInScreenCoord);
 
@@ -116,7 +118,7 @@ public final class ActionSpatialUnitSelectionRect
     }
 
     public Set<RectangleI> getSelectionsInScreenCoord() {
-        return new HashSet<>(selectionsInScreenCoord);
+        return selectionsInScreenCoord;
     }
 
     public boolean isSelectionAdd() {

@@ -37,10 +37,7 @@ import com.github.ocraft.s2client.protocol.syntax.action.raw.*;
 import com.github.ocraft.s2client.protocol.unit.Tag;
 import com.github.ocraft.s2client.protocol.unit.Unit;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.UnaryOperator;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
@@ -50,6 +47,7 @@ import static com.github.ocraft.s2client.protocol.Preconditions.require;
 import static com.github.ocraft.s2client.protocol.Preconditions.requireNotEmpty;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 public final class ActionRawUnitCommand
@@ -152,7 +150,8 @@ public final class ActionRawUnitCommand
         ).apply(sc2ApiActionRawUnitCommand).map(Point2d::from).orElse(nothing());
 
         this.unitTags = sc2ApiActionRawUnitCommand.getUnitTagsList().stream()
-                .map(Tag::from).collect(toSet());
+                .map(Tag::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
         requireNotEmpty("unit tag list", unitTags);
 
@@ -196,7 +195,7 @@ public final class ActionRawUnitCommand
     }
 
     public Set<Tag> getUnitTags() {
-        return new HashSet<>(unitTags);
+        return unitTags;
     }
 
     public boolean isQueued() {

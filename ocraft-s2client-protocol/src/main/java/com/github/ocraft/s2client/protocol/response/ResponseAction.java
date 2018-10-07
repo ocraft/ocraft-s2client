@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.response;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,10 +31,11 @@ import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.action.ActionResult;
 import com.github.ocraft.s2client.protocol.game.GameStatus;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
 public final class ResponseAction extends Response {
@@ -45,7 +46,8 @@ public final class ResponseAction extends Response {
 
     private ResponseAction(Sc2Api.ResponseAction sc2ApiResponseAction, Sc2Api.Status status) {
         super(ResponseType.ACTION, GameStatus.from(status));
-        results = sc2ApiResponseAction.getResultList().stream().map(ActionResult::from).collect(toList());
+        results = sc2ApiResponseAction.getResultList().stream().map(ActionResult::from)
+                .collect(collectingAndThen(toList(), Collections::unmodifiableList));
     }
 
     public static ResponseAction from(Sc2Api.Response sc2ApiResponse) {
@@ -60,7 +62,7 @@ public final class ResponseAction extends Response {
     }
 
     public List<ActionResult> getResults() {
-        return new ArrayList<>(results);
+        return results;
     }
 
     @Override
