@@ -644,7 +644,7 @@ For reference, it can be found here: <a href="https://github.com/ocraft/ocraft-s
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>com.github.ocraft<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>ocraft-s2client-bot<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>0.2.3<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;version&gt;</span>0.2.4<span class="tag">&lt;/version&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
@@ -1551,7 +1551,7 @@ soon as it&#8217;s spawned. It will be fun to see countless marines walk to thei
 
    Optional&lt;StartRaw&gt; startRaw = gameInfo.getStartRaw();
    <span class="keyword">if</span> (startRaw.isPresent()) {
-       <span class="predefined-type">Set</span>&lt;Point2d&gt; startLocations = startRaw.get().getStartLocations();
+       <span class="predefined-type">Set</span>&lt;Point2d&gt; startLocations = <span class="keyword">new</span> <span class="predefined-type">HashSet</span>&lt;&gt;(startRaw.get().getStartLocations());
        startLocations.remove(observation().getStartLocation().toPoint2d());
        <span class="keyword">if</span> (startLocations.isEmpty()) <span class="keyword">return</span> Optional.empty();
        <span class="keyword">return</span> Optional.of(<span class="keyword">new</span> <span class="predefined-type">ArrayList</span>&lt;&gt;(startLocations)
@@ -1737,7 +1737,7 @@ move to your enemy.</p>
 
             Optional&lt;StartRaw&gt; startRaw = gameInfo.getStartRaw();
             <span class="keyword">if</span> (startRaw.isPresent()) {
-                <span class="predefined-type">Set</span>&lt;Point2d&gt; startLocations = startRaw.get().getStartLocations();
+                <span class="predefined-type">Set</span>&lt;Point2d&gt; startLocations = <span class="keyword">new</span> <span class="predefined-type">HashSet</span>&lt;&gt;(startRaw.get().getStartLocations());
                 startLocations.remove(observation().getStartLocation().toPoint2d());
                 <span class="keyword">if</span> (startLocations.isEmpty()) <span class="keyword">return</span> Optional.empty();
                 <span class="keyword">return</span> Optional.of(<span class="keyword">new</span> <span class="predefined-type">ArrayList</span>&lt;&gt;(startLocations)
@@ -1772,7 +1772,7 @@ move to your enemy.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-10-03 08:53:00 CEST
+Last updated 2018-10-07 15:17:00 CEST
 </div>
 </div>
 </body>
