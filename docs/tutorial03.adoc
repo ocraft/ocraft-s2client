@@ -147,7 +147,7 @@ private Optional<Point2d> findEnemyPosition() {
 
    Optional<StartRaw> startRaw = gameInfo.getStartRaw();
    if (startRaw.isPresent()) {
-       Set<Point2d> startLocations = startRaw.get().getStartLocations();
+       Set<Point2d> startLocations = new HashSet<>(startRaw.get().getStartLocations());
        startLocations.remove(observation().getStartLocation().toPoint2d());
        if (startLocations.isEmpty()) return Optional.empty();
        return Optional.of(new ArrayList<>(startLocations)
@@ -325,7 +325,7 @@ public class TutorialBot {
 
             Optional<StartRaw> startRaw = gameInfo.getStartRaw();
             if (startRaw.isPresent()) {
-                Set<Point2d> startLocations = startRaw.get().getStartLocations();
+                Set<Point2d> startLocations = new HashSet<>(startRaw.get().getStartLocations());
                 startLocations.remove(observation().getStartLocation().toPoint2d());
                 if (startLocations.isEmpty()) return Optional.empty();
                 return Optional.of(new ArrayList<>(startLocations)
