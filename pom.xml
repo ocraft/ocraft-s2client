@@ -230,6 +230,7 @@
                         <inherited>false</inherited>
                         <configuration>
                             <message>Creating site for ${project.version}</message>
+                            <merge>true</merge>
                         </configuration>
                         <executions>
                             <execution>
