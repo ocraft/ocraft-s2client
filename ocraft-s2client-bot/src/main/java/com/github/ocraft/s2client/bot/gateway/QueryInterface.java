@@ -151,14 +151,14 @@ public interface QueryInterface {
         List<QueryBuildingPlacement> queries = new ArrayList<>();
         for (Map.Entry<Point, List<UnitInPool>> cluster : clusters.entrySet()) {
             if (debug != null) {
-                for (float r : parameters.getRadiuses()) {
-                    debug.debugSphereOut(cluster.getKey(), r, Color.GREEN);
+                for (double r : parameters.getRadiuses()) {
+                    debug.debugSphereOut(cluster.getKey(), (float) r, Color.GREEN);
                 }
             }
 
             // Get the required queries for this cluster.
             int queryCount = 0;
-            for (float r : parameters.getRadiuses()) {
+            for (double r : parameters.getRadiuses()) {
                 List<QueryBuildingPlacement> calculatedQueries = calculateQueries(
                         r, parameters.getCircleStepSize(), cluster.getKey().toPoint2d());
                 queries.addAll(calculatedQueries);
@@ -171,7 +171,7 @@ public interface QueryInterface {
         List<Boolean> results = this.placement(queries);
         int startIndex = 0;
         for (Map.Entry<Point, List<UnitInPool>> cluster : clusters.entrySet()) {
-            float distance = Float.MAX_VALUE;
+            double distance = Double.MAX_VALUE;
             Point2d closest = Point2d.of(0.0f, 0.0f);
 
             // For each query for the cluster minimum distance location that is valid.
@@ -182,7 +182,7 @@ public interface QueryInterface {
 
                 Point2d p = queries.get(j).getTarget();
 
-                float d = (float) p.distance(cluster.getKey().toPoint2d());
+                double d = p.distance(cluster.getKey().toPoint2d());
                 if (d < distance) {
                     distance = d;
                     closest = p;
@@ -206,21 +206,19 @@ public interface QueryInterface {
     }
 
     default List<Point> calculateExpansionLocations(ObservationInterface observation) {
-        return calculateExpansionLocations(
-                observation, null, ExpansionParameters.from(List.of(6.4f, 5.3f), 0.5f, 15.0f));
+        return calculateExpansionLocations(observation, null, ExpansionParameters.preset());
     }
 
     default List<Point> calculateExpansionLocations(ObservationInterface observation, DebugInterface debug) {
-        return calculateExpansionLocations(
-                observation, debug, ExpansionParameters.from(List.of(6.4f, 5.3f), 0.5f, 15.0f));
+        return calculateExpansionLocations(observation, debug, ExpansionParameters.preset());
     }
 
-    private List<QueryBuildingPlacement> calculateQueries(float radius, float stepSize, Point2d center) {
+    private List<QueryBuildingPlacement> calculateQueries(double radius, double stepSize, Point2d center) {
         List<QueryBuildingPlacement> queries = new ArrayList<>();
 
         Point2d previousGrid = Point2d.of(Float.MAX_VALUE, Float.MAX_VALUE);
         // Find a buildable location on the circumference of the sphere
-        for (float degree = 0.0f; degree < 360.0f; degree += stepSize) {
+        for (double degree = 0.0; degree < 360.0; degree += stepSize) {
             Point2d point = pointOnCircle(radius, center, degree);
 
             QueryBuildingPlacement query = QueryBuildingPlacement
@@ -241,7 +239,7 @@ public interface QueryInterface {
         return queries;
     }
 
-    private static Point2d pointOnCircle(float radius, Point2d center, float degree) {
+    private static Point2d pointOnCircle(double radius, Point2d center, double degree) {
         return Point2d.of(
                 (float) (radius * Math.cos(Math.toRadians(degree)) + center.getX()),
                 (float) (radius * Math.sin(Math.toRadians(degree)) + center.getY()));
@@ -250,14 +248,14 @@ public interface QueryInterface {
     /**
      * Clusters units within some distance of each other and returns a list of them and their center of mass.
      */
-    static Map<Point, List<UnitInPool>> cluster(List<UnitInPool> units, float distanceApart) {
+    static Map<Point, List<UnitInPool>> cluster(List<UnitInPool> units, double distanceApart) {
         Map<Point, List<UnitInPool>> clusters = new LinkedHashMap<>();
         for (UnitInPool u : units) {
-            float distance = Float.MAX_VALUE;
+            double distance = Double.MAX_VALUE;
             Map.Entry<Point, List<UnitInPool>> targetCluster = null;
             // Find the cluster this mineral patch is closest to.
             for (Map.Entry<Point, List<UnitInPool>> cluster : clusters.entrySet()) {
-                float d = (float) u.unit().getPosition().distance(cluster.getKey());
+                double d = u.unit().getPosition().distance(cluster.getKey());
                 if (d < distance) {
                     distance = d;
                     targetCluster = cluster;
