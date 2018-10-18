@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.game;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,17 +29,30 @@ package com.github.ocraft.s2client.protocol.game;
 import SC2APIProtocol.Sc2Api;
 import com.github.ocraft.s2client.protocol.Strings;
 
+import java.util.Optional;
+
+import static com.github.ocraft.s2client.protocol.Constants.nothing;
+
 public final class ComputerPlayerSetup extends PlayerSetup {
 
     private static final long serialVersionUID = -8466918343240025565L;
 
     private final Race race;
     private final Difficulty difficulty;
+    private final String playerName;
 
     private ComputerPlayerSetup(Race race, Difficulty difficulty) {
         super(PlayerType.COMPUTER);
         this.race = race;
         this.difficulty = difficulty;
+        this.playerName = nothing();
+    }
+
+    private ComputerPlayerSetup(Race race, Difficulty difficulty, String playerName) {
+        super(PlayerType.COMPUTER);
+        this.race = race;
+        this.difficulty = difficulty;
+        this.playerName = playerName;
     }
 
     public static ComputerPlayerSetup computer(Race race, Difficulty difficulty) {
@@ -48,13 +61,22 @@ public final class ComputerPlayerSetup extends PlayerSetup {
         return new ComputerPlayerSetup(race, difficulty);
     }
 
+    public static ComputerPlayerSetup computer(Race race, Difficulty difficulty, String playerName) {
+        if (race == null) throw new IllegalArgumentException("race is required");
+        if (difficulty == null) throw new IllegalArgumentException("difficulty level is required");
+        return new ComputerPlayerSetup(race, difficulty, playerName);
+    }
+
     @Override
     public Sc2Api.PlayerSetup toSc2Api() {
-        return Sc2Api.PlayerSetup.newBuilder()
+        Sc2Api.PlayerSetup.Builder builder = Sc2Api.PlayerSetup.newBuilder()
                 .setType(Sc2Api.PlayerType.Computer)
                 .setDifficulty(difficulty.toSc2Api())
-                .setRace(race.toSc2Api())
-                .build();
+                .setRace(race.toSc2Api());
+
+        getPlayerName().ifPresent(builder::setPlayerName);
+
+        return builder.build();
     }
 
     public Race getRace() {
@@ -65,6 +87,10 @@ public final class ComputerPlayerSetup extends PlayerSetup {
         return difficulty;
     }
 
+    public Optional<String> getPlayerName() {
+        return Optional.ofNullable(playerName);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -73,7 +99,10 @@ public final class ComputerPlayerSetup extends PlayerSetup {
 
         ComputerPlayerSetup that = (ComputerPlayerSetup) o;
 
-        return that.canEqual(this) && race == that.race && difficulty == that.difficulty;
+        if (!that.canEqual(this)) return false;
+        if (race != that.race) return false;
+        if (difficulty != that.difficulty) return false;
+        return playerName != null ? playerName.equals(that.playerName) : that.playerName == null;
     }
 
     @Override
@@ -86,6 +115,7 @@ public final class ComputerPlayerSetup extends PlayerSetup {
         int result = super.hashCode();
         result = 31 * result + race.hashCode();
         result = 31 * result + difficulty.hashCode();
+        result = 31 * result + (playerName != null ? playerName.hashCode() : 0);
         return result;
     }
 

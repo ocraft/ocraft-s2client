@@ -301,7 +301,10 @@ class ControlInterfaceImpl implements ControlInterface {
             InterfaceOptions interfaceOptions = interfaceOptionsFrom(interfaceSettings);
 
             return proto().sendRequest(
-                    Requests.joinGame().as(playerSettings.getRace()).use(interfaceOptions).with(multiplayerOptions));
+                    Requests.joinGame()
+                            .as(playerSettings.getRace(), playerSettings.getPlayerName())
+                            .use(interfaceOptions)
+                            .with(multiplayerOptions));
         } finally {
             setMultiplayer(isSet(multiplayerOptions));
         }

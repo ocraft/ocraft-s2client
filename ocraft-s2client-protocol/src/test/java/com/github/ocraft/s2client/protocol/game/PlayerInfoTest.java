@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.game;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,6 +27,7 @@ package com.github.ocraft.s2client.protocol.game;
  */
 
 import SC2APIProtocol.Sc2Api;
+import com.github.ocraft.s2client.protocol.Fixtures;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
@@ -55,6 +56,7 @@ class PlayerInfoTest {
         assertThat(playerInfo.getRequestedRace()).as("requested race").isEqualTo(Race.ZERG);
         assertThat(playerInfo.getActualRace()).as("actual race").hasValue(Race.PROTOSS);
         assertThat(playerInfo.getDifficulty()).as("difficulty").hasValue(Difficulty.CHEAT_VISION);
+        assertThat(playerInfo.getPlayerName()).as("player name").hasValue(Fixtures.PLAYER_NAME);
     }
 
     @Test

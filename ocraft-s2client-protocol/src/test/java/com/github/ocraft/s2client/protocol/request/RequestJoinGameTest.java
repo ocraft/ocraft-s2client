@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.request;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,6 +28,7 @@ package com.github.ocraft.s2client.protocol.request;
 
 import SC2APIProtocol.Common;
 import SC2APIProtocol.Sc2Api;
+import com.github.ocraft.s2client.protocol.Fixtures;
 import com.github.ocraft.s2client.protocol.game.InterfaceOptions;
 import com.github.ocraft.s2client.protocol.game.Observer;
 import com.github.ocraft.s2client.protocol.game.PortSet;
@@ -52,7 +53,7 @@ class RequestJoinGameTest {
     void serializesToSc2ApiRequestJoinGame() {
         assertThatAreFieldsInRequestAreSerialized(
                 joinGame()
-                        .as(Race.TERRAN)
+                        .as(Race.TERRAN, Fixtures.PLAYER_NAME)
                         .use(interfaces().raw().score()
                                 .featureLayer(defaultSpatialSetup())
                                 .render(defaultSpatialSetup()).build())
@@ -69,6 +70,7 @@ class RequestJoinGameTest {
         assertThat(sc2ApiRequestJoinGame.hasRace()).as("case of participant is race").isTrue();
         assertThat(sc2ApiRequestJoinGame.getRace()).as("race of participant").isEqualTo(Common.Race.Terran);
         assertThat(sc2ApiRequestJoinGame.hasOptions()).as("interface options are set").isTrue();
+        assertThat(sc2ApiRequestJoinGame.getPlayerName()).as("player name is set").isEqualTo(Fixtures.PLAYER_NAME);
 
         assertThatMultiplayerOptionsAreSerialized(sc2ApiRequestJoinGame);
     }
@@ -83,7 +85,7 @@ class RequestJoinGameTest {
     void serializesToSc2ApiRequestJoinGameUsingBuilders() {
         assertThatAreFieldsInRequestAreSerialized(
                 joinGame()
-                        .as(Race.TERRAN)
+                        .as(Race.TERRAN, Fixtures.PLAYER_NAME)
                         .use(interfaces().raw().score()
                                 .featureLayer(aSpatialSetup())
                                 .render(aSpatialSetup()))

@@ -259,6 +259,7 @@ public final class Fixtures {
     public static final float EFFECT_RADIUS = 1.5f;
     public static float RADIUS = 4.0f;
     public static float CAMERA_DISTANCE = 3.0f;
+    public static final String PLAYER_NAME = "PlayerName";
 
     private Fixtures() {
         throw new AssertionError("private constructor");
@@ -434,6 +435,7 @@ public final class Fixtures {
                 .setRaceRequested(Common.Race.Zerg)
                 .setRaceActual(Common.Race.Protoss)
                 .setDifficulty(Sc2Api.Difficulty.CheatVision)
+                .setPlayerName(PLAYER_NAME)
                 .build();
     }
 
@@ -835,7 +837,19 @@ public final class Fixtures {
     }
 
     public static Ui.ProductionPanel sc2ApiProductionPanel() {
-        return Ui.ProductionPanel.newBuilder().setUnit(sc2ApiUnitInfo()).addBuildQueue(sc2ApiUnitInfo()).build();
+        return Ui.ProductionPanel
+                .newBuilder()
+                .setUnit(sc2ApiUnitInfo())
+                .addBuildQueue(sc2ApiUnitInfo())
+                .addProductionQueue(sc2ApiBuildItem())
+                .build();
+    }
+
+    public static Ui.BuildItem sc2ApiBuildItem() {
+        return Ui.BuildItem.newBuilder()
+                .setAbilityId(ABILITY_ID)
+                .setBuildProgress(UNIT_BUILD_PROGRESS)
+                .build();
     }
 
     public static Sc2Api.Response sc2ApiResponseObservationWithEmptyLists() {

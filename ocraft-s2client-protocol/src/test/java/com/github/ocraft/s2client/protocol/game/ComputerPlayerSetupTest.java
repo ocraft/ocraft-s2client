@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.game;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,11 +26,15 @@ package com.github.ocraft.s2client.protocol.game;
  * #L%
  */
 
+import SC2APIProtocol.Common;
+import SC2APIProtocol.Sc2Api;
+import com.github.ocraft.s2client.protocol.Fixtures;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.game.ComputerPlayerSetup.computer;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class ComputerPlayerSetupTest {
@@ -47,6 +51,22 @@ class ComputerPlayerSetupTest {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> computer(Race.PROTOSS, nothing()))
                 .withMessage("difficulty level is required");
+    }
+
+    @Test
+    void serializesToSc2ApiPlayerSetup() {
+        assertThat(ComputerPlayerSetup.computer(Race.PROTOSS, Difficulty.MEDIUM, Fixtures.PLAYER_NAME).toSc2Api())
+                .as("sc2api computer player setup")
+                .isEqualTo(expectedComputerPlayerSetup());
+    }
+
+    private Sc2Api.PlayerSetup expectedComputerPlayerSetup() {
+        return Sc2Api.PlayerSetup.newBuilder()
+                .setType(Sc2Api.PlayerType.Computer)
+                .setRace(Common.Race.Protoss)
+                .setDifficulty(Sc2Api.Difficulty.Medium)
+                .setPlayerName(Fixtures.PLAYER_NAME)
+                .build();
     }
 
     @Test

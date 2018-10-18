@@ -33,6 +33,7 @@ import com.github.ocraft.s2client.protocol.data.Abilities;
 import com.github.ocraft.s2client.protocol.data.Ability;
 import com.github.ocraft.s2client.protocol.data.UnitType;
 import com.github.ocraft.s2client.protocol.data.Units;
+import com.github.ocraft.s2client.protocol.debug.Color;
 import com.github.ocraft.s2client.protocol.game.BattlenetMap;
 import com.github.ocraft.s2client.protocol.game.Difficulty;
 import com.github.ocraft.s2client.protocol.game.Race;
@@ -42,10 +43,7 @@ import com.github.ocraft.s2client.protocol.spatial.Point2d;
 import com.github.ocraft.s2client.protocol.unit.Alliance;
 import com.github.ocraft.s2client.protocol.unit.Unit;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -67,7 +65,10 @@ public class SampleBot {
         @Override
         public void onGameStart() {
             System.out.println("Hello world of Starcraft II bots!");
+            debug().debugTextOut("Welcome to the Ocraft SDK!", Color.BLUE);
             gameInfo = observation().getGameInfo();
+
+            debug().sendDebug();
         }
 
         @Override
@@ -117,7 +118,7 @@ public class SampleBot {
         private Optional<Point2d> findEnemyPosition() {
             Optional<StartRaw> startRaw = gameInfo.getStartRaw();
             if (startRaw.isPresent()) {
-                Set<Point2d> startLocations = startRaw.get().getStartLocations();
+                Set<Point2d> startLocations = new HashSet<>(startRaw.get().getStartLocations());
                 startLocations.remove(observation().getStartLocation().toPoint2d());
                 if (startLocations.isEmpty()) return Optional.empty();
                 return Optional.of(new ArrayList<>(startLocations)

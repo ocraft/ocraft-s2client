@@ -1000,6 +1000,14 @@ public class S2Coordinator {
         return PlayerSettings.computer(race, difficulty);
     }
 
+    public static PlayerSettings createParticipant(Race race, S2Agent bot, String playerName) {
+        return PlayerSettings.participant(race, bot, playerName);
+    }
+
+    public static PlayerSettings createComputer(Race race, Difficulty difficulty, String playerName) {
+        return PlayerSettings.computer(race, difficulty, playerName);
+    }
+
     List<S2Agent> getAgents() {
         return new ArrayList<>(agents);
     }

@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.bot.setting;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -40,24 +40,39 @@ public final class PlayerSettings {
     private final Race race;
     private final Difficulty difficulty;
     private final S2Agent agent;
+    private final String playerName;
 
-    private PlayerSettings(PlayerSetup playerSetup, Race race, Difficulty difficulty, S2Agent agent) {
+    private PlayerSettings(
+            PlayerSetup playerSetup, Race race, Difficulty difficulty, S2Agent agent, String playerName) {
         this.playerSetup = playerSetup;
         this.race = race;
         this.difficulty = difficulty;
         this.agent = agent;
+        this.playerName = playerName;
     }
 
     public static PlayerSettings participant(Race race, S2Agent agent) {
         require("race", race);
         require("agent", agent);
-        return new PlayerSettings(PlayerSetup.participant(), race, null, agent);
+        return new PlayerSettings(PlayerSetup.participant(), race, null, agent, null);
     }
 
     public static PlayerSettings computer(Race race, Difficulty difficulty) {
         require("race", race);
         require("difficulty", difficulty);
-        return new PlayerSettings(ComputerPlayerSetup.computer(race, difficulty), race, difficulty, null);
+        return new PlayerSettings(ComputerPlayerSetup.computer(race, difficulty), race, difficulty, null, null);
+    }
+
+    public static PlayerSettings participant(Race race, S2Agent agent, String playerName) {
+        require("race", race);
+        require("agent", agent);
+        return new PlayerSettings(PlayerSetup.participant(), race, null, agent, playerName);
+    }
+
+    public static PlayerSettings computer(Race race, Difficulty difficulty, String playerName) {
+        require("race", race);
+        require("difficulty", difficulty);
+        return new PlayerSettings(ComputerPlayerSetup.computer(race, difficulty), race, difficulty, null, playerName);
     }
 
     public PlayerSetup getPlayerSetup() {
@@ -76,6 +91,10 @@ public final class PlayerSettings {
         return agent;
     }
 
+    public String getPlayerName() {
+        return playerName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -86,15 +105,17 @@ public final class PlayerSettings {
         if (playerSetup != null ? !playerSetup.equals(that.playerSetup) : that.playerSetup != null) return false;
         if (race != that.race) return false;
         if (difficulty != that.difficulty) return false;
-        return agent != null ? agent.equals(that.agent) : that.agent == null;
+        if (agent != null ? !agent.equals(that.agent) : that.agent != null) return false;
+        return playerName != null ? playerName.equals(that.playerName) : that.playerName == null;
     }
 
     @Override
     public int hashCode() {
         int result = playerSetup != null ? playerSetup.hashCode() : 0;
-        result = 31 * result + (race != null ? race.hashCode() : 0);
-        result = 31 * result + (difficulty != null ? difficulty.hashCode() : 0);
+        result = 31 * result + race.hashCode();
+        result = 31 * result + difficulty.hashCode();
         result = 31 * result + (agent != null ? agent.hashCode() : 0);
+        result = 31 * result + (playerName != null ? playerName.hashCode() : 0);
         return result;
     }
 
@@ -105,6 +126,7 @@ public final class PlayerSettings {
                 ", race=" + race +
                 ", difficulty=" + difficulty +
                 ", agent=" + agent +
+                ", playerName='" + playerName + '\'' +
                 '}';
     }
 }

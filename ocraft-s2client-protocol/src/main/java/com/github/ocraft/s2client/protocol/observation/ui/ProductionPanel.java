@@ -40,12 +40,17 @@ import static com.github.ocraft.s2client.protocol.Preconditions.require;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Build queue ONLY gives information about units that are being produced. Use production queue instead to see both
+ * units being trained as well as research in the queue.
+ */
 public final class ProductionPanel implements Serializable {
 
-    private static final long serialVersionUID = 4298757821756614388L;
+    private static final long serialVersionUID = -5980678641352747461L;
 
     private final UnitInfo unit;
     private final List<UnitInfo> buildQueue;
+    private final List<BuildItem> productionQueue;
 
     private ProductionPanel(Ui.ProductionPanel sc2ApiProductionPanel) {
         unit = tryGet(
@@ -53,6 +58,9 @@ public final class ProductionPanel implements Serializable {
         ).apply(sc2ApiProductionPanel).map(UnitInfo::from).orElseThrow(required("unit"));
 
         buildQueue = sc2ApiProductionPanel.getBuildQueueList().stream().map(UnitInfo::from)
+                .collect(collectingAndThen(toList(), Collections::unmodifiableList));
+
+        productionQueue = sc2ApiProductionPanel.getProductionQueueList().stream().map(BuildItem::from)
                 .collect(collectingAndThen(toList(), Collections::unmodifiableList));
     }
 
@@ -69,6 +77,10 @@ public final class ProductionPanel implements Serializable {
         return buildQueue;
     }
 
+    public List<BuildItem> getProductionQueue() {
+        return productionQueue;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -76,13 +88,16 @@ public final class ProductionPanel implements Serializable {
 
         ProductionPanel that = (ProductionPanel) o;
 
-        return unit.equals(that.unit) && buildQueue.equals(that.buildQueue);
+        if (!unit.equals(that.unit)) return false;
+        if (!buildQueue.equals(that.buildQueue)) return false;
+        return productionQueue.equals(that.productionQueue);
     }
 
     @Override
     public int hashCode() {
         int result = unit.hashCode();
         result = 31 * result + buildQueue.hashCode();
+        result = 31 * result + productionQueue.hashCode();
         return result;
     }
 
@@ -90,4 +105,5 @@ public final class ProductionPanel implements Serializable {
     public String toString() {
         return Strings.toJson(this);
     }
+
 }

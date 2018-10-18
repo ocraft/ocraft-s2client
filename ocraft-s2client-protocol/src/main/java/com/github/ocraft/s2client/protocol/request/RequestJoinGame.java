@@ -50,12 +50,14 @@ public final class RequestJoinGame extends Request {
     private final Observer observerOf;
     private final InterfaceOptions interfaceOptions;
     private final MultiplayerOptions multiplayerOptions;
+    private final String playerName;
 
     private RequestJoinGame(Builder builder) {
         this.race = builder.race;
         this.observerOf = builder.observer;
         this.interfaceOptions = builder.interfaceOptions;
         this.multiplayerOptions = builder.multiplayerOptions;
+        this.playerName = builder.playerName;
     }
 
     public static final class Builder implements RequestJoinGameSyntax, UseInterfaceSyntax {
@@ -64,6 +66,7 @@ public final class RequestJoinGame extends Request {
         private Observer observer;
         private InterfaceOptions interfaceOptions = defaultInterfaces();
         private MultiplayerOptions multiplayerOptions;
+        private String playerName;
 
         @Override
         public UseInterfaceSyntax as(Race race) {
@@ -76,6 +79,20 @@ public final class RequestJoinGame extends Request {
         public UseInterfaceSyntax as(Observer observer) {
             this.observer = observer;
             this.race = nothing();
+            return this;
+        }
+
+        @Override
+        public UseInterfaceSyntax as(Race race, String playerName) {
+            as(race);
+            this.playerName = playerName;
+            return this;
+        }
+
+        @Override
+        public UseInterfaceSyntax as(Observer observer, String playerName) {
+            as(observer);
+            this.playerName = playerName;
             return this;
         }
 
@@ -134,6 +151,7 @@ public final class RequestJoinGame extends Request {
                 .setSharedPort(options.getSharedPort())
                 .setServerPorts(options.getServerPort().toSc2Api())
                 .addAllClientPorts(options.getClientPorts().stream().map(PortSet::toSc2Api).collect(toSet())));
+        getPlayerName().ifPresent(aSc2ApiRequestJoinGame::setPlayerName);
 
         return Sc2Api.Request.newBuilder()
                 .setJoinGame(aSc2ApiRequestJoinGame.build())
@@ -161,6 +179,10 @@ public final class RequestJoinGame extends Request {
         return Optional.ofNullable(multiplayerOptions);
     }
 
+    public Optional<String> getPlayerName() {
+        return Optional.ofNullable(playerName);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -168,12 +190,14 @@ public final class RequestJoinGame extends Request {
 
         RequestJoinGame that = (RequestJoinGame) o;
 
-        return race == that.race &&
-                (observerOf != null ? observerOf.equals(that.observerOf) : that.observerOf == null) &&
-                interfaceOptions.equals(that.interfaceOptions) &&
-                (multiplayerOptions != null
-                        ? multiplayerOptions.equals(that.multiplayerOptions)
-                        : that.multiplayerOptions == null);
+        if (race != that.race) return false;
+        if (observerOf != null ? !observerOf.equals(that.observerOf) : that.observerOf != null) return false;
+        if (!interfaceOptions.equals(that.interfaceOptions)) return false;
+        if (multiplayerOptions != null
+                ? !multiplayerOptions.equals(that.multiplayerOptions)
+                : that.multiplayerOptions != null)
+            return false;
+        return playerName != null ? playerName.equals(that.playerName) : that.playerName == null;
     }
 
     @Override
@@ -182,6 +206,7 @@ public final class RequestJoinGame extends Request {
         result = 31 * result + (observerOf != null ? observerOf.hashCode() : 0);
         result = 31 * result + interfaceOptions.hashCode();
         result = 31 * result + (multiplayerOptions != null ? multiplayerOptions.hashCode() : 0);
+        result = 31 * result + (playerName != null ? playerName.hashCode() : 0);
         return result;
     }
 

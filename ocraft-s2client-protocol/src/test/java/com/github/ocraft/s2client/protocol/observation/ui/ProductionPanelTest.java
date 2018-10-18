@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.observation.ui;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -52,6 +52,7 @@ class ProductionPanelTest {
     private void assertThatAllFieldsAreConverted(ProductionPanel productionPanel) {
         assertThat(productionPanel.getUnit()).as("production panel: unit").isNotNull();
         assertThat(productionPanel.getBuildQueue()).as("production panel: build queue").isNotEmpty();
+        assertThat(productionPanel.getProductionQueue()).as("production panel: production queue").isNotEmpty();
     }
 
     @Test
@@ -71,10 +72,18 @@ class ProductionPanelTest {
     }
 
     @Test
+    void hasEmptyListOfProductionQueueWhenNotProvided() {
+        assertThat(ProductionPanel.from(
+                without(() -> sc2ApiProductionPanel().toBuilder(), Ui.ProductionPanel.Builder::clearProductionQueue)
+                        .build()
+        ).getProductionQueue()).as("production panel: empty production queue list").isEmpty();
+    }
+
+    @Test
     void fulfillsEqualsContract() {
         EqualsVerifier
                 .forClass(ProductionPanel.class)
-                .withNonnullFields("unit", "buildQueue")
+                .withNonnullFields("unit", "buildQueue", "productionQueue")
                 .withPrefabValues(UnitInfo.class, UnitInfo.from(sc2ApiUnitInfoAddOn()), UnitInfo.from(sc2ApiUnitInfo()))
                 .verify();
     }

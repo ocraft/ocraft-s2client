@@ -72,8 +72,8 @@ public class MultiplayerTestBot extends UnitTestBot {
                 .loadSettings(new String[]{})
                 .setMultithreaded(true)
                 .setParticipants(
-                        S2Coordinator.createParticipant(Race.TERRAN, bot01),
-                        S2Coordinator.createParticipant(Race.TERRAN, bot02))
+                        S2Coordinator.createParticipant(Race.TERRAN, bot01, "Ocraft_Bot01"),
+                        S2Coordinator.createParticipant(Race.TERRAN, bot02, "Ocraft_Bot02"))
                 .launchStarcraft();
 
         if (!remoteSaveMap(s2Coordinator, Fixtures.BEL_SHIR_VESTIGE_LE, remotePath)) {

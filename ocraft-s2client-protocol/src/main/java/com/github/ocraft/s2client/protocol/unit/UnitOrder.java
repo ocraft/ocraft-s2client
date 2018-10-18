@@ -66,7 +66,7 @@ public final class UnitOrder implements Serializable, GeneralizableAbility<UnitO
                 .apply(sc2ApiUnitOrder).orElse(nothing());
     }
 
-    public UnitOrder(Ability ability, Tag targetedUnitTag, Point targetedWorldSpacePosition, Float progress) {
+    private UnitOrder(Ability ability, Tag targetedUnitTag, Point targetedWorldSpacePosition, Float progress) {
         this.ability = ability;
         this.targetedUnitTag = targetedUnitTag;
         this.targetedWorldSpacePosition = targetedWorldSpacePosition;

@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.game;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -46,6 +46,7 @@ public final class PlayerInfo implements Serializable {
     private final Race requestedRace;
     private final Race actualRace;
     private final Difficulty difficulty;
+    private final String playerName;
 
     private PlayerInfo(Sc2Api.PlayerInfo sc2ApiPlayerInfo) {
         this.playerId = tryGet(
@@ -67,6 +68,10 @@ public final class PlayerInfo implements Serializable {
         this.difficulty = tryGet(
                 Sc2Api.PlayerInfo::getDifficulty, Sc2Api.PlayerInfo::hasDifficulty
         ).apply(sc2ApiPlayerInfo).map(Difficulty::from).orElse(nothing());
+
+        this.playerName = tryGet(
+                Sc2Api.PlayerInfo::getPlayerName, Sc2Api.PlayerInfo::hasPlayerName
+        ).apply(sc2ApiPlayerInfo).orElse(nothing());
     }
 
     public static PlayerInfo from(Sc2Api.PlayerInfo sc2ApiPlayerInfo) {
@@ -94,18 +99,23 @@ public final class PlayerInfo implements Serializable {
         return Optional.ofNullable(difficulty);
     }
 
+    public Optional<String> getPlayerName() {
+        return Optional.ofNullable(playerName);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof PlayerInfo)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         PlayerInfo that = (PlayerInfo) o;
 
-        return playerId == that.playerId &&
-                playerType == that.playerType &&
-                requestedRace == that.requestedRace &&
-                actualRace == that.actualRace &&
-                difficulty == that.difficulty;
+        if (playerId != that.playerId) return false;
+        if (playerType != that.playerType) return false;
+        if (requestedRace != that.requestedRace) return false;
+        if (actualRace != that.actualRace) return false;
+        if (difficulty != that.difficulty) return false;
+        return playerName != null ? playerName.equals(that.playerName) : that.playerName == null;
     }
 
     @Override
@@ -115,6 +125,7 @@ public final class PlayerInfo implements Serializable {
         result = 31 * result + requestedRace.hashCode();
         result = 31 * result + (actualRace != null ? actualRace.hashCode() : 0);
         result = 31 * result + (difficulty != null ? difficulty.hashCode() : 0);
+        result = 31 * result + (playerName != null ? playerName.hashCode() : 0);
         return result;
     }
 
