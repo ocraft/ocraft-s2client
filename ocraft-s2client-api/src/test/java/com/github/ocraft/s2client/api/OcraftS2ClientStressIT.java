@@ -201,7 +201,7 @@ class OcraftS2ClientStressIT {
 
     @Test
     void emitsErrorOnResponseEventBusBufferOverflow() {
-        System.setProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_RESPONSE_EVENT_BUS, "1");
+        System.setProperty(OcraftApiConfig.CLIENT_BUFFER_SIZE_RESPONSE_EVENT_BUS, "0");
         refreshConfig();
 
         prepareGame();

@@ -91,7 +91,7 @@ public class VertxChannel implements Channel {
     @Override
     public void input(byte[] inputBytes) {
         if (!inputMessageProducer.writeQueueFull()) {
-            inputMessageProducer.send(inputBytes);
+            inputMessageProducer.write(inputBytes);
         } else {
             throw new BufferOverflowException();
         }
@@ -100,7 +100,7 @@ public class VertxChannel implements Channel {
     @Override
     public void output(byte[] outputBytes) {
         if (!outputMessageProducer.writeQueueFull()) {
-            outputMessageProducer.send(outputBytes);
+            outputMessageProducer.write(outputBytes);
         } else {
             throw new BufferOverflowException();
         }
