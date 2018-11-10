@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.bot.gateway.impl;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -42,6 +42,7 @@ import com.github.ocraft.s2client.protocol.unit.Unit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static com.github.ocraft.s2client.protocol.action.Action.action;
 
@@ -111,6 +112,64 @@ class ActionInterfaceImpl implements ActionInterface {
     public ActionInterface unitCommand(List<Unit> units, Ability ability, Unit target, boolean queuedCommand) {
         actions.add(action().raw(ActionRawUnitCommand.unitCommand()
                 .forUnits(units.toArray(new Unit[0]))
+                .useAbility(ability)
+                .target(target.getTag())
+                .queued(queuedCommand)).build());
+        return this;
+    }
+
+    @Override
+    public ActionInterface unitCommand(Tag unit, Ability ability, boolean queuedCommand) {
+        actions.add(action().raw(ActionRawUnitCommand.unitCommand()
+                .forUnits(unit)
+                .useAbility(ability)
+                .queued(queuedCommand)).build());
+        return this;
+    }
+
+    @Override
+    public ActionInterface unitCommand(Tag unit, Ability ability, Point2d point, boolean queuedCommand) {
+        actions.add(action().raw(ActionRawUnitCommand.unitCommand()
+                .forUnits(unit)
+                .useAbility(ability)
+                .target(point)
+                .queued(queuedCommand)).build());
+        return this;
+    }
+
+    @Override
+    public ActionInterface unitCommand(Tag unit, Ability ability, Unit target, boolean queuedCommand) {
+        actions.add(action().raw(ActionRawUnitCommand.unitCommand()
+                .forUnits(unit)
+                .useAbility(ability)
+                .target(target.getTag())
+                .queued(queuedCommand)).build());
+        return this;
+    }
+
+    @Override
+    public ActionInterface unitCommand(Set<Tag> units, Ability ability, boolean queuedMove) {
+        actions.add(action().raw(ActionRawUnitCommand.unitCommand()
+                .forUnits(units.toArray(new Tag[0]))
+                .useAbility(ability)
+                .queued(queuedMove)).build());
+        return this;
+    }
+
+    @Override
+    public ActionInterface unitCommand(Set<Tag> units, Ability ability, Point2d point, boolean queuedCommand) {
+        actions.add(action().raw(ActionRawUnitCommand.unitCommand()
+                .forUnits(units.toArray(new Tag[0]))
+                .useAbility(ability)
+                .target(point)
+                .queued(queuedCommand)).build());
+        return this;
+    }
+
+    @Override
+    public ActionInterface unitCommand(Set<Tag> units, Ability ability, Unit target, boolean queuedCommand) {
+        actions.add(action().raw(ActionRawUnitCommand.unitCommand()
+                .forUnits(units.toArray(new Tag[0]))
                 .useAbility(ability)
                 .target(target.getTag())
                 .queued(queuedCommand)).build());

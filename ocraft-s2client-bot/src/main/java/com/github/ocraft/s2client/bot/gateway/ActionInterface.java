@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.bot.gateway;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,6 +33,7 @@ import com.github.ocraft.s2client.protocol.unit.Tag;
 import com.github.ocraft.s2client.protocol.unit.Unit;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * The ActionInterface issues actions to units in a game. Not available in replays.
@@ -94,6 +95,36 @@ public interface ActionInterface {
      * Issues a command to multiple units (prefer this where possible). Same as unitCommand(Unit, Ability, Unit).
      */
     ActionInterface unitCommand(List<Unit> units, Ability ability, Unit target, boolean queuedCommand);
+
+    /**
+     * @see #unitCommand(Unit, Ability, boolean)
+     */
+    ActionInterface unitCommand(Tag unit, Ability ability, boolean queuedCommand);
+
+    /**
+     * @see #unitCommand(Unit, Ability, Point2d, boolean)
+     */
+    ActionInterface unitCommand(Tag unit, Ability ability, Point2d point, boolean queuedCommand);
+
+    /**
+     * @see #unitCommand(Unit, Ability, Unit, boolean)
+     */
+    ActionInterface unitCommand(Tag unit, Ability ability, Unit target, boolean queuedCommand);
+
+    /**
+     * @see #unitCommand(List, Ability, boolean)
+     */
+    ActionInterface unitCommand(Set<Tag> units, Ability ability, boolean queuedMove);
+
+    /**
+     * @see #unitCommand(List, Ability, Point2d, boolean)
+     */
+    ActionInterface unitCommand(Set<Tag> units, Ability ability, Point2d point, boolean queuedCommand);
+
+    /**
+     * @see #unitCommand(List, Ability, Unit, boolean)
+     */
+    ActionInterface unitCommand(Set<Tag> units, Ability ability, Unit target, boolean queuedCommand);
 
     /**
      * Returns a list of unit tags that have sent commands out in the last call to SendActions. This will be used to
