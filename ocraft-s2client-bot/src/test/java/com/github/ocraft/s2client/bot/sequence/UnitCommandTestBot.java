@@ -617,7 +617,7 @@ class TestBuildBarracksTechLabSamePoint extends TestBuildBarracksTechLabDifferen
 class TestBuildExtractor extends TestUnitCommandTargetingUnit {
     TestBuildExtractor() {
         testUnitType = Units.ZERG_DRONE;
-        targetUnitType = Units.NEUTRAL_VESPANE_GEYSER;
+        targetUnitType = Units.NEUTRAL_VESPENE_GEYSER;
         testAbility = Abilities.BUILD_EXTRACTOR;
         placingStructure = true;
     }

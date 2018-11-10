@@ -122,9 +122,9 @@ public class UnitInPool {
      */
     public static Predicate<UnitInPool> isCarryingVespene() {
         return unitInPool -> unitInPool.getUnit().isPresent() && (
-                unitInPool.unit().getBuffs().contains(Buffs.CARRY_HARVESTABLE_VESPANE_GEYSER_GAS) ||
-                        unitInPool.unit().getBuffs().contains(Buffs.CARRY_HARVESTABLE_VESPANE_GEYSER_GAS_PROTOSS) ||
-                        unitInPool.unit().getBuffs().contains(Buffs.CARRY_HARVESTABLE_VESPANE_GEYSER_GAS_ZERG));
+                unitInPool.unit().getBuffs().contains(Buffs.CARRY_HARVESTABLE_VESPENE_GEYSER_GAS) ||
+                        unitInPool.unit().getBuffs().contains(Buffs.CARRY_HARVESTABLE_VESPENE_GEYSER_GAS_PROTOSS) ||
+                        unitInPool.unit().getBuffs().contains(Buffs.CARRY_HARVESTABLE_VESPENE_GEYSER_GAS_ZERG));
     }
 
     @Override
