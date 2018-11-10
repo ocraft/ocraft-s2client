@@ -29,6 +29,7 @@ package com.github.ocraft.s2client.protocol.observation.raw;
 import SC2APIProtocol.Raw;
 import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.unit.Unit;
+import com.github.ocraft.s2client.protocol.unit.UnitSnapshot;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -48,6 +49,7 @@ public final class ObservationRaw implements Serializable {
 
     private final PlayerRaw player;
     private final Set<Unit> units;
+    private final Set<UnitSnapshot> unitSnapshots;
     private final MapState mapState;
     private final Event event;
     private final Set<EffectLocations> effects;
@@ -57,7 +59,14 @@ public final class ObservationRaw implements Serializable {
                 Raw.ObservationRaw::getPlayer, Raw.ObservationRaw::hasPlayer
         ).apply(sc2ApiObservationRaw).map(PlayerRaw::from).orElseThrow(required("player"));
 
-        units = sc2ApiObservationRaw.getUnitsList().stream().map(Unit::from)
+        units = sc2ApiObservationRaw.getUnitsList().stream()
+                .filter(Raw.Unit::hasTag)
+                .map(Unit::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
+
+        unitSnapshots = sc2ApiObservationRaw.getUnitsList().stream()
+                .filter(rawUnit -> !rawUnit.hasTag())
+                .map(UnitSnapshot::from)
                 .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
         mapState = tryGet(
@@ -85,6 +94,10 @@ public final class ObservationRaw implements Serializable {
         return units;
     }
 
+    public Set<UnitSnapshot> getUnitSnapshots() {
+        return unitSnapshots;
+    }
+
     public MapState getMapState() {
         return mapState;
     }
@@ -104,17 +117,19 @@ public final class ObservationRaw implements Serializable {
 
         ObservationRaw that = (ObservationRaw) o;
 
-        return player.equals(that.player) &&
-                units.equals(that.units) &&
-                mapState.equals(that.mapState) &&
-                (event != null ? event.equals(that.event) : that.event == null) &&
-                effects.equals(that.effects);
+        if (!player.equals(that.player)) return false;
+        if (!units.equals(that.units)) return false;
+        if (!unitSnapshots.equals(that.unitSnapshots)) return false;
+        if (!mapState.equals(that.mapState)) return false;
+        if (event != null ? !event.equals(that.event) : that.event != null) return false;
+        return effects.equals(that.effects);
     }
 
     @Override
     public int hashCode() {
         int result = player.hashCode();
         result = 31 * result + units.hashCode();
+        result = 31 * result + unitSnapshots.hashCode();
         result = 31 * result + mapState.hashCode();
         result = 31 * result + (event != null ? event.hashCode() : 0);
         result = 31 * result + effects.hashCode();

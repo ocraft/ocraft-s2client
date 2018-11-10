@@ -97,7 +97,7 @@ class ObservationRawTest {
     void fulfillsEqualsContract() throws UnsupportedEncodingException {
         EqualsVerifier
                 .forClass(ObservationRaw.class)
-                .withNonnullFields("player", "units", "mapState", "effects")
+                .withNonnullFields("player", "units", "unitSnapshots", "mapState", "effects")
                 .withPrefabValues(
                         ByteString.class,
                         ByteString.copyFrom("test", "UTF-8"),

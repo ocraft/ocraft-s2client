@@ -215,6 +215,7 @@ class UnitTest {
     void fulfillsEqualsContract() {
         EqualsVerifier
                 .forClass(Unit.class)
+                .withRedefinedSuperclass()
                 .withNonnullFields("displayType", "alliance", "tag", "type", "position", "orders", "passengers",
                         "buffs")
                 .verify();
