@@ -104,8 +104,8 @@ class PointTest {
                 .withMessage("point [y] has value 256.0 and is greater than 255.0");
 
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> Point.of(1, 1, -1).toSc2Api())
-                .withMessage("point [z] has value -1.0 and is lower than 0.0");
+                .isThrownBy(() -> Point.of(1, 1, -256).toSc2Api())
+                .withMessage("point [z] has value -256.0 and is lower than -255.0");
 
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> Point.of(1, 1, 256).toSc2Api())

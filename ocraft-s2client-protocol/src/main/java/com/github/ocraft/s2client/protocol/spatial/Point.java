@@ -42,6 +42,8 @@ public final class Point implements Sc2ApiSerializable<Common.Point> {
     private static final float DEFAULT_Z = 0.0f;
     private static final float MIN_COORD = 0.0f;
     private static final float MAX_COORD = 255.0f;
+    private static final float MIN_COORD_Z = -255.0f;
+    private static final float MAX_COORD_Z = 255.0f;
 
     private final float x;
     private final float y;
@@ -58,7 +60,7 @@ public final class Point implements Sc2ApiSerializable<Common.Point> {
     private void validate() {
         between("point [x]", x, MIN_COORD, MAX_COORD);
         between("point [y]", y, MIN_COORD, MAX_COORD);
-        between("point [z]", z, MIN_COORD, MAX_COORD);
+        between("point [z]", z, MIN_COORD_Z, MAX_COORD_Z);
     }
 
     private Point(float x, float y, float z) {
