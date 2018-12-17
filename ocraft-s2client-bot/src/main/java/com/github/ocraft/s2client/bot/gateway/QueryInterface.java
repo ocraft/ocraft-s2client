@@ -172,7 +172,7 @@ public interface QueryInterface {
         int startIndex = 0;
         for (Map.Entry<Point, List<UnitInPool>> cluster : clusters.entrySet()) {
             double distance = Double.MAX_VALUE;
-            Point2d closest = Point2d.of(0.0f, 0.0f);
+            Point2d closest = null;
 
             // For each query for the cluster minimum distance location that is valid.
             for (int j = startIndex, e = startIndex + querySize.get(cluster.getKey()); j < e; ++j) {
@@ -189,15 +189,17 @@ public interface QueryInterface {
                 }
             }
 
-            Point expansion = Point.of(
-                    closest.getX(),
-                    closest.getY(),
-                    cluster.getValue().get(0).unit().getPosition().getZ());
-            if (debug != null) {
-                debug.debugSphereOut(expansion, 0.35f, Color.RED);
-            }
+            if (closest != null) {
+                Point expansion = Point.of(
+                        closest.getX(),
+                        closest.getY(),
+                        cluster.getValue().get(0).unit().getPosition().getZ());
+                if (debug != null) {
+                    debug.debugSphereOut(expansion, 0.35f, Color.RED);
+                }
 
-            expansionLocations.add(expansion);
+                expansionLocations.add(expansion);
+            }
 
             startIndex += querySize.get(cluster.getKey());
         }
