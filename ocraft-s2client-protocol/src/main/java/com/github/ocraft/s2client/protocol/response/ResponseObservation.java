@@ -37,6 +37,7 @@ import com.github.ocraft.s2client.protocol.observation.PlayerResult;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
@@ -58,7 +59,7 @@ public final class ResponseObservation extends Response {
         super(ResponseType.OBSERVATION, GameStatus.from(status));
 
         this.actions = sc2ApiResponseObservation.getActionsList().stream()
-                .filter(a -> a.getSerializedSize() > 0).map(Action::from)
+                .filter(actionIsValid()).map(Action::from)
                 .collect(collectingAndThen(toList(), Collections::unmodifiableList));
 
         this.actionErrors = sc2ApiResponseObservation.getActionErrorsList().stream()
@@ -72,6 +73,15 @@ public final class ResponseObservation extends Response {
                 .collect(collectingAndThen(toList(), Collections::unmodifiableList));
         this.chat = sc2ApiResponseObservation.getChatList().stream().map(ChatReceived::from)
                 .collect(collectingAndThen(toList(), Collections::unmodifiableList));
+    }
+
+    private Predicate<Sc2Api.Action> actionIsValid() {
+        return a -> a.getSerializedSize() > 0 && (
+                a.hasActionRaw() ||
+                        a.hasActionChat() ||
+                        a.hasActionFeatureLayer() ||
+                        a.hasActionRender() ||
+                        a.hasActionUi());
     }
 
     public static ResponseObservation from(Sc2Api.Response sc2ApiResponse) {
