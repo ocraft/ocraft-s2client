@@ -10,7 +10,7 @@ defined protocol over a websocket connection.
 
 .Discord Server
 * Unofficial server for discussing AI questions and projects.
-* https://discord.gg/qTZ65sh[Invite Link] // see #java-api channel
+* https://discordapp.com/invite/Emm5Ztz[Invite Link] // see #java-api channel
 
 .Documentation
 *link:http://ocraft.github.io/ocraft-s2client[]*
