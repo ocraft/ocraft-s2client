@@ -39,7 +39,7 @@ import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
 
 /**
- * The defaultRestartGameLoops is specified to be (1<<18) by default.
+ * The defaultRestartGameLoops is specified to be {@literal (1<<18)} by default.
  */
 public final class ResponseRestartGame extends Response {
 

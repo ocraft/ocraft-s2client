@@ -62,7 +62,7 @@ public final class ResponseStep extends Response {
     }
 
     /**
-     * Max simulation_loop is (1<<19) before "end of time" will occur.
+     * Max simulation_loop is {@literal (1<<19)} before "end of time" will occur.
      * The "end of time" is classified as the maximum number of game loops or absolute game time representable as
      * a positive fixed point number. When we reach the "end of time", permanently pause the game and end the game
      * for all.
