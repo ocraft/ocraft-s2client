@@ -74,8 +74,8 @@
         <test.integration.skip>true</test.integration.skip>
         <test.integration.groups />
 
-        <version.protobuf>3.6.1</version.protobuf>
-        <version.vertx>3.5.3</version.vertx>
+        <version.protobuf>3.7.1</version.protobuf>
+        <version.vertx>3.7.0</version.vertx>
         <version.javassist>3.23.1-GA</version.javassist>
         <version.slf4j>1.7.25</version.slf4j>
         <version.log4j>2.11.1</version.log4j>
