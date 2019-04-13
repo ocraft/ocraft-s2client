@@ -43,6 +43,9 @@ class RequestAvailableMapsTest {
 
     @Test
     void fulfillsEqualsContract() {
-        EqualsVerifier.forClass(RequestAvailableMaps.class).withIgnoredFields("nanoTime").verify();
+        EqualsVerifier.forClass(RequestAvailableMaps.class)
+                .withIgnoredFields("nanoTime")
+                .withRedefinedSuperclass()
+                .verify();
     }
 }

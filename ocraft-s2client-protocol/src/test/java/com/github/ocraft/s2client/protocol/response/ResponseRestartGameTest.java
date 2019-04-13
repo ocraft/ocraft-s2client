@@ -72,6 +72,8 @@ class ResponseRestartGameTest {
         assertThat(responseRestartGame.getErrorDetails())
                 .as("response restart game doesn't have error details")
                 .isEqualTo(Optional.empty());
+
+        assertThat(responseRestartGame.getNeedHardReset()).hasValue(true);
     }
 
     private void assertThatResponseIsInValidState(ResponseRestartGame responseRestartGame) {

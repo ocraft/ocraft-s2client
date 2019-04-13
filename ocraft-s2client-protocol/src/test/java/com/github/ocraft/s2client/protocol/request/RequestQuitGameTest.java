@@ -39,6 +39,9 @@ class RequestQuitGameTest {
 
     @Test
     void fulfillsEqualsContract() {
-        EqualsVerifier.forClass(RequestQuitGame.class).withIgnoredFields("nanoTime").verify();
+        EqualsVerifier.forClass(RequestQuitGame.class)
+                .withIgnoredFields("nanoTime")
+                .withRedefinedSuperclass()
+                .verify();
     }
 }

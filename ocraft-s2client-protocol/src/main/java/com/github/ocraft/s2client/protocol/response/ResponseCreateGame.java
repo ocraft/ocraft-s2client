@@ -30,6 +30,7 @@ import SC2APIProtocol.Sc2Api;
 import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.game.GameStatus;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
@@ -80,8 +81,8 @@ public final class ResponseCreateGame extends Response {
         }
     }
 
-    private ResponseCreateGame(Sc2Api.ResponseCreateGame sc2ApiResponseCreateGame, Sc2Api.Status status) {
-        super(ResponseType.CREATE_GAME, GameStatus.from(status));
+    private ResponseCreateGame(Sc2Api.ResponseCreateGame sc2ApiResponseCreateGame, Sc2Api.Status status, int id) {
+        super(ResponseType.CREATE_GAME, GameStatus.from(status), id);
 
         this.error = tryGet(
                 Sc2Api.ResponseCreateGame::getError, Sc2Api.ResponseCreateGame::hasError
@@ -96,7 +97,10 @@ public final class ResponseCreateGame extends Response {
         if (!hasCreateGameResponse(sc2ApiResponse)) {
             throw new IllegalArgumentException("provided argument doesn't have create game response");
         }
-        return new ResponseCreateGame(sc2ApiResponse.getCreateGame(), sc2ApiResponse.getStatus());
+        return new ResponseCreateGame(
+                sc2ApiResponse.getCreateGame(),
+                sc2ApiResponse.getStatus(),
+                sc2ApiResponse.getId());
     }
 
     private static boolean hasCreateGameResponse(Sc2Api.Response sc2ApiResponse) {
@@ -121,7 +125,7 @@ public final class ResponseCreateGame extends Response {
 
         return canEqual(that) &&
                 error == that.error &&
-                (errorDetails != null ? errorDetails.equals(that.errorDetails) : that.errorDetails == null);
+                (Objects.equals(errorDetails, that.errorDetails));
     }
 
     @Override

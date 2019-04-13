@@ -41,8 +41,8 @@ public final class ResponseError extends Response {
 
     private final List<String> errors;
 
-    private ResponseError(List<String> errors, Sc2Api.Status status) {
-        super(ResponseType.ERROR, GameStatus.from(status));
+    private ResponseError(List<String> errors, Sc2Api.Status status, int id) {
+        super(ResponseType.ERROR, GameStatus.from(status), id);
         this.errors = Collections.unmodifiableList(errors);
     }
 
@@ -50,7 +50,7 @@ public final class ResponseError extends Response {
         if (!isSet(sc2ApiResponse) || sc2ApiResponse.getErrorCount() == 0) {
             throw new IllegalArgumentException("provided argument doesn't have error response");
         }
-        return new ResponseError(sc2ApiResponse.getErrorList(), sc2ApiResponse.getStatus());
+        return new ResponseError(sc2ApiResponse.getErrorList(), sc2ApiResponse.getStatus(), sc2ApiResponse.getId());
     }
 
     public List<String> getErrors() {

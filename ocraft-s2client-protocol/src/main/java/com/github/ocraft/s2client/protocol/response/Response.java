@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.response;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,16 +37,18 @@ import static java.util.Objects.requireNonNull;
 
 public abstract class Response implements Serializable {
 
-    private static final long serialVersionUID = 7924460130955030895L;
+    private static final long serialVersionUID = 6747948595853717075L;
 
     private final ResponseType type;
     private final GameStatus status;
+    private final int id;
     private final long nanoTime = System.nanoTime();
 
-    Response(ResponseType type, GameStatus status) {
+    Response(ResponseType type, GameStatus status, int id) {
         requireNonNull(type, "response type must not be null");
         this.type = type;
         this.status = status != null ? status : GameStatus.UNKNOWN;
+        this.id = id;
     }
 
     public ResponseType getType() {
@@ -61,18 +63,8 @@ public abstract class Response implements Serializable {
         return nanoTime;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Response)) return false;
-
-        Response response = (Response) o;
-
-        return response.canEqual(this) && type == response.type && status == response.status;
-    }
-
-    public boolean canEqual(Object other) {
-        return (other instanceof Response);
+    public int getId() {
+        return id;
     }
 
     public <T extends Response> Optional<T> as(Class<T> clazz) {
@@ -100,9 +92,28 @@ public abstract class Response implements Serializable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Response)) return false;
+
+        Response response = (Response) o;
+
+        if (!response.canEqual(this)) return false;
+
+        if (id != response.id) return false;
+        if (type != response.type) return false;
+        return status == response.status;
+    }
+
+    public boolean canEqual(Object other) {
+        return (other instanceof Response);
+    }
+
+    @Override
     public int hashCode() {
         int result = type.hashCode();
         result = 31 * result + status.hashCode();
+        result = 31 * result + id;
         return result;
     }
 

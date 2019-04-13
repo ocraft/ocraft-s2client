@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.game;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -44,7 +44,11 @@ class InterfaceOptionsTest {
     void serializesToSc2ApiInterfaceOptions() {
         assertThatAllFieldsAreSerialized(
                 interfaces()
-                        .raw().score()
+                        .showCloaked(true)
+                        .raw()
+                        .rawAffectsSelection(true)
+                        .rawCropToPlayableArea(true)
+                        .score()
                         .featureLayer(defaultSpatialSetup())
                         .render(defaultSpatialSetupForRender())
                         .build().toSc2Api());
@@ -55,6 +59,9 @@ class InterfaceOptionsTest {
         assertThat(sc2ApiInterfaceOptions.getScore()).as("score option is set").isTrue();
         assertThat(sc2ApiInterfaceOptions.hasFeatureLayer()).as("feature layer is set").isTrue();
         assertThat(sc2ApiInterfaceOptions.hasRender()).as("render is set").isTrue();
+        assertThat(sc2ApiInterfaceOptions.getShowCloaked()).as("show cloaked option is set").isTrue();
+        assertThat(sc2ApiInterfaceOptions.getRawAffectsSelection()).as("raw affects selection option is set").isTrue();
+        assertThat(sc2ApiInterfaceOptions.getRawCropToPlayableArea()).as("raw crop area option is set").isTrue();
     }
 
 
@@ -62,7 +69,11 @@ class InterfaceOptionsTest {
     void serializesToSc2ApiInterfaceOptionsUsingBuilders() {
         assertThatAllFieldsAreSerialized(
                 interfaces()
-                        .raw().score()
+                        .showCloaked(true)
+                        .raw()
+                        .rawAffectsSelection(true)
+                        .rawCropToPlayableArea(true)
+                        .score()
                         .featureLayer(aSpatialSetup())
                         .render(aSpatialSetup())
                         .build().toSc2Api());

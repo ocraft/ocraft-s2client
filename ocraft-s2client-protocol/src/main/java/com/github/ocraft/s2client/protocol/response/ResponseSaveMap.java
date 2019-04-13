@@ -57,8 +57,8 @@ public final class ResponseSaveMap extends Response {
         }
     }
 
-    private ResponseSaveMap(Sc2Api.ResponseSaveMap sc2ApiResponseSaveMap, Sc2Api.Status sc2ApiStatus) {
-        super(ResponseType.SAVE_MAP, GameStatus.from(sc2ApiStatus));
+    private ResponseSaveMap(Sc2Api.ResponseSaveMap sc2ApiResponseSaveMap, Sc2Api.Status sc2ApiStatus, int id) {
+        super(ResponseType.SAVE_MAP, GameStatus.from(sc2ApiStatus), id);
 
         this.error = tryGet(
                 Sc2Api.ResponseSaveMap::getError, Sc2Api.ResponseSaveMap::hasError
@@ -69,7 +69,7 @@ public final class ResponseSaveMap extends Response {
         if (!hasSaveMapResponse(sc2ApiResponse)) {
             throw new IllegalArgumentException("provided argument doesn't have save map response");
         }
-        return new ResponseSaveMap(sc2ApiResponse.getSaveMap(), sc2ApiResponse.getStatus());
+        return new ResponseSaveMap(sc2ApiResponse.getSaveMap(), sc2ApiResponse.getStatus(), sc2ApiResponse.getId());
     }
 
     private static boolean hasSaveMapResponse(Sc2Api.Response sc2ApiResponse) {

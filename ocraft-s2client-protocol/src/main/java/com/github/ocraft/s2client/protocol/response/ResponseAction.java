@@ -44,8 +44,8 @@ public final class ResponseAction extends Response {
 
     private final List<ActionResult> results;
 
-    private ResponseAction(Sc2Api.ResponseAction sc2ApiResponseAction, Sc2Api.Status status) {
-        super(ResponseType.ACTION, GameStatus.from(status));
+    private ResponseAction(Sc2Api.ResponseAction sc2ApiResponseAction, Sc2Api.Status status, int id) {
+        super(ResponseType.ACTION, GameStatus.from(status), id);
         results = sc2ApiResponseAction.getResultList().stream().map(ActionResult::from)
                 .collect(collectingAndThen(toList(), Collections::unmodifiableList));
     }
@@ -54,7 +54,7 @@ public final class ResponseAction extends Response {
         if (!hasActionResponse(sc2ApiResponse)) {
             throw new IllegalArgumentException("provided argument doesn't have action response");
         }
-        return new ResponseAction(sc2ApiResponse.getAction(), sc2ApiResponse.getStatus());
+        return new ResponseAction(sc2ApiResponse.getAction(), sc2ApiResponse.getStatus(), sc2ApiResponse.getId());
     }
 
     private static boolean hasActionResponse(Sc2Api.Response sc2ApiResponse) {

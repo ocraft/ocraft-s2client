@@ -100,8 +100,12 @@ public class S2Coordinator {
             }
         });
 
-
-        interfaceSettings = new InterfaceSettings(builder.featureLayerSettings, builder.renderSettings);
+        interfaceSettings = new InterfaceSettings(
+                builder.featureLayerSettings,
+                builder.renderSettings,
+                builder.showCloaked,
+                builder.rawAffectsSelection,
+                builder.rawCropToPlayableArea);
         replaySettings = builder.replaySettings;
         useGeneralizedAbilityId = builder.useGeneralizedAbilityId;
 
@@ -156,6 +160,9 @@ public class S2Coordinator {
         private SpatialCameraSetup renderSettings;
 
         private boolean useGeneralizedAbilityId = true; // TODO p.picheta move to settings class?
+        private Boolean showCloaked;
+        private Boolean rawAffectsSelection;
+        private Boolean rawCropToPlayableArea;
 
         private Builder() {
             if (OcraftBotConfig.cfg().hasPath(OcraftBotConfig.BOT_MAP)) {
@@ -353,6 +360,24 @@ public class S2Coordinator {
         @Override
         public SettingsSyntax setEglPath(Path eglPath) {
             if (isSet(eglPath)) processSettings.setEglPath(eglPath);
+            return this;
+        }
+
+        @Override
+        public SettingsSyntax setShowCloaked(Boolean showCloaked) {
+            if (isSet(showCloaked)) this.showCloaked = showCloaked;
+            return this;
+        }
+
+        @Override
+        public SettingsSyntax setRawAffectsSelection(Boolean rawAffectsSelection) {
+            if (isSet(rawAffectsSelection)) this.rawAffectsSelection = rawAffectsSelection;
+            return this;
+        }
+
+        @Override
+        public SettingsSyntax setRawCropToPlayableArea(Boolean rawCropToPlayableArea) {
+            if (isSet(rawCropToPlayableArea)) this.rawCropToPlayableArea = rawCropToPlayableArea;
             return this;
         }
 
@@ -1008,6 +1033,14 @@ public class S2Coordinator {
         return PlayerSettings.computer(race, difficulty, playerName);
     }
 
+    public static PlayerSettings createComputer(Race race, Difficulty difficulty, AiBuild aiBuild) {
+        return PlayerSettings.computer(race, difficulty, aiBuild);
+    }
+
+    public static PlayerSettings createComputer(Race race, Difficulty difficulty, String playerName, AiBuild aiBuild) {
+        return PlayerSettings.computer(race, difficulty, playerName, aiBuild);
+    }
+
     List<S2Agent> getAgents() {
         return new ArrayList<>(agents);
     }
@@ -1044,16 +1077,16 @@ public class S2Coordinator {
         S2Coordinator that = (S2Coordinator) o;
 
         if (useGeneralizedAbilityId != that.useGeneralizedAbilityId) return false;
-        if (agents != null ? !agents.equals(that.agents) : that.agents != null) return false;
-        if (replayObservers != null ? !replayObservers.equals(that.replayObservers) : that.replayObservers != null)
+        if (!Objects.equals(agents, that.agents)) return false;
+        if (!Objects.equals(replayObservers, that.replayObservers))
             return false;
-        if (interfaceSettings != null ? !interfaceSettings.equals(that.interfaceSettings) : that.interfaceSettings != null)
+        if (!Objects.equals(interfaceSettings, that.interfaceSettings))
             return false;
-        if (processSettings != null ? !processSettings.equals(that.processSettings) : that.processSettings != null)
+        if (!Objects.equals(processSettings, that.processSettings))
             return false;
-        if (replaySettings != null ? !replaySettings.equals(that.replaySettings) : that.replaySettings != null)
+        if (!Objects.equals(replaySettings, that.replaySettings))
             return false;
-        return gameSettings != null ? gameSettings.equals(that.gameSettings) : that.gameSettings == null;
+        return Objects.equals(gameSettings, that.gameSettings);
     }
 
     @Override

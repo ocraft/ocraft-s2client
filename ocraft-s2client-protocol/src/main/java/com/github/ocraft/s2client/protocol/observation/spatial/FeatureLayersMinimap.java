@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.observation.spatial;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,8 +28,10 @@ package com.github.ocraft.s2client.protocol.observation.spatial;
 
 import SC2APIProtocol.Spatial;
 import com.github.ocraft.s2client.protocol.Strings;
+import com.github.ocraft.s2client.protocol.spatial.SpatialCameraSetup;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
@@ -48,9 +50,14 @@ public final class FeatureLayersMinimap implements Serializable {
     private final ImageData playerId;       // uint8. Participants: [1, 15] Neutral: 16
     private final ImageData playerRelative; // uint8. See "Alliance" enum in raw.proto. Range: [1, 4]
     private final ImageData selected;       // 1-bit. Selected units.
+    private final ImageData alerts;         // 1-bit. Shows 'UnitAttacked' alert location.
+    private final ImageData buildable;      // 1-bit. Whether a building can be built here.
+    private final ImageData pathable;       // 1-bit. Whether a unit can walk here.
 
-    // Cheat layers. Only populated in replays.
+
+    // Cheat layers, enable with SpatialCameraSetup.allow_cheating_layers
     private final ImageData unitType;       // int32. Unique identifier for type of unit.
+
 
     private FeatureLayersMinimap(Spatial.FeatureLayersMinimap sc2ApiFeatureLayersMinimap) {
         heightMap = tryGet(Spatial.FeatureLayersMinimap::getHeightMap, Spatial.FeatureLayersMinimap::hasHeightMap)
@@ -78,6 +85,15 @@ public final class FeatureLayersMinimap implements Serializable {
         playerRelative = tryGet(
                 Spatial.FeatureLayersMinimap::getPlayerRelative, Spatial.FeatureLayersMinimap::hasPlayerRelative
         ).apply(sc2ApiFeatureLayersMinimap).map(ImageData::from).orElseThrow(required("player relative"));
+
+        alerts = tryGet(Spatial.FeatureLayersMinimap::getAlerts, Spatial.FeatureLayersMinimap::hasAlerts)
+                .apply(sc2ApiFeatureLayersMinimap).map(ImageData::from).orElse(nothing());
+
+        buildable = tryGet(Spatial.FeatureLayersMinimap::getBuildable, Spatial.FeatureLayersMinimap::hasBuildable)
+                .apply(sc2ApiFeatureLayersMinimap).map(ImageData::from).orElse(nothing());
+
+        pathable = tryGet(Spatial.FeatureLayersMinimap::getPathable, Spatial.FeatureLayersMinimap::hasPathable)
+                .apply(sc2ApiFeatureLayersMinimap).map(ImageData::from).orElse(nothing());
     }
 
     public static FeatureLayersMinimap from(Spatial.FeatureLayersMinimap sc2ApiFeatureLayersMinimap) {
@@ -85,34 +101,81 @@ public final class FeatureLayersMinimap implements Serializable {
         return new FeatureLayersMinimap(sc2ApiFeatureLayersMinimap);
     }
 
+    /**
+     * uint8. Terrain height. World space units of [-200, 200] encoded into [0, 255].
+     */
     public ImageData getHeightMap() {
         return heightMap;
     }
 
+    /**
+     * uint8. 0=Hidden, 1=Fogged, 2=Visible, 3=FullHidden
+     */
     public ImageData getVisibilityMap() {
         return visibilityMap;
     }
 
+    /**
+     * 1-bit. Zerg creep.
+     */
     public ImageData getCreep() {
         return creep;
     }
 
+    /**
+     * 1-bit. Area covered by the camera.
+     */
     public ImageData getCamera() {
         return camera;
     }
 
+    /**
+     * uint8. Participants: [1, 15] Neutral: 16
+     */
     public ImageData getPlayerId() {
         return playerId;
     }
 
+    /**
+     * uint8. See "Alliance" enum in raw.proto. Range: [1, 4]
+     */
     public ImageData getPlayerRelative() {
         return playerRelative;
     }
 
+    /**
+     * 1-bit. Selected units.
+     */
     public ImageData getSelected() {
         return selected;
     }
 
+    /**
+     * 1-bit. Shows 'UnitAttacked' alert location.
+     */
+    public Optional<ImageData> getAlerts() {
+        return Optional.ofNullable(alerts);
+    }
+
+    /**
+     * 1-bit. Whether a building can be built here.
+     */
+    public Optional<ImageData> getBuildable() {
+        return Optional.ofNullable(buildable);
+    }
+
+    /**
+     * 1-bit. Whether a unit can walk here.
+     */
+    public Optional<ImageData> getPathable() {
+        return Optional.ofNullable(pathable);
+    }
+
+    /**
+     * Cheat layers, enable with SpatialCameraSetup.allow_cheating_layers.
+     *
+     * @see SpatialCameraSetup#getAllowCheatingLayers()
+     */
     public Optional<ImageData> getUnitType() {
         return Optional.ofNullable(unitType);
     }
@@ -124,14 +187,17 @@ public final class FeatureLayersMinimap implements Serializable {
 
         FeatureLayersMinimap that = (FeatureLayersMinimap) o;
 
-        return heightMap.equals(that.heightMap) &&
-                visibilityMap.equals(that.visibilityMap) &&
-                creep.equals(that.creep) &&
-                camera.equals(that.camera) &&
-                playerId.equals(that.playerId) &&
-                playerRelative.equals(that.playerRelative) &&
-                selected.equals(that.selected) &&
-                (unitType != null ? unitType.equals(that.unitType) : that.unitType == null);
+        if (!heightMap.equals(that.heightMap)) return false;
+        if (!visibilityMap.equals(that.visibilityMap)) return false;
+        if (!creep.equals(that.creep)) return false;
+        if (!camera.equals(that.camera)) return false;
+        if (!playerId.equals(that.playerId)) return false;
+        if (!playerRelative.equals(that.playerRelative)) return false;
+        if (!selected.equals(that.selected)) return false;
+        if (!Objects.equals(alerts, that.alerts)) return false;
+        if (!Objects.equals(buildable, that.buildable)) return false;
+        if (!Objects.equals(pathable, that.pathable)) return false;
+        return Objects.equals(unitType, that.unitType);
     }
 
     @Override
@@ -143,6 +209,9 @@ public final class FeatureLayersMinimap implements Serializable {
         result = 31 * result + playerId.hashCode();
         result = 31 * result + playerRelative.hashCode();
         result = 31 * result + selected.hashCode();
+        result = 31 * result + (alerts != null ? alerts.hashCode() : 0);
+        result = 31 * result + (buildable != null ? buildable.hashCode() : 0);
+        result = 31 * result + (pathable != null ? pathable.hashCode() : 0);
         result = 31 * result + (unitType != null ? unitType.hashCode() : 0);
         return result;
     }

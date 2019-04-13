@@ -91,6 +91,9 @@ class RequestDataTest {
 
     @Test
     void fulfillsEqualsContract() {
-        EqualsVerifier.forClass(RequestData.class).withIgnoredFields("nanoTime").verify();
+        EqualsVerifier.forClass(RequestData.class)
+                .withIgnoredFields("nanoTime")
+                .withRedefinedSuperclass()
+                .verify();
     }
 }

@@ -61,8 +61,8 @@ public final class ResponseGameInfo extends Response {
     private final StartRaw startRaw; // Populated if Raw interface is enabled.
     private final InterfaceOptions interfaceOptions;
 
-    private ResponseGameInfo(Sc2Api.ResponseGameInfo sc2ApiResponseGameInfo, Sc2Api.Status status) {
-        super(ResponseType.GAME_INFO, GameStatus.from(status));
+    private ResponseGameInfo(Sc2Api.ResponseGameInfo sc2ApiResponseGameInfo, Sc2Api.Status status, int id) {
+        super(ResponseType.GAME_INFO, GameStatus.from(status), id);
 
         mapName = tryGet(Sc2Api.ResponseGameInfo::getMapName, Sc2Api.ResponseGameInfo::hasMapName)
                 .apply(sc2ApiResponseGameInfo).orElseThrow(required("map name"));
@@ -88,7 +88,7 @@ public final class ResponseGameInfo extends Response {
         if (!hasGameInfoResponse(sc2ApiResponse)) {
             throw new IllegalArgumentException("provided argument doesn't have game info response");
         }
-        return new ResponseGameInfo(sc2ApiResponse.getGameInfo(), sc2ApiResponse.getStatus());
+        return new ResponseGameInfo(sc2ApiResponse.getGameInfo(), sc2ApiResponse.getStatus(), sc2ApiResponse.getId());
     }
 
     private static boolean hasGameInfoResponse(Sc2Api.Response sc2ApiResponse) {

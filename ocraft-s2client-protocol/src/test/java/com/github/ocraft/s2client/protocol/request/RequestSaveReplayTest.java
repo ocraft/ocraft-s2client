@@ -40,6 +40,9 @@ class RequestSaveReplayTest {
 
     @Test
     void fulfillsEqualsContract() {
-        EqualsVerifier.forClass(RequestSaveReplay.class).withIgnoredFields("nanoTime").verify();
+        EqualsVerifier.forClass(RequestSaveReplay.class)
+                .withIgnoredFields("nanoTime")
+                .withRedefinedSuperclass()
+                .verify();
     }
 }

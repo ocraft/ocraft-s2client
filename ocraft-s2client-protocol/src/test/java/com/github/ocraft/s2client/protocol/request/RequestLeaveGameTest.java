@@ -40,7 +40,10 @@ class RequestLeaveGameTest {
 
     @Test
     void fulfillsEqualsContract() {
-        EqualsVerifier.forClass(RequestLeaveGame.class).withIgnoredFields("nanoTime").verify();
+        EqualsVerifier.forClass(RequestLeaveGame.class)
+                .withIgnoredFields("nanoTime")
+                .withRedefinedSuperclass()
+                .verify();
     }
 
 }

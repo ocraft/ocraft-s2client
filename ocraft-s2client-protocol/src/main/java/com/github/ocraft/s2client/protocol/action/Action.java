@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.action;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -47,6 +47,7 @@ import com.github.ocraft.s2client.protocol.syntax.action.spatial.ActionSpatialUn
 import com.github.ocraft.s2client.protocol.syntax.action.spatial.ActionSpatialUnitSelectionRectBuilder;
 import com.github.ocraft.s2client.protocol.syntax.action.ui.*;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
@@ -56,13 +57,14 @@ import static com.github.ocraft.s2client.protocol.Preconditions.require;
 
 public final class Action implements Sc2ApiSerializable<Sc2Api.Action> {
 
-    private static final long serialVersionUID = 5775150306793297232L;
+    private static final long serialVersionUID = -6488033709974072822L;
 
     private final ActionRaw raw;
     private final ActionSpatial featureLayer;
     private final ActionSpatial render;
     private final ActionUi ui;
     private final ActionChat chat;
+    private final Integer gameLoop;
 
     public static final class Builder implements ActionBuilder, ActionSyntax {
         private ActionRaw raw;
@@ -328,6 +330,7 @@ public final class Action implements Sc2ApiSerializable<Sc2Api.Action> {
         render = builder.render;
         ui = builder.ui;
         chat = builder.chat;
+        gameLoop = null;
         validateActionCase();
     }
 
@@ -357,6 +360,10 @@ public final class Action implements Sc2ApiSerializable<Sc2Api.Action> {
         this.chat = tryGet(
                 Sc2Api.Action::getActionChat, Sc2Api.Action::hasActionChat
         ).apply(sc2ApiAction).map(ActionChat::from).orElse(nothing());
+
+        this.gameLoop = tryGet(
+                Sc2Api.Action::getGameLoop, Sc2Api.Action::hasGameLoop
+        ).apply(sc2ApiAction).orElse(nothing());
 
         validateActionCase();
     }
@@ -407,18 +414,28 @@ public final class Action implements Sc2ApiSerializable<Sc2Api.Action> {
         return Optional.ofNullable(chat);
     }
 
+    /**
+     * Populated for actions in ResponseObservation. The game loop on which the action was executed.
+     */
+    public Optional<Integer> getGameLoop() {
+        return Optional.ofNullable(gameLoop);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Action)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         Action action = (Action) o;
 
-        return (raw != null ? raw.equals(action.raw) : action.raw == null) &&
-                (featureLayer != null ? featureLayer.equals(action.featureLayer) : action.featureLayer == null) &&
-                (render != null ? render.equals(action.render) : action.render == null) &&
-                (ui != null ? ui.equals(action.ui) : action.ui == null) &&
-                (chat != null ? chat.equals(action.chat) : action.chat == null);
+        if (!Objects.equals(raw, action.raw)) return false;
+        if (!Objects.equals(featureLayer, action.featureLayer))
+            return false;
+        if (!Objects.equals(render, action.render)) return false;
+        if (!Objects.equals(ui, action.ui)) return false;
+        if (!Objects.equals(chat, action.chat)) return false;
+        return Objects.equals(gameLoop, action.gameLoop);
+
     }
 
     @Override
@@ -428,6 +445,7 @@ public final class Action implements Sc2ApiSerializable<Sc2Api.Action> {
         result = 31 * result + (render != null ? render.hashCode() : 0);
         result = 31 * result + (ui != null ? ui.hashCode() : 0);
         result = 31 * result + (chat != null ? chat.hashCode() : 0);
+        result = 31 * result + (gameLoop != null ? gameLoop.hashCode() : 0);
         return result;
     }
 

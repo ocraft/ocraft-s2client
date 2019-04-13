@@ -29,9 +29,8 @@ package com.github.ocraft.s2client.protocol.game;
 import SC2APIProtocol.Sc2Api;
 import com.github.ocraft.s2client.protocol.Strings;
 
+import java.util.Objects;
 import java.util.Optional;
-
-import static com.github.ocraft.s2client.protocol.Constants.nothing;
 
 public final class ComputerPlayerSetup extends PlayerSetup {
 
@@ -40,31 +39,38 @@ public final class ComputerPlayerSetup extends PlayerSetup {
     private final Race race;
     private final Difficulty difficulty;
     private final String playerName;
+    private final AiBuild aiBuild;
 
-    private ComputerPlayerSetup(Race race, Difficulty difficulty) {
-        super(PlayerType.COMPUTER);
-        this.race = race;
-        this.difficulty = difficulty;
-        this.playerName = nothing();
-    }
-
-    private ComputerPlayerSetup(Race race, Difficulty difficulty, String playerName) {
+    private ComputerPlayerSetup(Race race, Difficulty difficulty, String playerName, AiBuild aiBuild) {
         super(PlayerType.COMPUTER);
         this.race = race;
         this.difficulty = difficulty;
         this.playerName = playerName;
+        this.aiBuild = aiBuild;
     }
 
     public static ComputerPlayerSetup computer(Race race, Difficulty difficulty) {
         if (race == null) throw new IllegalArgumentException("race is required");
         if (difficulty == null) throw new IllegalArgumentException("difficulty level is required");
-        return new ComputerPlayerSetup(race, difficulty);
+        return new ComputerPlayerSetup(race, difficulty, null, null);
     }
 
     public static ComputerPlayerSetup computer(Race race, Difficulty difficulty, String playerName) {
         if (race == null) throw new IllegalArgumentException("race is required");
         if (difficulty == null) throw new IllegalArgumentException("difficulty level is required");
-        return new ComputerPlayerSetup(race, difficulty, playerName);
+        return new ComputerPlayerSetup(race, difficulty, playerName, null);
+    }
+
+    public static ComputerPlayerSetup computer(Race race, Difficulty difficulty, String playerName, AiBuild aiBuild) {
+        if (race == null) throw new IllegalArgumentException("race is required");
+        if (difficulty == null) throw new IllegalArgumentException("difficulty level is required");
+        return new ComputerPlayerSetup(race, difficulty, playerName, aiBuild);
+    }
+
+    public static ComputerPlayerSetup computer(Race race, Difficulty difficulty, AiBuild aiBuild) {
+        if (race == null) throw new IllegalArgumentException("race is required");
+        if (difficulty == null) throw new IllegalArgumentException("difficulty level is required");
+        return new ComputerPlayerSetup(race, difficulty, null, aiBuild);
     }
 
     @Override
@@ -75,6 +81,7 @@ public final class ComputerPlayerSetup extends PlayerSetup {
                 .setRace(race.toSc2Api());
 
         getPlayerName().ifPresent(builder::setPlayerName);
+        getAiBuild().map(AiBuild::toSc2Api).ifPresent(builder::setAiBuild);
 
         return builder.build();
     }
@@ -91,6 +98,10 @@ public final class ComputerPlayerSetup extends PlayerSetup {
         return Optional.ofNullable(playerName);
     }
 
+    public Optional<AiBuild> getAiBuild() {
+        return Optional.ofNullable(aiBuild);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -102,7 +113,8 @@ public final class ComputerPlayerSetup extends PlayerSetup {
         if (!that.canEqual(this)) return false;
         if (race != that.race) return false;
         if (difficulty != that.difficulty) return false;
-        return playerName != null ? playerName.equals(that.playerName) : that.playerName == null;
+        if (!Objects.equals(aiBuild, that.aiBuild)) return false;
+        return Objects.equals(playerName, that.playerName);
     }
 
     @Override
@@ -116,6 +128,7 @@ public final class ComputerPlayerSetup extends PlayerSetup {
         result = 31 * result + race.hashCode();
         result = 31 * result + difficulty.hashCode();
         result = 31 * result + (playerName != null ? playerName.hashCode() : 0);
+        result = 31 * result + (aiBuild != null ? aiBuild.hashCode() : 0);
         return result;
     }
 

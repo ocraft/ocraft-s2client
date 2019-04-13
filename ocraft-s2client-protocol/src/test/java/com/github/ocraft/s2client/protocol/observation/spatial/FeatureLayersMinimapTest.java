@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.observation.spatial;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -61,6 +61,11 @@ class FeatureLayersMinimapTest {
         assertThat(featureLayersMinimap.getUnitType()).as("feature layers minimap: unit type").isNotEmpty();
         assertThat(featureLayersMinimap.getSelected()).as("feature layers minimap: selected").isNotNull();
         assertThat(featureLayersMinimap.getPlayerRelative()).as("feature layers minimap: player relative").isNotNull();
+
+        assertThat(featureLayersMinimap.getAlerts()).as("feature layers minimap: alerts").isNotEmpty();
+        assertThat(featureLayersMinimap.getBuildable()).as("feature layers minimap: buildable").isNotEmpty();
+        assertThat(featureLayersMinimap.getPathable()).as("feature layers minimap: pathable").isNotEmpty();
+
     }
 
     @Test

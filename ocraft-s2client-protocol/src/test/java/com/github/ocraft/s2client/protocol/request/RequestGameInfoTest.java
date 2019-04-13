@@ -40,6 +40,9 @@ class RequestGameInfoTest {
 
     @Test
     void fulfillsEqualsContract() {
-        EqualsVerifier.forClass(RequestGameInfo.class).withIgnoredFields("nanoTime").verify();
+        EqualsVerifier.forClass(RequestGameInfo.class)
+                .withIgnoredFields("nanoTime")
+                .withRedefinedSuperclass()
+                .verify();
     }
 }

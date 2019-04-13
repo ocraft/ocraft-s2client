@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.game;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,11 +31,9 @@ import com.github.ocraft.s2client.protocol.BuilderSyntax;
 import com.github.ocraft.s2client.protocol.Sc2ApiSerializable;
 import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.spatial.SpatialCameraSetup;
-import com.github.ocraft.s2client.protocol.syntax.request.FeatureLayerSyntax;
-import com.github.ocraft.s2client.protocol.syntax.request.InterfaceOptionsSyntax;
-import com.github.ocraft.s2client.protocol.syntax.request.RenderSyntax;
-import com.github.ocraft.s2client.protocol.syntax.request.ScoreSyntax;
+import com.github.ocraft.s2client.protocol.syntax.request.*;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
@@ -53,12 +51,18 @@ public final class InterfaceOptions implements Sc2ApiSerializable<Sc2Api.Interfa
     private final boolean score;
     private final SpatialCameraSetup featureLayer;
     private final SpatialCameraSetup render;
+    private final Boolean showCloaked;
+    private final Boolean rawAffectsSelection;
+    private final Boolean rawCropToPlayableArea;
 
     private InterfaceOptions(Builder builder) {
         this.raw = builder.raw;
         this.score = builder.score;
         this.featureLayer = builder.featureLayer;
         this.render = builder.render;
+        this.showCloaked = builder.showCloaked;
+        this.rawAffectsSelection = builder.rawAffectsSelection;
+        this.rawCropToPlayableArea = builder.rawCropToPlayableArea;
     }
 
     private InterfaceOptions(Sc2Api.InterfaceOptions sc2ApiInterfaceOptions) {
@@ -73,17 +77,32 @@ public final class InterfaceOptions implements Sc2ApiSerializable<Sc2Api.Interfa
 
         render = tryGet(Sc2Api.InterfaceOptions::getRender, Sc2Api.InterfaceOptions::hasRender)
                 .apply(sc2ApiInterfaceOptions).map(SpatialCameraSetup::from).orElse(nothing());
+
+        showCloaked = tryGet(Sc2Api.InterfaceOptions::getShowCloaked, Sc2Api.InterfaceOptions::hasShowCloaked)
+                .apply(sc2ApiInterfaceOptions).orElse(nothing());
+
+        rawAffectsSelection = tryGet(
+                Sc2Api.InterfaceOptions::getRawAffectsSelection, Sc2Api.InterfaceOptions::hasRawAffectsSelection
+        ).apply(sc2ApiInterfaceOptions).orElse(nothing());
+
+        rawCropToPlayableArea = tryGet(
+                Sc2Api.InterfaceOptions::getRawCropToPlayableArea, Sc2Api.InterfaceOptions::hasRawCropToPlayableArea
+        ).apply(sc2ApiInterfaceOptions).orElse(nothing());
     }
 
-    public static final class Builder implements InterfaceOptionsSyntax, ScoreSyntax, FeatureLayerSyntax, RenderSyntax {
+    public static final class Builder implements InterfaceOptionsSyntax, ScoreSyntax, FeatureLayerSyntax, RenderSyntax,
+            RawSyntax, InterfaceSettingsSyntax {
 
         private boolean raw;
         private boolean score;
         private SpatialCameraSetup featureLayer;
         private SpatialCameraSetup render;
+        private Boolean showCloaked;
+        private Boolean rawAffectsSelection;
+        private Boolean rawCropToPlayableArea;
 
         @Override
-        public ScoreSyntax raw() {
+        public RawSyntax raw() {
             this.raw = true;
             return this;
         }
@@ -124,6 +143,24 @@ public final class InterfaceOptions implements Sc2ApiSerializable<Sc2Api.Interfa
         }
 
         @Override
+        public RawSyntax rawAffectsSelection(Boolean value) {
+            rawAffectsSelection = value;
+            return this;
+        }
+
+        @Override
+        public RawSyntax rawCropToPlayableArea(Boolean value) {
+            rawCropToPlayableArea = true;
+            return this;
+        }
+
+        @Override
+        public InterfaceOptionsSyntax showCloaked(Boolean value) {
+            showCloaked = value;
+            return this;
+        }
+
+        @Override
         public BuilderSyntax<InterfaceOptions> render(BuilderSyntax<SpatialCameraSetup> render) {
             return render(render.build());
         }
@@ -158,6 +195,9 @@ public final class InterfaceOptions implements Sc2ApiSerializable<Sc2Api.Interfa
 
         getFeatureLayer().map(SpatialCameraSetup::toSc2Api).ifPresent(aSc2ApiInterfaceOptions::setFeatureLayer);
         getRender().map(SpatialCameraSetup::toSc2Api).ifPresent(aSc2ApiInterfaceOptions::setRender);
+        getShowCloaked().ifPresent(aSc2ApiInterfaceOptions::setShowCloaked);
+        getRawAffectsSelection().ifPresent(aSc2ApiInterfaceOptions::setRawAffectsSelection);
+        getRawCropToPlayableArea().ifPresent(aSc2ApiInterfaceOptions::setRawCropToPlayableArea);
 
         return aSc2ApiInterfaceOptions.build();
     }
@@ -178,6 +218,18 @@ public final class InterfaceOptions implements Sc2ApiSerializable<Sc2Api.Interfa
         return Optional.ofNullable(render);
     }
 
+    public Optional<Boolean> getShowCloaked() {
+        return Optional.ofNullable(showCloaked);
+    }
+
+    public Optional<Boolean> getRawAffectsSelection() {
+        return Optional.ofNullable(rawAffectsSelection);
+    }
+
+    public Optional<Boolean> getRawCropToPlayableArea() {
+        return Optional.ofNullable(rawCropToPlayableArea);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -185,10 +237,14 @@ public final class InterfaceOptions implements Sc2ApiSerializable<Sc2Api.Interfa
 
         InterfaceOptions that = (InterfaceOptions) o;
 
-        return raw == that.raw &&
-                score == that.score &&
-                (featureLayer != null ? featureLayer.equals(that.featureLayer) : that.featureLayer == null) &&
-                (render != null ? render.equals(that.render) : that.render == null);
+        if (raw != that.raw) return false;
+        if (score != that.score) return false;
+        if (!Objects.equals(featureLayer, that.featureLayer)) return false;
+        if (!Objects.equals(render, that.render)) return false;
+        if (!Objects.equals(showCloaked, that.showCloaked)) return false;
+        if (!Objects.equals(rawAffectsSelection, that.rawAffectsSelection))
+            return false;
+        return Objects.equals(rawCropToPlayableArea, that.rawCropToPlayableArea);
     }
 
     @Override
@@ -197,6 +253,9 @@ public final class InterfaceOptions implements Sc2ApiSerializable<Sc2Api.Interfa
         result = 31 * result + (score ? 1 : 0);
         result = 31 * result + (featureLayer != null ? featureLayer.hashCode() : 0);
         result = 31 * result + (render != null ? render.hashCode() : 0);
+        result = 31 * result + (showCloaked != null ? showCloaked.hashCode() : 0);
+        result = 31 * result + (rawAffectsSelection != null ? rawAffectsSelection.hashCode() : 0);
+        result = 31 * result + (rawCropToPlayableArea != null ? rawCropToPlayableArea.hashCode() : 0);
         return result;
     }
 

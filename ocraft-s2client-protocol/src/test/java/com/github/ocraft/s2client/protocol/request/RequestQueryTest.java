@@ -87,7 +87,10 @@ class RequestQueryTest {
     @Test
     void fulfillsEqualsContract() {
         EqualsVerifier.forClass(RequestQuery.class)
-                .withIgnoredFields("nanoTime").withNonnullFields("abilities", "pathings", "placements").verify();
+                .withIgnoredFields("nanoTime")
+                .withNonnullFields("abilities", "pathings", "placements")
+                .withRedefinedSuperclass()
+                .verify();
     }
 
 }

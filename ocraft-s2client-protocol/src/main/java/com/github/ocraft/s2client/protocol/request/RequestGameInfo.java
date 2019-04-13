@@ -54,16 +54,6 @@ public final class RequestGameInfo extends Request {
     }
 
     @Override
-    public int hashCode() {
-        return 0;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return o == this || o instanceof RequestGameInfo;
-    }
-
-    @Override
     public String toString() {
         return Strings.toJson(this);
     }

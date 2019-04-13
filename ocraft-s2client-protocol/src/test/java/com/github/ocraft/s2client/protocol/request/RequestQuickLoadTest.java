@@ -40,7 +40,10 @@ class RequestQuickLoadTest {
 
     @Test
     void fulfillsEqualsContract() {
-        EqualsVerifier.forClass(RequestQuickLoad.class).withIgnoredFields("nanoTime").verify();
+        EqualsVerifier.forClass(RequestQuickLoad.class)
+                .withIgnoredFields("nanoTime")
+                .withRedefinedSuperclass()
+                .verify();
     }
 
 }

@@ -43,8 +43,8 @@ public final class ResponsePing extends Response {
     private final Integer dataBuild;
     private final Integer baseBuild;
 
-    private ResponsePing(Sc2Api.ResponsePing sc2ApiResponsePing, Sc2Api.Status sc2ApiStatus) {
-        super(ResponseType.PING, GameStatus.from(sc2ApiStatus));
+    private ResponsePing(Sc2Api.ResponsePing sc2ApiResponsePing, Sc2Api.Status sc2ApiStatus, int id) {
+        super(ResponseType.PING, GameStatus.from(sc2ApiStatus), id);
 
         this.gameVersion = tryGet(
                 Sc2Api.ResponsePing::getGameVersion, Sc2Api.ResponsePing::hasGameVersion
@@ -67,7 +67,7 @@ public final class ResponsePing extends Response {
         if (!hasPingResponse(sc2ApiResponse)) {
             throw new IllegalArgumentException("provided argument doesn't have ping response");
         }
-        return new ResponsePing(sc2ApiResponse.getPing(), sc2ApiResponse.getStatus());
+        return new ResponsePing(sc2ApiResponse.getPing(), sc2ApiResponse.getStatus(), sc2ApiResponse.getId());
     }
 
     private static boolean hasPingResponse(Sc2Api.Response sc2ApiResponse) {

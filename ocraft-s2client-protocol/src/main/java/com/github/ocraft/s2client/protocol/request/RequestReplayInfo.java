@@ -38,6 +38,7 @@ import com.google.protobuf.ByteString;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
@@ -140,17 +141,19 @@ public final class RequestReplayInfo extends Request {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         RequestReplayInfo that = (RequestReplayInfo) o;
 
-        return downloadData == that.downloadData &&
-                (replayPath != null ? replayPath.equals(that.replayPath) : that.replayPath == null) &&
-                Arrays.equals(replayDataInBytes, that.replayDataInBytes);
+        if (downloadData != that.downloadData) return false;
+        if (!Objects.equals(replayPath, that.replayPath)) return false;
+        return Arrays.equals(replayDataInBytes, that.replayDataInBytes);
     }
 
     @Override
     public int hashCode() {
-        int result = replayPath != null ? replayPath.hashCode() : 0;
+        int result = super.hashCode();
+        result = 31 * result + (replayPath != null ? replayPath.hashCode() : 0);
         result = 31 * result + Arrays.hashCode(replayDataInBytes);
         result = 31 * result + (downloadData ? 1 : 0);
         return result;

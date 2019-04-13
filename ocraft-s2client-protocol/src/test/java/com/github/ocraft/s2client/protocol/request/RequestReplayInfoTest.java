@@ -103,6 +103,9 @@ class RequestReplayInfoTest {
 
     @Test
     void fulfillsEqualsContract() {
-        EqualsVerifier.forClass(RequestReplayInfo.class).withIgnoredFields("nanoTime").verify();
+        EqualsVerifier.forClass(RequestReplayInfo.class)
+                .withIgnoredFields("nanoTime")
+                .withRedefinedSuperclass()
+                .verify();
     }
 }

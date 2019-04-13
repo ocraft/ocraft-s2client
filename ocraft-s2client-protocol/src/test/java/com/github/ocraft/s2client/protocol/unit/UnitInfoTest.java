@@ -58,6 +58,9 @@ class UnitInfoTest {
         assertThat(unitInfo.getTransportSlotsTaken()).as("unit info: transport slots taken").hasValue(CARGO_SIZE);
         assertThat(unitInfo.getBuildProgress()).as("unit info: build progress").hasValue(UNIT_BUILD_PROGRESS);
         assertThat(unitInfo.getAddOn()).as("unit info: addon").isNotEmpty();
+        assertThat(unitInfo.getMaxHealth()).as("unit info: max health").hasValue((int) UNIT_HEALTH);
+        assertThat(unitInfo.getMaxShields()).as("unit info: max shields").hasValue((int) UNIT_SHIELD);
+        assertThat(unitInfo.getMaxEnergy()).as("unit info: max energy").hasValue((int) UNIT_ENERGY);
     }
 
     @Test

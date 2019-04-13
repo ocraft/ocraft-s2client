@@ -36,15 +36,15 @@ public final class ResponseQuickLoad extends Response {
 
     private static final long serialVersionUID = -3809601289626843992L;
 
-    private ResponseQuickLoad(Sc2Api.Status sc2ApiStatus) {
-        super(ResponseType.QUICK_LOAD, GameStatus.from(sc2ApiStatus));
+    private ResponseQuickLoad(Sc2Api.Status sc2ApiStatus, int id) {
+        super(ResponseType.QUICK_LOAD, GameStatus.from(sc2ApiStatus), id);
     }
 
     public static ResponseQuickLoad from(Sc2Api.Response sc2ApiResponse) {
         if (!hasQuickLoadResponse(sc2ApiResponse)) {
             throw new IllegalArgumentException("provided argument doesn't have quick load response");
         }
-        return new ResponseQuickLoad(sc2ApiResponse.getStatus());
+        return new ResponseQuickLoad(sc2ApiResponse.getStatus(), sc2ApiResponse.getId());
     }
 
     private static boolean hasQuickLoadResponse(Sc2Api.Response sc2ApiResponse) {

@@ -147,6 +147,9 @@ class RequestJoinGameTest {
     @Test
     void fulfillsEqualsContract() {
         EqualsVerifier.forClass(RequestJoinGame.class)
-                .withIgnoredFields("nanoTime").withNonnullFields("interfaceOptions").verify();
+                .withIgnoredFields("nanoTime")
+                .withNonnullFields("interfaceOptions")
+                .withRedefinedSuperclass()
+                .verify();
     }
 }

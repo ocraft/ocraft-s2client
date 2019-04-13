@@ -71,6 +71,15 @@ class FeatureLayersTest {
         assertThat(featureLayers.getUnitDensityAa()).as("feature layers: unit density aa").isNotNull();
         assertThat(featureLayers.getUnitDensity()).as("feature layers: unit density").isNotNull();
         assertThat(featureLayers.getEffects()).as("feature layers: effects").isNotEmpty();
+        assertThat(featureLayers.getHallucinations()).as("feature layers: hallucinations").isNotEmpty();
+        assertThat(featureLayers.getCloaked()).as("feature layers: cloaked").isNotEmpty();
+        assertThat(featureLayers.getBlip()).as("feature layers: blip").isNotEmpty();
+        assertThat(featureLayers.getBuffs()).as("feature layers: buffs").isNotEmpty();
+        assertThat(featureLayers.getBuffDuration()).as("feature layers: buff duration").isNotEmpty();
+        assertThat(featureLayers.getActive()).as("feature layers: active").isNotEmpty();
+        assertThat(featureLayers.getBuildProgress()).as("feature layers: build progress").isNotEmpty();
+        assertThat(featureLayers.getBuildable()).as("feature layers: buildable").isNotEmpty();
+        assertThat(featureLayers.getPathable()).as("feature layers: pathable").isNotEmpty();
     }
 
     @Test

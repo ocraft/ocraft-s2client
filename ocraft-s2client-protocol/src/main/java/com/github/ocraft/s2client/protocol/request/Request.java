@@ -30,14 +30,44 @@ import SC2APIProtocol.Sc2Api;
 import com.github.ocraft.s2client.protocol.Sc2ApiSerializable;
 import com.github.ocraft.s2client.protocol.response.ResponseType;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public abstract class Request implements Sc2ApiSerializable<Sc2Api.Request> {
-    private static final long serialVersionUID = 6516555820286086638L;
+
+    private static final long serialVersionUID = -1916236748663597683L;
+
+    private static AtomicInteger idCnt = new AtomicInteger();
 
     private final long nanoTime = System.nanoTime();
+    private final int id = idCnt.incrementAndGet();
 
     public abstract ResponseType responseType();
 
     public long getNanoTime() {
         return nanoTime;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public static int getCurrentId() {
+        return idCnt.get();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Request request = (Request) o;
+
+        return id == request.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
     }
 }

@@ -142,19 +142,21 @@ public final class RequestData extends Request {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         RequestData that = (RequestData) o;
 
-        return ability == that.ability &&
-                unitType == that.unitType &&
-                upgrade == that.upgrade &&
-                buff == that.buff &&
-                effect == that.effect;
+        if (ability != that.ability) return false;
+        if (unitType != that.unitType) return false;
+        if (upgrade != that.upgrade) return false;
+        if (buff != that.buff) return false;
+        return effect == that.effect;
     }
 
     @Override
     public int hashCode() {
-        int result = (ability ? 1 : 0);
+        int result = super.hashCode();
+        result = 31 * result + (ability ? 1 : 0);
         result = 31 * result + (unitType ? 1 : 0);
         result = 31 * result + (upgrade ? 1 : 0);
         result = 31 * result + (buff ? 1 : 0);

@@ -77,8 +77,9 @@ public final class ResponseStartReplay extends Response {
         }
     }
 
-    private ResponseStartReplay(Sc2Api.ResponseStartReplay sc2ApiResponseStartReplay, Sc2Api.Status sc2ApiStatus) {
-        super(ResponseType.START_REPLAY, GameStatus.from(sc2ApiStatus));
+    private ResponseStartReplay(
+            Sc2Api.ResponseStartReplay sc2ApiResponseStartReplay, Sc2Api.Status sc2ApiStatus, int id) {
+        super(ResponseType.START_REPLAY, GameStatus.from(sc2ApiStatus), id);
 
         this.error = tryGet(
                 Sc2Api.ResponseStartReplay::getError, Sc2Api.ResponseStartReplay::hasError
@@ -93,7 +94,10 @@ public final class ResponseStartReplay extends Response {
         if (!hasStartReplayResponse(sc2ApiResponse)) {
             throw new IllegalArgumentException("provided argument doesn't have start replay response");
         }
-        return new ResponseStartReplay(sc2ApiResponse.getStartReplay(), sc2ApiResponse.getStatus());
+        return new ResponseStartReplay(
+                sc2ApiResponse.getStartReplay(),
+                sc2ApiResponse.getStatus(),
+                sc2ApiResponse.getId());
     }
 
     private static boolean hasStartReplayResponse(Sc2Api.Response sc2ApiResponse) {

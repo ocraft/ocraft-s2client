@@ -41,6 +41,9 @@ class RequestRestartGameTest {
 
     @Test
     void fulfillsEqualsContract() {
-        EqualsVerifier.forClass(RequestRestartGame.class).withIgnoredFields("nanoTime").verify();
+        EqualsVerifier.forClass(RequestRestartGame.class)
+                .withIgnoredFields("nanoTime")
+                .withRedefinedSuperclass()
+                .verify();
     }
 }

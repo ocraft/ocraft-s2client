@@ -65,7 +65,7 @@ class SinglePanelTest {
     void fulfillsEqualsContract() {
         EqualsVerifier
                 .forClass(SinglePanel.class)
-                .withNonnullFields("unit")
+                .withNonnullFields("unit", "buffs")
                 .withPrefabValues(UnitInfo.class, UnitInfo.from(sc2ApiUnitInfoAddOn()), UnitInfo.from(sc2ApiUnitInfo()))
                 .verify();
     }

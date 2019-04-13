@@ -54,16 +54,6 @@ public final class RequestQuitGame extends Request {
     }
 
     @Override
-    public int hashCode() {
-        return 0;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return o == this || o instanceof RequestQuitGame;
-    }
-
-    @Override
     public String toString() {
         return Strings.toJson(this);
     }

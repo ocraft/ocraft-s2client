@@ -43,8 +43,9 @@ public final class ResponseSaveReplay extends Response {
 
     private final byte[] data;
 
-    private ResponseSaveReplay(Sc2Api.ResponseSaveReplay sc2ApiResponseSaveReplay, Sc2Api.Status sc2ApiStatus) {
-        super(ResponseType.SAVE_REPLAY, GameStatus.from(sc2ApiStatus));
+    private ResponseSaveReplay(
+            Sc2Api.ResponseSaveReplay sc2ApiResponseSaveReplay, Sc2Api.Status sc2ApiStatus, int id) {
+        super(ResponseType.SAVE_REPLAY, GameStatus.from(sc2ApiStatus), id);
 
         this.data = tryGet(
                 Sc2Api.ResponseSaveReplay::getData, Sc2Api.ResponseSaveReplay::hasData
@@ -55,7 +56,10 @@ public final class ResponseSaveReplay extends Response {
         if (!hasSaveReplayResponse(sc2ApiResponse)) {
             throw new IllegalArgumentException("provided argument doesn't have save replay response");
         }
-        return new ResponseSaveReplay(sc2ApiResponse.getSaveReplay(), sc2ApiResponse.getStatus());
+        return new ResponseSaveReplay(
+                sc2ApiResponse.getSaveReplay(),
+                sc2ApiResponse.getStatus(),
+                sc2ApiResponse.getId());
     }
 
     private static boolean hasSaveReplayResponse(Sc2Api.Response sc2ApiResponse) {

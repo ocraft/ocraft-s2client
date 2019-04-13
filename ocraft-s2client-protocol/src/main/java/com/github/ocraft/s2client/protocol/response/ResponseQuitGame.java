@@ -36,15 +36,15 @@ public final class ResponseQuitGame extends Response {
 
     private static final long serialVersionUID = -7537052774671405649L;
 
-    private ResponseQuitGame(Sc2Api.Status sc2ApiStatus) {
-        super(ResponseType.QUIT_GAME, GameStatus.from(sc2ApiStatus));
+    private ResponseQuitGame(Sc2Api.Status sc2ApiStatus, int id) {
+        super(ResponseType.QUIT_GAME, GameStatus.from(sc2ApiStatus), id);
     }
 
     public static ResponseQuitGame from(Sc2Api.Response sc2ApiResponse) {
         if (!hasQuitResponse(sc2ApiResponse)) {
             throw new IllegalArgumentException("provided argument doesn't have quit response");
         }
-        return new ResponseQuitGame(sc2ApiResponse.getStatus());
+        return new ResponseQuitGame(sc2ApiResponse.getStatus(), sc2ApiResponse.getId());
     }
 
     private static boolean hasQuitResponse(Sc2Api.Response sc2ApiResponse) {

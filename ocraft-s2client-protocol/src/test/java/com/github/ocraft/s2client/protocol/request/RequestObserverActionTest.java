@@ -65,6 +65,7 @@ class RequestObserverActionTest {
                 .forClass(RequestObserverAction.class)
                 .withNonnullFields("actions")
                 .withIgnoredFields("nanoTime")
+                .withRedefinedSuperclass()
                 .verify();
     }
 }

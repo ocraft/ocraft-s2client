@@ -26,6 +26,7 @@ package com.github.ocraft.s2client.bot.syntax;
  * #L%
  */
 
+import com.github.ocraft.s2client.protocol.game.ReplayInfo;
 import com.github.ocraft.s2client.protocol.spatial.SpatialCameraSetup;
 
 import java.nio.file.Path;
@@ -88,7 +89,7 @@ public interface SettingsSyntax extends GameParticipantSyntax, ReplaySyntax {
      *
      * @param version Look in "ocraft-s2client-protocol/src/main/resources/versions.json" for the property
      *                "data-hash". Or read it from
-     *                {@link com.github.ocraft.s2client.protocol.game.ReplayInfo#dataVersion}.
+     *                {@link ReplayInfo#getDataVersion()}.
      */
     SettingsSyntax setDataVersion(String version);
 
@@ -195,4 +196,24 @@ public interface SettingsSyntax extends GameParticipantSyntax, ReplaySyntax {
      * @param eglPath Path to egl library.
      */
     SettingsSyntax setEglPath(Path eglPath);
+
+    /**
+     * By default cloaked units are completely hidden. This shows some details.
+     */
+    SettingsSyntax setShowCloaked(Boolean showCloaked);
+
+    /**
+     * By default raw actions select, act and revert the selection. This is useful
+     * if you're playing simultaneously with the agent so it doesn't steal your
+     * selection. This inflates APM (due to deselect) and makes the actions hard
+     * to follow in a replay. Setting this to true will cause raw actions to do
+     * select, act, but not revert the selection.
+     */
+    SettingsSyntax setRawAffectsSelection(Boolean rawAffectsSelection);
+
+    /**
+     * Changes the coordinates in raw.proto to be relative to the playable area.
+     * The map_size and playable_area will be the diagonal of the real playable area.
+     */
+    SettingsSyntax setRawCropToPlayableArea(Boolean rawCropToPlayableArea);
 }

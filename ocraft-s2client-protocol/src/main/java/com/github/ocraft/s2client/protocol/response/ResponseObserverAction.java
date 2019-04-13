@@ -37,15 +37,15 @@ public final class ResponseObserverAction extends Response {
 
     private static final long serialVersionUID = -909307390727840258L;
 
-    private ResponseObserverAction(Sc2Api.Status sc2ApiStatus) {
-        super(ResponseType.OBSERVER_ACTION, GameStatus.from(sc2ApiStatus));
+    private ResponseObserverAction(Sc2Api.Status sc2ApiStatus, int id) {
+        super(ResponseType.OBSERVER_ACTION, GameStatus.from(sc2ApiStatus), id);
     }
 
     public static ResponseObserverAction from(Sc2Api.Response sc2ApiResponse) {
         if (!hasObserverActionResponse(sc2ApiResponse)) {
             throw new IllegalArgumentException("provided argument doesn't have observer action response");
         }
-        return new ResponseObserverAction(sc2ApiResponse.getStatus());
+        return new ResponseObserverAction(sc2ApiResponse.getStatus(), sc2ApiResponse.getId());
     }
 
     private static boolean hasObserverActionResponse(Sc2Api.Response sc2ApiResponse) {

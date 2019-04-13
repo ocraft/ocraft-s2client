@@ -40,7 +40,10 @@ class RequestQuickSaveTest {
 
     @Test
     void fulfillsEqualsContract() {
-        EqualsVerifier.forClass(RequestQuickSave.class).withIgnoredFields("nanoTime").verify();
+        EqualsVerifier.forClass(RequestQuickSave.class)
+                .withIgnoredFields("nanoTime")
+                .withRedefinedSuperclass()
+                .verify();
     }
 
 }

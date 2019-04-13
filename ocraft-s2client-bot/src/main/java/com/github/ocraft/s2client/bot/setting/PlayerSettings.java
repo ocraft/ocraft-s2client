@@ -27,10 +27,9 @@ package com.github.ocraft.s2client.bot.setting;
  */
 
 import com.github.ocraft.s2client.bot.S2Agent;
-import com.github.ocraft.s2client.protocol.game.ComputerPlayerSetup;
-import com.github.ocraft.s2client.protocol.game.Difficulty;
-import com.github.ocraft.s2client.protocol.game.PlayerSetup;
-import com.github.ocraft.s2client.protocol.game.Race;
+import com.github.ocraft.s2client.protocol.game.*;
+
+import java.util.Objects;
 
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
 
@@ -41,38 +40,71 @@ public final class PlayerSettings {
     private final Difficulty difficulty;
     private final S2Agent agent;
     private final String playerName;
+    private final AiBuild aiBuild;
 
     private PlayerSettings(
-            PlayerSetup playerSetup, Race race, Difficulty difficulty, S2Agent agent, String playerName) {
+            PlayerSetup playerSetup, Race race, Difficulty difficulty, S2Agent agent, String playerName,
+            AiBuild aiBuild) {
         this.playerSetup = playerSetup;
         this.race = race;
         this.difficulty = difficulty;
         this.agent = agent;
         this.playerName = playerName;
+        this.aiBuild = aiBuild;
     }
 
     public static PlayerSettings participant(Race race, S2Agent agent) {
         require("race", race);
         require("agent", agent);
-        return new PlayerSettings(PlayerSetup.participant(), race, null, agent, null);
+        return new PlayerSettings(PlayerSetup.participant(), race, null, agent, null, null);
     }
 
     public static PlayerSettings computer(Race race, Difficulty difficulty) {
         require("race", race);
         require("difficulty", difficulty);
-        return new PlayerSettings(ComputerPlayerSetup.computer(race, difficulty), race, difficulty, null, null);
+        return new PlayerSettings(ComputerPlayerSetup.computer(race, difficulty), race, difficulty, null, null, null);
     }
 
     public static PlayerSettings participant(Race race, S2Agent agent, String playerName) {
         require("race", race);
         require("agent", agent);
-        return new PlayerSettings(PlayerSetup.participant(), race, null, agent, playerName);
+        return new PlayerSettings(PlayerSetup.participant(), race, null, agent, playerName, null);
     }
 
     public static PlayerSettings computer(Race race, Difficulty difficulty, String playerName) {
         require("race", race);
         require("difficulty", difficulty);
-        return new PlayerSettings(ComputerPlayerSetup.computer(race, difficulty), race, difficulty, null, playerName);
+        return new PlayerSettings(
+                ComputerPlayerSetup.computer(race, difficulty, playerName),
+                race,
+                difficulty,
+                null,
+                playerName,
+                null);
+    }
+
+    public static PlayerSettings computer(Race race, Difficulty difficulty, String playerName, AiBuild aiBuild) {
+        require("race", race);
+        require("difficulty", difficulty);
+        return new PlayerSettings(
+                ComputerPlayerSetup.computer(race, difficulty, playerName, aiBuild),
+                race,
+                difficulty,
+                null,
+                playerName,
+                aiBuild);
+    }
+
+    public static PlayerSettings computer(Race race, Difficulty difficulty, AiBuild aiBuild) {
+        require("race", race);
+        require("difficulty", difficulty);
+        return new PlayerSettings(
+                ComputerPlayerSetup.computer(race, difficulty, null, aiBuild),
+                race,
+                difficulty,
+                null,
+                null,
+                aiBuild);
     }
 
     public PlayerSetup getPlayerSetup() {
@@ -95,6 +127,10 @@ public final class PlayerSettings {
         return playerName;
     }
 
+    public AiBuild getAiBuild() {
+        return aiBuild;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -102,20 +138,22 @@ public final class PlayerSettings {
 
         PlayerSettings that = (PlayerSettings) o;
 
-        if (playerSetup != null ? !playerSetup.equals(that.playerSetup) : that.playerSetup != null) return false;
+        if (!playerSetup.equals(that.playerSetup)) return false;
         if (race != that.race) return false;
         if (difficulty != that.difficulty) return false;
-        if (agent != null ? !agent.equals(that.agent) : that.agent != null) return false;
-        return playerName != null ? playerName.equals(that.playerName) : that.playerName == null;
+        if (!Objects.equals(agent, that.agent)) return false;
+        if (!Objects.equals(playerName, that.playerName)) return false;
+        return aiBuild == that.aiBuild;
     }
 
     @Override
     public int hashCode() {
-        int result = playerSetup != null ? playerSetup.hashCode() : 0;
+        int result = playerSetup.hashCode();
         result = 31 * result + race.hashCode();
         result = 31 * result + difficulty.hashCode();
         result = 31 * result + (agent != null ? agent.hashCode() : 0);
         result = 31 * result + (playerName != null ? playerName.hashCode() : 0);
+        result = 31 * result + (aiBuild != null ? aiBuild.hashCode() : 0);
         return result;
     }
 
@@ -127,6 +165,7 @@ public final class PlayerSettings {
                 ", difficulty=" + difficulty +
                 ", agent=" + agent +
                 ", playerName='" + playerName + '\'' +
+                ", aiBuild=" + aiBuild +
                 '}';
     }
 }

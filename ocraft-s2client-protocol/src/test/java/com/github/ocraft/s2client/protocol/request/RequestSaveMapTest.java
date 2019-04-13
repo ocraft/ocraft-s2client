@@ -66,6 +66,10 @@ class RequestSaveMapTest {
 
     @Test
     void fulfillsEqualsContract() {
-        EqualsVerifier.forClass(RequestSaveMap.class).withIgnoredFields("nanoTime").withNonnullFields("map").verify();
+        EqualsVerifier.forClass(RequestSaveMap.class)
+                .withIgnoredFields("nanoTime")
+                .withNonnullFields("map")
+                .withRedefinedSuperclass()
+                .verify();
     }
 }

@@ -27,6 +27,7 @@ package com.github.ocraft.s2client.protocol;
  */
 
 import SC2APIProtocol.Sc2Api;
+import com.github.ocraft.s2client.protocol.request.RequestPing;
 import org.junit.jupiter.api.Test;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
@@ -44,11 +45,13 @@ class RequestSerializerTest {
 
     @Test
     void serializesSc2ApiRequestToBytes() throws Exception {
+        RequestPing ping = ping();
         Sc2Api.Request initialRequest = Sc2Api.Request.newBuilder()
                 .setPing(Sc2Api.RequestPing.newBuilder().build())
+                .setId(ping.getId())
                 .build();
 
-        byte[] serializedRequest = new RequestSerializer().apply(ping());
+        byte[] serializedRequest = new RequestSerializer().apply(ping);
 
         assertThat(serializedRequest).as("serialized request").isNotEmpty();
         assertThat(Sc2Api.Request.parseFrom(serializedRequest)).isEqualTo(initialRequest);

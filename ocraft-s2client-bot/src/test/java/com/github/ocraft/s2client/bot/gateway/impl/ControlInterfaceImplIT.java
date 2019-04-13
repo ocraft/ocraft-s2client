@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.bot.gateway.impl;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -500,7 +500,8 @@ class ControlInterfaceImplIT {
         when(observation.getRaw()).thenReturn(Optional.of(observationRaw));
         when(observation.getPlayerCommon()).thenReturn(playerCommon);
         when(observation.getScore()).thenReturn(Optional.of(mock(Score.class)));
-        when(observation.getAlerts()).thenReturn(Set.of(Alert.NUCLEAR_LAUNCH_DETECTED, Alert.NYDUS_WORM_DETECTED));
+        when(observation.getAlerts())
+                .thenReturn(Set.of(Alert.NUCLEAR_LAUNCH_DETECTED, Alert.NYDUS_WORM_DETECTED, Alert.BUILDING_COMPLETE));
 
         Action action = mock(Action.class);
         when(action.getRaw()).thenReturn(Optional.of(mock(ActionRaw.class)));
@@ -564,6 +565,7 @@ class ControlInterfaceImplIT {
         verify(clientEvents).onNuclearLaunchDetected();
         verify(clientEvents).onNydusDetected();
         verify(clientEvents).onStep();
+        verify(clientEvents).onAlert(Alert.BUILDING_COMPLETE);
 
         verifyNoMoreInteractions(clientEvents);
     }

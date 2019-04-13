@@ -162,7 +162,10 @@ class RequestStartReplayTest {
     @Test
     void fulfillsEqualsContract() {
         EqualsVerifier.forClass(RequestStartReplay.class)
-                .withIgnoredFields("nanoTime").withNonnullFields("interfaceOptions").verify();
+                .withIgnoredFields("nanoTime")
+                .withNonnullFields("interfaceOptions")
+                .withRedefinedSuperclass()
+                .verify();
     }
 
 }

@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.observation;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -48,6 +48,26 @@ class AlertTest {
 
     private static Stream<Arguments> alertMappings() {
         return Stream.of(
+                of(Sc2Api.Alert.AlertError, Alert.ALERT_ERROR),
+                of(Sc2Api.Alert.AddOnComplete, Alert.ADD_ON_COMPLETE),
+                of(Sc2Api.Alert.BuildingComplete, Alert.BUILDING_COMPLETE),
+                of(Sc2Api.Alert.BuildingUnderAttack, Alert.BUILDING_UNDER_ATTACK),
+                of(Sc2Api.Alert.LarvaHatched, Alert.LARVA_HATCHED),
+                of(Sc2Api.Alert.MergeComplete, Alert.MERGE_COMPLETE),
+                of(Sc2Api.Alert.MineralsExhausted, Alert.MINERALS_EXHAUSTED),
+                of(Sc2Api.Alert.MorphComplete, Alert.MORPH_COMPLETE),
+                of(Sc2Api.Alert.MothershipComplete, Alert.MOTHERSHIP_COMPLETE),
+                of(Sc2Api.Alert.MULEExpired, Alert.MULE_EXPIRED),
+                of(Sc2Api.Alert.NukeComplete, Alert.NUKE_COMPLETE),
+                of(Sc2Api.Alert.ResearchComplete, Alert.RESEARCH_COMPLETE),
+                of(Sc2Api.Alert.TrainError, Alert.TRAIN_ERROR),
+                of(Sc2Api.Alert.TrainUnitComplete, Alert.TRAIN_UNIT_COMPLETE),
+                of(Sc2Api.Alert.TrainWorkerComplete, Alert.TRAIN_WORKER_COMPLETE),
+                of(Sc2Api.Alert.TransformationComplete, Alert.TRANSFORMATION_COMPLETE),
+                of(Sc2Api.Alert.UnitUnderAttack, Alert.UNIT_UNDER_ATTACK),
+                of(Sc2Api.Alert.UpgradeComplete, Alert.UPGRADE_COMPLETE),
+                of(Sc2Api.Alert.VespeneExhausted, Alert.VESPENE_EXHAUSTED),
+                of(Sc2Api.Alert.WarpInComplete, Alert.WARP_IN_COMPLETE),
                 of(Sc2Api.Alert.NuclearLaunchDetected, Alert.NUCLEAR_LAUNCH_DETECTED),
                 of(Sc2Api.Alert.NydusWormDetected, Alert.NYDUS_WORM_DETECTED));
     }

@@ -48,8 +48,8 @@ public final class ResponseData extends Response {
     private final Set<BuffData> buffs;
     private final Set<EffectData> effects;
 
-    private ResponseData(Sc2Api.ResponseData sc2ApiResponseData, Sc2Api.Status status) {
-        super(ResponseType.DATA, GameStatus.from(status));
+    private ResponseData(Sc2Api.ResponseData sc2ApiResponseData, Sc2Api.Status status, int id) {
+        super(ResponseType.DATA, GameStatus.from(status), id);
 
         abilities = sc2ApiResponseData.getAbilitiesList().stream().map(AbilityData::from)
                 .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
@@ -67,7 +67,7 @@ public final class ResponseData extends Response {
         if (!hasDataResponse(sc2ApiResponse)) {
             throw new IllegalArgumentException("provided argument doesn't have data response");
         }
-        return new ResponseData(sc2ApiResponse.getData(), sc2ApiResponse.getStatus());
+        return new ResponseData(sc2ApiResponse.getData(), sc2ApiResponse.getStatus(), sc2ApiResponse.getId());
     }
 
     private static boolean hasDataResponse(Sc2Api.Response sc2ApiResponse) {

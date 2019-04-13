@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.data;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -322,7 +322,14 @@ public enum Upgrades implements Upgrade {
     HIRE_DUSK_WING_PH(285),
     HIRE_DUKES_REVENGE(286),
     TOSH_EASY_MODE(287),
-    VOID_RAY_SPEED_UPGRADE(288);
+    VOID_RAY_SPEED_UPGRADE(288),
+    SMART_SERVOS(289),
+    ARMOR_PIERCING_ROCKETS(290),
+    CYCLONE_RAPID_FIRE_LAUNCHERS(291),
+    RAVEN_ENHANCED_MUNITIONS(292),
+    DIGGING_CLAWS(293),
+    CARRIER_CARRIER_CAPACITY(294),
+    CARRIER_LEASH_RANGE_UPGRADE(295);
 
     public static final class Other implements Upgrade {
 

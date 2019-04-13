@@ -27,5 +27,8 @@ package com.github.ocraft.s2client.protocol.syntax.request;
  */
 
 public interface SpatialCameraSetupSyntax extends ResolutionSyntax {
+    /**
+     *  Set the screen camera width in world units. (only relevant for feature layers)
+     */
     ResolutionSyntax width(float width);
 }

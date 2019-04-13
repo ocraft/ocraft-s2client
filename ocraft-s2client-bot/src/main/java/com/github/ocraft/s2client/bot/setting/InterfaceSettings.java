@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.bot.setting;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,16 +28,33 @@ package com.github.ocraft.s2client.bot.setting;
 
 import com.github.ocraft.s2client.protocol.spatial.SpatialCameraSetup;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public final class InterfaceSettings {
     private final SpatialCameraSetup featureLayerSettings;
     private final SpatialCameraSetup renderSettings;
+    private final Boolean showCloaked;
+    private final Boolean rawAffectsSelection;
+    private final Boolean rawCropToPlayableArea;
 
     public InterfaceSettings(SpatialCameraSetup featureLayerSettings, SpatialCameraSetup renderSettings) {
+        this(featureLayerSettings, renderSettings, null, null, null);
+    }
+
+    public InterfaceSettings(
+            SpatialCameraSetup featureLayerSettings,
+            SpatialCameraSetup renderSettings,
+            Boolean showCloaked,
+            Boolean rawAffectsSelection,
+            Boolean rawCropToPlayableArea) {
         this.featureLayerSettings = featureLayerSettings;
         this.renderSettings = renderSettings;
+        this.showCloaked = showCloaked;
+        this.rawAffectsSelection = rawAffectsSelection;
+        this.rawCropToPlayableArea = rawCropToPlayableArea;
     }
+
 
     public Optional<SpatialCameraSetup> getFeatureLayerSettings() {
         return Optional.ofNullable(featureLayerSettings);
@@ -47,6 +64,18 @@ public final class InterfaceSettings {
         return Optional.ofNullable(renderSettings);
     }
 
+    public Boolean getShowCloaked() {
+        return showCloaked;
+    }
+
+    public Boolean getRawAffectsSelection() {
+        return rawAffectsSelection;
+    }
+
+    public Boolean getRawCropToPlayableArea() {
+        return rawCropToPlayableArea;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -54,17 +83,24 @@ public final class InterfaceSettings {
 
         InterfaceSettings that = (InterfaceSettings) o;
 
-        if (featureLayerSettings != null
-                ? !featureLayerSettings.equals(that.featureLayerSettings)
-                : that.featureLayerSettings != null)
+        if (!Objects.equals(featureLayerSettings, that.featureLayerSettings))
             return false;
-        return renderSettings != null ? renderSettings.equals(that.renderSettings) : that.renderSettings == null;
+        if (!Objects.equals(renderSettings, that.renderSettings))
+            return false;
+        if (!Objects.equals(showCloaked, that.showCloaked)) return false;
+        if (!Objects.equals(rawAffectsSelection, that.rawAffectsSelection))
+            return false;
+        return Objects.equals(rawCropToPlayableArea, that.rawCropToPlayableArea);
+
     }
 
     @Override
     public int hashCode() {
         int result = featureLayerSettings != null ? featureLayerSettings.hashCode() : 0;
         result = 31 * result + (renderSettings != null ? renderSettings.hashCode() : 0);
+        result = 31 * result + (showCloaked != null ? showCloaked.hashCode() : 0);
+        result = 31 * result + (rawAffectsSelection != null ? rawAffectsSelection.hashCode() : 0);
+        result = 31 * result + (rawCropToPlayableArea != null ? rawCropToPlayableArea.hashCode() : 0);
         return result;
     }
 
@@ -73,6 +109,9 @@ public final class InterfaceSettings {
         return "InterfaceSettings{" +
                 "featureLayerSettings=" + featureLayerSettings +
                 ", renderSettings=" + renderSettings +
+                ", showCloaked=" + showCloaked +
+                ", rawAffectsSelection=" + rawAffectsSelection +
+                ", rawCropToPlayableArea=" + rawCropToPlayableArea +
                 '}';
     }
 }

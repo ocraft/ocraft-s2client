@@ -27,12 +27,12 @@ package com.github.ocraft.s2client.protocol.observation.raw;
  */
 
 import SC2APIProtocol.Raw;
+import com.github.ocraft.s2client.protocol.unit.Alliance;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
-import static com.github.ocraft.s2client.protocol.Fixtures.sc2ApiEffect;
-import static com.github.ocraft.s2client.protocol.Fixtures.without;
+import static com.github.ocraft.s2client.protocol.Fixtures.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -52,6 +52,10 @@ class EffectLocationsTest {
     private void assertThatAllFieldsAreConverted(EffectLocations effect) {
         assertThat(effect.getEffect()).as("effect: effect").isNotNull();
         assertThat(effect.getPositions()).as("effect: positions").isNotEmpty();
+
+        assertThat(effect.getAlliance()).as("effect: alliance").hasValue(Alliance.SELF);
+        assertThat(effect.getOwner()).as("effect: owner").hasValue(PLAYER_ID);
+        assertThat(effect.getRadius()).as("effect: radius").hasValue(RADIUS);
     }
 
     @Test

@@ -94,15 +94,19 @@ public final class RequestDebug extends Request {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         RequestDebug that = (RequestDebug) o;
 
         return commands.equals(that.commands);
+
     }
 
     @Override
     public int hashCode() {
-        return commands.hashCode();
+        int result = super.hashCode();
+        result = 31 * result + commands.hashCode();
+        return result;
     }
 
     @Override

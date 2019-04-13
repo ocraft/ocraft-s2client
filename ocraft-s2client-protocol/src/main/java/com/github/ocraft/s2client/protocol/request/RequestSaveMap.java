@@ -92,15 +92,19 @@ public final class RequestSaveMap extends Request {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         RequestSaveMap that = (RequestSaveMap) o;
 
         return map.equals(that.map);
+
     }
 
     @Override
     public int hashCode() {
-        return map.hashCode();
+        int result = super.hashCode();
+        result = 31 * result + map.hashCode();
+        return result;
     }
 
     @Override

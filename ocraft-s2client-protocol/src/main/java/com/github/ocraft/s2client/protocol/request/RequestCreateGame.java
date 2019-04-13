@@ -35,10 +35,7 @@ import com.github.ocraft.s2client.protocol.game.PlayerSetup;
 import com.github.ocraft.s2client.protocol.response.ResponseType;
 import com.github.ocraft.s2client.protocol.syntax.request.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.Preconditions.oneOfIsSet;
@@ -180,20 +177,23 @@ public final class RequestCreateGame extends Request {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         RequestCreateGame that = (RequestCreateGame) o;
 
-        return disableFog == that.disableFog &&
-                realTime == that.realTime &&
-                (randomSeed != null ? randomSeed.equals(that.randomSeed) : that.randomSeed == null) &&
-                playerSetups.equals(that.playerSetups) &&
-                (battlenetMap != null ? battlenetMap.equals(that.battlenetMap) : that.battlenetMap == null) &&
-                (localMap != null ? localMap.equals(that.localMap) : that.localMap == null);
+        if (disableFog != that.disableFog) return false;
+        if (realTime != that.realTime) return false;
+        if (!Objects.equals(randomSeed, that.randomSeed)) return false;
+        if (!playerSetups.equals(that.playerSetups)) return false;
+        if (!Objects.equals(battlenetMap, that.battlenetMap)) return false;
+        return Objects.equals(localMap, that.localMap);
+
     }
 
     @Override
     public int hashCode() {
-        int result = (disableFog ? 1 : 0);
+        int result = super.hashCode();
+        result = 31 * result + (disableFog ? 1 : 0);
         result = 31 * result + (realTime ? 1 : 0);
         result = 31 * result + (randomSeed != null ? randomSeed.hashCode() : 0);
         result = 31 * result + playerSetups.hashCode();

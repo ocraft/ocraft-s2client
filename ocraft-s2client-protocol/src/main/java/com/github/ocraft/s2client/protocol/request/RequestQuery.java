@@ -167,18 +167,20 @@ public final class RequestQuery extends Request {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         RequestQuery that = (RequestQuery) o;
 
-        return ignoreResourceRequirements == that.ignoreResourceRequirements &&
-                pathings.equals(that.pathings) &&
-                abilities.equals(that.abilities) &&
-                placements.equals(that.placements);
+        if (ignoreResourceRequirements != that.ignoreResourceRequirements) return false;
+        if (!pathings.equals(that.pathings)) return false;
+        if (!abilities.equals(that.abilities)) return false;
+        return placements.equals(that.placements);
     }
 
     @Override
     public int hashCode() {
-        int result = pathings.hashCode();
+        int result = super.hashCode();
+        result = 31 * result + pathings.hashCode();
         result = 31 * result + abilities.hashCode();
         result = 31 * result + placements.hashCode();
         result = 31 * result + (ignoreResourceRequirements ? 1 : 0);

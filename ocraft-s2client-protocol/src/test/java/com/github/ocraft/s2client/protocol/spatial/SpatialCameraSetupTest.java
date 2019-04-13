@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.spatial;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -51,6 +51,8 @@ class SpatialCameraSetupTest {
                         .width(CAMERA_WIDTH)
                         .resolution(MAP_X, MAP_Y)
                         .minimap(MINIMAP_X, MINIMAP_Y)
+                        .allowCheatingLayers(true)
+                        .cropToPlayableArea(true)
                         .build().toSc2Api());
     }
 
@@ -60,6 +62,8 @@ class SpatialCameraSetupTest {
                 .isEqualTo(Common.Size2DI.newBuilder().setX(MAP_X).setY(MAP_Y).build());
         assertThat(sc2ApiSpatialCameraSetup.getMinimapResolution()).as("resolution of minimap")
                 .isEqualTo(Common.Size2DI.newBuilder().setX(MINIMAP_X).setY(MINIMAP_Y).build());
+        assertThat(sc2ApiSpatialCameraSetup.getAllowCheatingLayers()).as("allow cheating layers").isTrue();
+        assertThat(sc2ApiSpatialCameraSetup.getCropToPlayableArea()).as("crop to playable area").isTrue();
     }
 
     @Test

@@ -36,6 +36,7 @@ import com.github.ocraft.s2client.protocol.score.Score;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -155,11 +156,11 @@ public final class Observation implements Serializable {
                 playerCommon.equals(that.playerCommon) &&
                 alerts.equals(that.alerts) &&
                 availableAbilities.equals(that.availableAbilities) &&
-                (score != null ? score.equals(that.score) : that.score == null) &&
-                (raw != null ? raw.equals(that.raw) : that.raw == null) &&
-                (featureLayer != null ? featureLayer.equals(that.featureLayer) : that.featureLayer == null) &&
-                (render != null ? render.equals(that.render) : that.render == null) &&
-                (ui != null ? ui.equals(that.ui) : that.ui == null);
+                (Objects.equals(score, that.score)) &&
+                (Objects.equals(raw, that.raw)) &&
+                (Objects.equals(featureLayer, that.featureLayer)) &&
+                (Objects.equals(render, that.render)) &&
+                (Objects.equals(ui, that.ui));
     }
 
     @Override

@@ -680,11 +680,14 @@ class TestBuildGateway extends TestUnitCommandTargetingPoint {
 
     @Override
     public void onTestFinish() {
-        verifyUnitExistsAndComplete(Units.PROTOSS_GATEWAY);
+        verifyUnitExistsAndComplete(Units.PROTOSS_WARP_GATE);
         verifyUnitIdleAfterOrder(testUnitType);
-        verifyUnitIdleAfterOrder(Units.PROTOSS_GATEWAY);
-        if (agent().observation().getWarpGateCount() != 0) {
-            reportError("Gateway is being incorrectly identified as a Warp Gate.");
+        // Due to a balance change that causes Gateways to auto morph into WarpGates when the warpgate tech is
+        // researched, and we unlock all research at the start of the test, so verify that the gateway has
+        // transformed to a warpgate
+        verifyUnitIdleAfterOrder(Units.PROTOSS_WARP_GATE);
+        if (agent().observation().getWarpGateCount() != 1) {
+            reportError("Expected Gateway to auto morph into Warpgate, but it has not.");
         }
         killAllUnits();
     }

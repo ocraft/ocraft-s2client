@@ -37,10 +37,11 @@ class RequestObservationTest {
 
     @Test
     void serializesToSc2ApiRequestObservation() {
-        Sc2Api.Request sc2ApiRequest = observation().disableFog().build().toSc2Api();
+        Sc2Api.Request sc2ApiRequest = observation().disableFog().gameLoop(2).build().toSc2Api();
 
         assertThat(sc2ApiRequest.hasObservation()).as("sc2api request has observation").isTrue();
         assertThat(sc2ApiRequest.getObservation().getDisableFog()).as("request observation: disable fog").isTrue();
+        assertThat(sc2ApiRequest.getObservation().getGameLoop()).as("request observation: game loop").isEqualTo(2);
     }
 
     @Test
@@ -54,7 +55,10 @@ class RequestObservationTest {
 
     @Test
     void fulfillsEqualsContract() {
-        EqualsVerifier.forClass(RequestObservation.class).withIgnoredFields("nanoTime").verify();
+        EqualsVerifier.forClass(RequestObservation.class)
+                .withIgnoredFields("nanoTime")
+                .withRedefinedSuperclass()
+                .verify();
     }
 
 }

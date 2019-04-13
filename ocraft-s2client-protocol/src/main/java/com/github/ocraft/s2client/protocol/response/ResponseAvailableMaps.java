@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.response;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -49,8 +49,8 @@ public final class ResponseAvailableMaps extends Response {
     private final Set<LocalMap> localMaps;
 
     private ResponseAvailableMaps(
-            Sc2Api.ResponseAvailableMaps sc2ApiResponseAvailableMaps, Sc2Api.Status sc2ApiStatus) {
-        super(ResponseType.AVAILABLE_MAPS, GameStatus.from(sc2ApiStatus));
+            Sc2Api.ResponseAvailableMaps sc2ApiResponseAvailableMaps, Sc2Api.Status sc2ApiStatus, int id) {
+        super(ResponseType.AVAILABLE_MAPS, GameStatus.from(sc2ApiStatus), id);
 
         this.battlenetMaps = new HashSet<>(sc2ApiResponseAvailableMaps.getBattlenetMapNamesList())
                 .stream()
@@ -68,7 +68,10 @@ public final class ResponseAvailableMaps extends Response {
         if (!hasAvailableMapsResponse(sc2ApiResponse)) {
             throw new IllegalArgumentException("provided argument doesn't have available maps response");
         }
-        return new ResponseAvailableMaps(sc2ApiResponse.getAvailableMaps(), sc2ApiResponse.getStatus());
+        return new ResponseAvailableMaps(
+                sc2ApiResponse.getAvailableMaps(),
+                sc2ApiResponse.getStatus(),
+                sc2ApiResponse.getId());
     }
 
     private static boolean hasAvailableMapsResponse(Sc2Api.Response sc2ApiResponse) {

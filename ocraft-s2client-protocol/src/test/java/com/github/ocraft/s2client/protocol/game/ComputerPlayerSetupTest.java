@@ -55,7 +55,8 @@ class ComputerPlayerSetupTest {
 
     @Test
     void serializesToSc2ApiPlayerSetup() {
-        assertThat(ComputerPlayerSetup.computer(Race.PROTOSS, Difficulty.MEDIUM, Fixtures.PLAYER_NAME).toSc2Api())
+        assertThat(ComputerPlayerSetup.computer(
+                Race.PROTOSS, Difficulty.MEDIUM, Fixtures.PLAYER_NAME, AiBuild.AIR).toSc2Api())
                 .as("sc2api computer player setup")
                 .isEqualTo(expectedComputerPlayerSetup());
     }
@@ -66,6 +67,7 @@ class ComputerPlayerSetupTest {
                 .setRace(Common.Race.Protoss)
                 .setDifficulty(Sc2Api.Difficulty.Medium)
                 .setPlayerName(Fixtures.PLAYER_NAME)
+                .setAiBuild(Sc2Api.AIBuild.Air)
                 .build();
     }
 

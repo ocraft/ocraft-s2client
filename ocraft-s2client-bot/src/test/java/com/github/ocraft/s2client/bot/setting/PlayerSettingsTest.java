@@ -36,7 +36,7 @@ class PlayerSettingsTest {
     @Test
     void fulfillsEqualsContract() {
         EqualsVerifier.forClass(PlayerSettings.class)
-                .withNonnullFields("race", "difficulty")
+                .withNonnullFields("playerSetup", "race", "difficulty")
                 .withPrefabValues(S2Client.class, mock(S2Client.class), mock(S2Client.class))
                 .verify();
     }

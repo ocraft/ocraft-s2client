@@ -33,7 +33,10 @@ import static com.github.ocraft.s2client.protocol.Preconditions.require;
 public enum CloakState {
     CLOAKED,
     NOT_CLOAKED,
-    CLOAKED_DETECTED;
+    CLOAKED_DETECTED,
+    /** Under the fog, so unknown whether it's cloaked or not. **/
+    CLOAKED_UNKNOWN,
+    CLOAKED_ALLIED;
 
     public static CloakState from(Raw.CloakState sc2ApiCloakState) {
         require("sc2api cloak state", sc2ApiCloakState);
@@ -44,6 +47,10 @@ public enum CloakState {
                 return NOT_CLOAKED;
             case CloakedDetected:
                 return CLOAKED_DETECTED;
+            case CloakedUnknown:
+                return CLOAKED_UNKNOWN;
+            case CloakedAllied:
+                return CLOAKED_ALLIED;
             default:
                 throw new AssertionError("unknown sc2api cloak state: " + sc2ApiCloakState);
         }

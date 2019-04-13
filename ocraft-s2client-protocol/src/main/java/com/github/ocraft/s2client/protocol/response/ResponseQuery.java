@@ -49,8 +49,8 @@ public final class ResponseQuery extends Response {
     private final List<AvailableAbilities> abilities;
     private final List<BuildingPlacement> placements;
 
-    private ResponseQuery(Query.ResponseQuery sc2ApiResponseQuery, Sc2Api.Status status) {
-        super(ResponseType.QUERY, GameStatus.from(status));
+    private ResponseQuery(Query.ResponseQuery sc2ApiResponseQuery, Sc2Api.Status status, int id) {
+        super(ResponseType.QUERY, GameStatus.from(status), id);
 
         pathing = sc2ApiResponseQuery.getPathingList().stream().map(Pathing::from)
                 .collect(collectingAndThen(toList(), Collections::unmodifiableList));
@@ -64,7 +64,7 @@ public final class ResponseQuery extends Response {
         if (!hasQueryResponse(sc2ApiResponse)) {
             throw new IllegalArgumentException("provided argument doesn't have query response");
         }
-        return new ResponseQuery(sc2ApiResponse.getQuery(), sc2ApiResponse.getStatus());
+        return new ResponseQuery(sc2ApiResponse.getQuery(), sc2ApiResponse.getStatus(), sc2ApiResponse.getId());
     }
 
     private static boolean hasQueryResponse(Sc2Api.Response sc2ApiResponse) {

@@ -36,15 +36,15 @@ public final class ResponseLeaveGame extends Response {
 
     private static final long serialVersionUID = -3809601289626843992L;
 
-    private ResponseLeaveGame(Sc2Api.Status sc2ApiStatus) {
-        super(ResponseType.LEAVE_GAME, GameStatus.from(sc2ApiStatus));
+    private ResponseLeaveGame(Sc2Api.Status sc2ApiStatus, int id) {
+        super(ResponseType.LEAVE_GAME, GameStatus.from(sc2ApiStatus), id);
     }
 
     public static ResponseLeaveGame from(Sc2Api.Response sc2ApiResponse) {
         if (!hasLeaveGameResponse(sc2ApiResponse)) {
             throw new IllegalArgumentException("provided argument doesn't have leave game response");
         }
-        return new ResponseLeaveGame(sc2ApiResponse.getStatus());
+        return new ResponseLeaveGame(sc2ApiResponse.getStatus(), sc2ApiResponse.getId());
     }
 
     private static boolean hasLeaveGameResponse(Sc2Api.Response sc2ApiResponse) {

@@ -85,6 +85,7 @@ public final class RequestStep extends Request {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         RequestStep that = (RequestStep) o;
 
@@ -93,7 +94,9 @@ public final class RequestStep extends Request {
 
     @Override
     public int hashCode() {
-        return count;
+        int result = super.hashCode();
+        result = 31 * result + count;
+        return result;
     }
 
     @Override

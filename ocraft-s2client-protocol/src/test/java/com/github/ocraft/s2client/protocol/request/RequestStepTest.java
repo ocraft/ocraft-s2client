@@ -66,7 +66,10 @@ class RequestStepTest {
 
     @Test
     void fulfillsEqualsContract() {
-        EqualsVerifier.forClass(RequestStep.class).withIgnoredFields("nanoTime").verify();
+        EqualsVerifier.forClass(RequestStep.class)
+                .withIgnoredFields("nanoTime")
+                .withRedefinedSuperclass()
+                .verify();
     }
 
 }

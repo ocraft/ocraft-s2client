@@ -51,7 +51,9 @@ class CloakStateTest {
         return Stream.of(
                 of(Raw.CloakState.NotCloaked, CloakState.NOT_CLOAKED),
                 of(Raw.CloakState.Cloaked, CloakState.CLOAKED),
-                of(Raw.CloakState.CloakedDetected, CloakState.CLOAKED_DETECTED));
+                of(Raw.CloakState.CloakedDetected, CloakState.CLOAKED_DETECTED),
+                of(Raw.CloakState.CloakedUnknown, CloakState.CLOAKED_UNKNOWN),
+                of(Raw.CloakState.CloakedAllied, CloakState.CLOAKED_ALLIED));
     }
 
     @Test

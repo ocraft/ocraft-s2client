@@ -30,6 +30,7 @@ import com.github.ocraft.s2client.api.controller.S2Controller;
 import com.github.ocraft.s2client.api.log.DataFlowTracer;
 import com.github.ocraft.s2client.api.syntax.TracedSyntax;
 import com.github.ocraft.s2client.protocol.request.Request;
+import com.github.ocraft.s2client.protocol.request.RequestPing;
 import com.github.ocraft.s2client.protocol.response.ResponsePing;
 import org.junit.jupiter.api.Test;
 
@@ -67,11 +68,12 @@ class S2ClientTest {
         client.responseStream().subscribe(r -> {
         });
 
-        client.request(ping());
+        RequestPing ping = ping();
+        client.request(ping);
         client.channel().output(sc2ApiResponse);
         delay(200);
 
-        verify(tracer).fire(ping());
+        verify(tracer).fire(ping);
         verify(tracer).fire(any(ResponsePing.class));
 
         client.stop();

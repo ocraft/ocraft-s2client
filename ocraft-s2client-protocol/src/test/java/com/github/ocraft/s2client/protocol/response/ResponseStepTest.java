@@ -31,8 +31,7 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
-import static com.github.ocraft.s2client.protocol.Fixtures.aSc2ApiResponse;
-import static com.github.ocraft.s2client.protocol.Fixtures.sc2ApiResponseWithStep;
+import static com.github.ocraft.s2client.protocol.Fixtures.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -56,6 +55,7 @@ class ResponseStepTest {
         assertThat(responseStep.getType()).as("type of step response")
                 .isEqualTo(ResponseType.STEP);
         assertThat(responseStep.getStatus()).as("status of step response").isEqualTo(GameStatus.IN_GAME);
+        assertThat(responseStep.getSimulationLoop()).as("simulation loop").hasValue(SIMULATION_LOOP);
     }
 
     @Test

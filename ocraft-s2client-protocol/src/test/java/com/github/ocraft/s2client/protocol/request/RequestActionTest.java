@@ -66,6 +66,10 @@ class RequestActionTest {
 
     @Test
     void fulfillsEqualsContract() {
-        EqualsVerifier.forClass(RequestAction.class).withNonnullFields("actions").withIgnoredFields("nanoTime").verify();
+        EqualsVerifier.forClass(RequestAction.class)
+                .withNonnullFields("actions")
+                .withIgnoredFields("nanoTime")
+                .withRedefinedSuperclass()
+                .verify();
     }
 }

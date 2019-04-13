@@ -55,8 +55,8 @@ public final class ResponseObservation extends Response {
     private final List<PlayerResult> playerResults;
     private final List<ChatReceived> chat;
 
-    private ResponseObservation(Sc2Api.ResponseObservation sc2ApiResponseObservation, Sc2Api.Status status) {
-        super(ResponseType.OBSERVATION, GameStatus.from(status));
+    private ResponseObservation(Sc2Api.ResponseObservation sc2ApiResponseObservation, Sc2Api.Status status, int id) {
+        super(ResponseType.OBSERVATION, GameStatus.from(status), id);
 
         this.actions = sc2ApiResponseObservation.getActionsList().stream()
                 .filter(actionIsValid()).map(Action::from)
@@ -88,7 +88,10 @@ public final class ResponseObservation extends Response {
         if (!hasObservationResponse(sc2ApiResponse)) {
             throw new IllegalArgumentException("provided argument doesn't have observation response");
         }
-        return new ResponseObservation(sc2ApiResponse.getObservation(), sc2ApiResponse.getStatus());
+        return new ResponseObservation(
+                sc2ApiResponse.getObservation(),
+                sc2ApiResponse.getStatus(),
+                sc2ApiResponse.getId());
     }
 
     private static boolean hasObservationResponse(Sc2Api.Response sc2ApiResponse) {

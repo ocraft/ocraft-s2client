@@ -31,11 +31,15 @@ import com.github.ocraft.s2client.protocol.Strings;
 import com.github.ocraft.s2client.protocol.data.Effect;
 import com.github.ocraft.s2client.protocol.data.Effects;
 import com.github.ocraft.s2client.protocol.spatial.Point2d;
+import com.github.ocraft.s2client.protocol.unit.Alliance;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
+import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.require;
@@ -48,6 +52,9 @@ public final class EffectLocations implements Serializable {
 
     private final Effect effect;
     private final Set<Point2d> positions;
+    private final Alliance alliance;
+    private final Integer owner;
+    private final Float radius;
 
     private EffectLocations(Raw.Effect sc2ApiEffect) {
         effect = tryGet(
@@ -56,6 +63,13 @@ public final class EffectLocations implements Serializable {
 
         positions = sc2ApiEffect.getPosList().stream().map(Point2d::from)
                 .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
+
+        alliance = tryGet(Raw.Effect::getAlliance, Raw.Effect::hasAlliance)
+                .apply(sc2ApiEffect).map(Alliance::from).orElse(nothing());
+
+        owner = tryGet(Raw.Effect::getOwner, Raw.Effect::hasOwner).apply(sc2ApiEffect).orElse(nothing());
+
+        radius = tryGet(Raw.Effect::getRadius, Raw.Effect::hasRadius).apply(sc2ApiEffect).orElse(nothing());
     }
 
     public static EffectLocations from(Raw.Effect sc2ApiEffect) {
@@ -71,6 +85,18 @@ public final class EffectLocations implements Serializable {
         return positions;
     }
 
+    public Optional<Alliance> getAlliance() {
+        return Optional.ofNullable(alliance);
+    }
+
+    public Optional<Integer> getOwner() {
+        return Optional.ofNullable(owner);
+    }
+
+    public Optional<Float> getRadius() {
+        return Optional.ofNullable(radius);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -78,13 +104,20 @@ public final class EffectLocations implements Serializable {
 
         EffectLocations that = (EffectLocations) o;
 
-        return effect == that.effect && positions.equals(that.positions);
+        if (!effect.equals(that.effect)) return false;
+        if (!positions.equals(that.positions)) return false;
+        if (alliance != that.alliance) return false;
+        if (!Objects.equals(owner, that.owner)) return false;
+        return Objects.equals(radius, that.radius);
     }
 
     @Override
     public int hashCode() {
         int result = effect.hashCode();
         result = 31 * result + positions.hashCode();
+        result = 31 * result + (alliance != null ? alliance.hashCode() : 0);
+        result = 31 * result + (owner != null ? owner.hashCode() : 0);
+        result = 31 * result + (radius != null ? radius.hashCode() : 0);
         return result;
     }
 

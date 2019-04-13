@@ -91,6 +91,13 @@ class UnitTest {
         assertThat(unit.getWeaponCooldown()).as("unit: weapon cooldown").hasValue(UNIT_WEAPON_COOLDOWN);
         assertThat(unit.getEngagedTargetTag()).as("unit: engaged target tag")
                 .hasValue(Tag.from(UNIT_ENGAGED_TARGET_TAG));
+        assertThat(unit.getActive()).as("unit: is active").hasValue(UNIT_IS_ACTIVE);
+        assertThat(unit.getAttackUpgradeLevel()).as("unit: attack upgrade level").hasValue(UNIT_ATTACK_LEVEL);
+        assertThat(unit.getArmorUpgradeLevel()).as("unit: armor upgrade level").hasValue(UNIT_ARMOR_LEVEL);
+        assertThat(unit.getShieldUpgradeLevel()).as("unit: shield upgrade level").hasValue(UNIT_SHIELD_LEVEL);
+        assertThat(unit.getHallucination()).as("unit: hallucination").hasValue(UNIT_IS_HALLUCINATION);
+        assertThat(unit.getBuffDurationRemain()).as("unit: buff duration remain").hasValue(UNIT_BUFF_REMAIN);
+        assertThat(unit.getBuffDurationMax()).as("unit: buff duration max").hasValue(UNIT_BUFF_MAX);
     }
 
     @Test

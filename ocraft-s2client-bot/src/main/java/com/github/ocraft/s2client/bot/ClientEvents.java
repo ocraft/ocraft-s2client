@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.bot;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,6 +28,7 @@ package com.github.ocraft.s2client.bot;
 
 import com.github.ocraft.s2client.bot.gateway.UnitInPool;
 import com.github.ocraft.s2client.protocol.data.Upgrade;
+import com.github.ocraft.s2client.protocol.observation.Alert;
 
 import java.util.List;
 
@@ -129,4 +130,13 @@ public interface ClientEvents {
     default void onError(List<ClientError> clientErrors, List<String> protocolErrors) {
     }
 
+    /**
+     * Called on alert.
+     * WARNING: for NYDUS_DETECTED and NUCLEAR_LAUNCH_DETECTED alert there are defined separate client events.
+     *
+     * @see #onNydusDetected()
+     * @see #onNuclearLaunchDetected()
+     */
+    default void onAlert(Alert alert) {
+    }
 }

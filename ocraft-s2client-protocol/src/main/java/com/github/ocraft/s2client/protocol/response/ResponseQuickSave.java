@@ -36,15 +36,15 @@ public final class ResponseQuickSave extends Response {
 
     private static final long serialVersionUID = -3809601289626843992L;
 
-    private ResponseQuickSave(Sc2Api.Status sc2ApiStatus) {
-        super(ResponseType.QUICK_SAVE, GameStatus.from(sc2ApiStatus));
+    private ResponseQuickSave(Sc2Api.Status sc2ApiStatus, int id) {
+        super(ResponseType.QUICK_SAVE, GameStatus.from(sc2ApiStatus), id);
     }
 
     public static ResponseQuickSave from(Sc2Api.Response sc2ApiResponse) {
         if (!hasQuickSaveResponse(sc2ApiResponse)) {
             throw new IllegalArgumentException("provided argument doesn't have quick save response");
         }
-        return new ResponseQuickSave(sc2ApiResponse.getStatus());
+        return new ResponseQuickSave(sc2ApiResponse.getStatus(), sc2ApiResponse.getId());
     }
 
     private static boolean hasQuickSaveResponse(Sc2Api.Response sc2ApiResponse) {

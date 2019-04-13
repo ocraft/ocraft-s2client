@@ -35,10 +35,7 @@ import com.github.ocraft.s2client.protocol.data.Buffs;
 import com.github.ocraft.s2client.protocol.spatial.Point;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.UnaryOperator;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
@@ -61,9 +58,14 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
     private final Float detectRange;
     private final Float radarRange;
     private final Boolean selected;
-    private final boolean onScreen;     // Visible and within the camera frustrum.
-    private final boolean blip;         // Detected by sensor tower
+    private final boolean onScreen;
+    private final boolean blip;
     private final Boolean powered;
+    private final Set<Buff> buffs;
+    private final Boolean active;
+    private final Integer attackUpgradeLevel;
+    private final Integer armorUpgradeLevel;
+    private final Integer shieldUpgradeLevel;
 
     // Not populated for snapshots
     private final Float health;
@@ -76,6 +78,7 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
     private final Integer vespeneContents;
     private final Boolean flying;
     private final Boolean burrowed;
+    private final Boolean hallucination;
 
     // Not populated for enemies
     private final List<UnitOrder> orders;
@@ -83,11 +86,12 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
     private final List<PassengerUnit> passengers;
     private final Integer cargoSpaceTaken;
     private final Integer cargoSpaceMax;
-    private final Set<Buff> buffs;
     private final Integer assignedHarvesters;
     private final Integer idealHarvesters;
     private final Float weaponCooldown;
     private final Tag engagedTargetTag;
+    private final Integer buffDurationRemain;
+    private final Integer buffDurationMax;
 
     UnitSnapshot(Raw.Unit sc2ApiUnit) {
         displayType = tryGet(Raw.Unit::getDisplayType, Raw.Unit::hasDisplayType)
@@ -114,6 +118,20 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
 
         powered = tryGet(Raw.Unit::getIsPowered, Raw.Unit::hasIsPowered).apply(sc2ApiUnit).orElse(nothing());
 
+        buffs = sc2ApiUnit.getBuffIdsList().stream().map(Buffs::from)
+                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
+
+        active = tryGet(Raw.Unit::getIsActive, Raw.Unit::hasIsActive).apply(sc2ApiUnit).orElse(nothing());
+
+        attackUpgradeLevel = tryGet(Raw.Unit::getAttackUpgradeLevel, Raw.Unit::hasAttackUpgradeLevel)
+                .apply(sc2ApiUnit).orElse(nothing());
+
+        armorUpgradeLevel = tryGet(Raw.Unit::getArmorUpgradeLevel, Raw.Unit::hasArmorUpgradeLevel)
+                .apply(sc2ApiUnit).orElse(nothing());
+
+        shieldUpgradeLevel = tryGet(Raw.Unit::getShieldUpgradeLevel, Raw.Unit::hasShieldUpgradeLevel)
+                .apply(sc2ApiUnit).orElse(nothing());
+
         health = tryGet(Raw.Unit::getHealth, Raw.Unit::hasHealth).apply(sc2ApiUnit).orElse(nothing());
 
         healthMax = tryGet(Raw.Unit::getHealthMax, Raw.Unit::hasHealthMax).apply(sc2ApiUnit).orElse(nothing());
@@ -136,6 +154,9 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
 
         burrowed = tryGet(Raw.Unit::getIsBurrowed, Raw.Unit::hasIsBurrowed).apply(sc2ApiUnit).orElse(nothing());
 
+        hallucination = tryGet(Raw.Unit::getIsHallucination, Raw.Unit::hasIsHallucination).apply(sc2ApiUnit)
+                .orElse(nothing());
+
         orders = sc2ApiUnit.getOrdersList().stream().map(UnitOrder::from)
                 .collect(collectingAndThen(toList(), Collections::unmodifiableList));
 
@@ -151,9 +172,6 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
         cargoSpaceMax = tryGet(Raw.Unit::getCargoSpaceMax, Raw.Unit::hasCargoSpaceMax)
                 .apply(sc2ApiUnit).orElse(nothing());
 
-        buffs = sc2ApiUnit.getBuffIdsList().stream().map(Buffs::from)
-                .collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
-
         assignedHarvesters = tryGet(Raw.Unit::getAssignedHarvesters, Raw.Unit::hasAssignedHarvesters)
                 .apply(sc2ApiUnit).orElse(nothing());
 
@@ -165,6 +183,12 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
 
         engagedTargetTag = tryGet(Raw.Unit::getEngagedTargetTag, Raw.Unit::hasEngagedTargetTag)
                 .apply(sc2ApiUnit).map(Tag::from).orElse(nothing());
+
+        buffDurationRemain = tryGet(Raw.Unit::getBuffDurationRemain, Raw.Unit::hasBuffDurationRemain)
+                .apply(sc2ApiUnit).orElse(nothing());
+
+        buffDurationMax = tryGet(Raw.Unit::getBuffDurationMax, Raw.Unit::hasBuffDurationMax)
+                .apply(sc2ApiUnit).orElse(nothing());
     }
 
     UnitSnapshot(UnitSnapshot original, UnaryOperator<Ability> generalize) {
@@ -172,12 +196,17 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
         this.alliance = original.alliance;
         this.position = original.position;
         this.cloakState = original.cloakState;
+        this.buffs = original.buffs;
         this.detectRange = original.detectRange;
         this.radarRange = original.radarRange;
         this.selected = original.selected;
         this.onScreen = original.onScreen;
         this.blip = original.blip;
         this.powered = original.powered;
+        this.active = original.active;
+        this.attackUpgradeLevel = original.attackUpgradeLevel;
+        this.armorUpgradeLevel = original.armorUpgradeLevel;
+        this.shieldUpgradeLevel = original.shieldUpgradeLevel;
         this.health = original.health;
         this.healthMax = original.healthMax;
         this.shield = original.shield;
@@ -188,6 +217,7 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
         this.vespeneContents = original.vespeneContents;
         this.flying = original.flying;
         this.burrowed = original.burrowed;
+        this.hallucination = original.hallucination;
         this.orders = original.orders.stream()
                 .map(order -> order.generalizeAbility(generalize))
                 .collect(collectingAndThen(toList(), Collections::unmodifiableList));
@@ -195,11 +225,12 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
         this.passengers = original.passengers;
         this.cargoSpaceTaken = original.cargoSpaceTaken;
         this.cargoSpaceMax = original.cargoSpaceMax;
-        this.buffs = original.buffs;
         this.assignedHarvesters = original.assignedHarvesters;
         this.idealHarvesters = original.idealHarvesters;
         this.weaponCooldown = original.weaponCooldown;
         this.engagedTargetTag = original.engagedTargetTag;
+        this.buffDurationRemain = original.buffDurationRemain;
+        this.buffDurationMax = original.buffDurationMax;
     }
 
     public static UnitSnapshot from(Raw.Unit sc2ApiUnit) {
@@ -235,10 +266,16 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
         return Optional.ofNullable(selected);
     }
 
+    /**
+     * Visible and within the camera frustrum.
+     */
     public boolean isOnScreen() {
         return onScreen;
     }
 
+    /**
+     * Detected by sensor tower
+     */
     public boolean isBlip() {
         return blip;
     }
@@ -327,6 +364,46 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
         return Optional.ofNullable(engagedTargetTag);
     }
 
+    /**
+     * Building is training/researching (ie animated).
+     */
+    public Optional<Boolean> getActive() {
+        return Optional.ofNullable(active);
+    }
+
+    public Optional<Integer> getAttackUpgradeLevel() {
+        return Optional.ofNullable(attackUpgradeLevel);
+    }
+
+    public Optional<Integer> getArmorUpgradeLevel() {
+        return Optional.ofNullable(armorUpgradeLevel);
+    }
+
+    public Optional<Integer> getShieldUpgradeLevel() {
+        return Optional.ofNullable(shieldUpgradeLevel);
+    }
+
+    /**
+     * Unit is your own or detected as a hallucination.
+     */
+    public Optional<Boolean> getHallucination() {
+        return Optional.ofNullable(hallucination);
+    }
+
+    /**
+     * How long a buff or unit is still around (eg mule, broodling, chronoboost).
+     */
+    public Optional<Integer> getBuffDurationRemain() {
+        return Optional.ofNullable(buffDurationRemain);
+    }
+
+    /**
+     * How long the buff or unit is still around (eg mule, broodling, chronoboost).
+     */
+    public Optional<Integer> getBuffDurationMax() {
+        return Optional.ofNullable(buffDurationMax);
+    }
+
     @Override
     public UnitSnapshot generalizeAbility(UnaryOperator<Ability> generalize) {
         return new UnitSnapshot(this, generalize);
@@ -339,11 +416,9 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof UnitSnapshot)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         UnitSnapshot that = (UnitSnapshot) o;
-
-        if (!that.canEqual(this)) return false;
 
         if (onScreen != that.onScreen) return false;
         if (blip != that.blip) return false;
@@ -351,37 +426,50 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
         if (alliance != that.alliance) return false;
         if (!position.equals(that.position)) return false;
         if (cloakState != that.cloakState) return false;
-        if (detectRange != null ? !detectRange.equals(that.detectRange) : that.detectRange != null) return false;
-        if (radarRange != null ? !radarRange.equals(that.radarRange) : that.radarRange != null) return false;
-        if (selected != null ? !selected.equals(that.selected) : that.selected != null) return false;
-        if (powered != null ? !powered.equals(that.powered) : that.powered != null) return false;
-        if (health != null ? !health.equals(that.health) : that.health != null) return false;
-        if (healthMax != null ? !healthMax.equals(that.healthMax) : that.healthMax != null) return false;
-        if (shield != null ? !shield.equals(that.shield) : that.shield != null) return false;
-        if (shieldMax != null ? !shieldMax.equals(that.shieldMax) : that.shieldMax != null) return false;
-        if (energy != null ? !energy.equals(that.energy) : that.energy != null) return false;
-        if (energyMax != null ? !energyMax.equals(that.energyMax) : that.energyMax != null) return false;
-        if (mineralContents != null ? !mineralContents.equals(that.mineralContents) : that.mineralContents != null)
-            return false;
-        if (vespeneContents != null ? !vespeneContents.equals(that.vespeneContents) : that.vespeneContents != null)
-            return false;
-        if (flying != null ? !flying.equals(that.flying) : that.flying != null) return false;
-        if (burrowed != null ? !burrowed.equals(that.burrowed) : that.burrowed != null) return false;
-        if (!orders.equals(that.orders)) return false;
-        if (addOnTag != null ? !addOnTag.equals(that.addOnTag) : that.addOnTag != null) return false;
-        if (!passengers.equals(that.passengers)) return false;
-        if (cargoSpaceTaken != null ? !cargoSpaceTaken.equals(that.cargoSpaceTaken) : that.cargoSpaceTaken != null)
-            return false;
-        if (cargoSpaceMax != null ? !cargoSpaceMax.equals(that.cargoSpaceMax) : that.cargoSpaceMax != null)
-            return false;
+        if (!Objects.equals(detectRange, that.detectRange)) return false;
+        if (!Objects.equals(radarRange, that.radarRange)) return false;
+        if (!Objects.equals(selected, that.selected)) return false;
+        if (!Objects.equals(powered, that.powered)) return false;
         if (!buffs.equals(that.buffs)) return false;
-        if (assignedHarvesters != null ? !assignedHarvesters.equals(that.assignedHarvesters) : that.assignedHarvesters != null)
+        if (!Objects.equals(active, that.active)) return false;
+        if (!Objects.equals(attackUpgradeLevel, that.attackUpgradeLevel))
             return false;
-        if (idealHarvesters != null ? !idealHarvesters.equals(that.idealHarvesters) : that.idealHarvesters != null)
+        if (!Objects.equals(armorUpgradeLevel, that.armorUpgradeLevel))
             return false;
-        if (weaponCooldown != null ? !weaponCooldown.equals(that.weaponCooldown) : that.weaponCooldown != null)
+        if (!Objects.equals(shieldUpgradeLevel, that.shieldUpgradeLevel))
             return false;
-        return engagedTargetTag != null ? engagedTargetTag.equals(that.engagedTargetTag) : that.engagedTargetTag == null;
+        if (!Objects.equals(health, that.health)) return false;
+        if (!Objects.equals(healthMax, that.healthMax)) return false;
+        if (!Objects.equals(shield, that.shield)) return false;
+        if (!Objects.equals(shieldMax, that.shieldMax)) return false;
+        if (!Objects.equals(energy, that.energy)) return false;
+        if (!Objects.equals(energyMax, that.energyMax)) return false;
+        if (!Objects.equals(mineralContents, that.mineralContents))
+            return false;
+        if (!Objects.equals(vespeneContents, that.vespeneContents))
+            return false;
+        if (!Objects.equals(flying, that.flying)) return false;
+        if (!Objects.equals(burrowed, that.burrowed)) return false;
+        if (!Objects.equals(hallucination, that.hallucination))
+            return false;
+        if (!orders.equals(that.orders)) return false;
+        if (!Objects.equals(addOnTag, that.addOnTag)) return false;
+        if (!passengers.equals(that.passengers)) return false;
+        if (!Objects.equals(cargoSpaceTaken, that.cargoSpaceTaken))
+            return false;
+        if (!Objects.equals(cargoSpaceMax, that.cargoSpaceMax))
+            return false;
+        if (!Objects.equals(assignedHarvesters, that.assignedHarvesters))
+            return false;
+        if (!Objects.equals(idealHarvesters, that.idealHarvesters))
+            return false;
+        if (!Objects.equals(weaponCooldown, that.weaponCooldown))
+            return false;
+        if (!Objects.equals(engagedTargetTag, that.engagedTargetTag))
+            return false;
+        if (!Objects.equals(buffDurationRemain, that.buffDurationRemain))
+            return false;
+        return Objects.equals(buffDurationMax, that.buffDurationMax);
     }
 
     @Override
@@ -396,6 +484,11 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
         result = 31 * result + (onScreen ? 1 : 0);
         result = 31 * result + (blip ? 1 : 0);
         result = 31 * result + (powered != null ? powered.hashCode() : 0);
+        result = 31 * result + buffs.hashCode();
+        result = 31 * result + (active != null ? active.hashCode() : 0);
+        result = 31 * result + (attackUpgradeLevel != null ? attackUpgradeLevel.hashCode() : 0);
+        result = 31 * result + (armorUpgradeLevel != null ? armorUpgradeLevel.hashCode() : 0);
+        result = 31 * result + (shieldUpgradeLevel != null ? shieldUpgradeLevel.hashCode() : 0);
         result = 31 * result + (health != null ? health.hashCode() : 0);
         result = 31 * result + (healthMax != null ? healthMax.hashCode() : 0);
         result = 31 * result + (shield != null ? shield.hashCode() : 0);
@@ -406,16 +499,18 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
         result = 31 * result + (vespeneContents != null ? vespeneContents.hashCode() : 0);
         result = 31 * result + (flying != null ? flying.hashCode() : 0);
         result = 31 * result + (burrowed != null ? burrowed.hashCode() : 0);
+        result = 31 * result + (hallucination != null ? hallucination.hashCode() : 0);
         result = 31 * result + orders.hashCode();
         result = 31 * result + (addOnTag != null ? addOnTag.hashCode() : 0);
         result = 31 * result + passengers.hashCode();
         result = 31 * result + (cargoSpaceTaken != null ? cargoSpaceTaken.hashCode() : 0);
         result = 31 * result + (cargoSpaceMax != null ? cargoSpaceMax.hashCode() : 0);
-        result = 31 * result + buffs.hashCode();
         result = 31 * result + (assignedHarvesters != null ? assignedHarvesters.hashCode() : 0);
         result = 31 * result + (idealHarvesters != null ? idealHarvesters.hashCode() : 0);
         result = 31 * result + (weaponCooldown != null ? weaponCooldown.hashCode() : 0);
         result = 31 * result + (engagedTargetTag != null ? engagedTargetTag.hashCode() : 0);
+        result = 31 * result + (buffDurationRemain != null ? buffDurationRemain.hashCode() : 0);
+        result = 31 * result + (buffDurationMax != null ? buffDurationMax.hashCode() : 0);
         return result;
     }
 

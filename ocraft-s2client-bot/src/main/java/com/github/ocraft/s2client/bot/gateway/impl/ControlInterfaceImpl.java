@@ -311,7 +311,12 @@ class ControlInterfaceImpl implements ControlInterface {
     }
 
     InterfaceOptions interfaceOptionsFrom(InterfaceSettings interfaceSettings) {
-        FeatureLayerSyntax interfaces = InterfaceOptions.interfaces().raw().score();
+        FeatureLayerSyntax interfaces = InterfaceOptions.interfaces()
+                .showCloaked(interfaceSettings.getShowCloaked())
+                .raw()
+                .rawCropToPlayableArea(interfaceSettings.getRawCropToPlayableArea())
+                .rawAffectsSelection(interfaceSettings.getRawAffectsSelection())
+                .score();
         interfaceSettings.getFeatureLayerSettings().ifPresent(interfaces::featureLayer);
         interfaceSettings.getRenderSettings().ifPresent(interfaces::render);
         return interfaces.build();
@@ -738,6 +743,8 @@ class ControlInterfaceImpl implements ControlInterface {
                 case NYDUS_WORM_DETECTED:
                     clientEvents.onNydusDetected();
                     break;
+                default:
+                    clientEvents.onAlert(alert);
             }
         });
     }

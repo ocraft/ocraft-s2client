@@ -60,6 +60,9 @@ class RequestDebugTest {
     @Test
     void fulfillsEqualsContract() {
         EqualsVerifier.forClass(RequestDebug.class)
-                .withIgnoredFields("nanoTime").withNonnullFields("commands").verify();
+                .withIgnoredFields("nanoTime")
+                .withNonnullFields("commands")
+                .withRedefinedSuperclass()
+                .verify();
     }
 }

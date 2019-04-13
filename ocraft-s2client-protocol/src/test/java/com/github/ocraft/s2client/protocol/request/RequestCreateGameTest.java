@@ -157,7 +157,10 @@ class RequestCreateGameTest {
     @Test
     void fulfillsEqualsContract() {
         EqualsVerifier.forClass(RequestCreateGame.class)
-                .withNonnullFields("playerSetups").withIgnoredFields("nanoTime").verify();
+                .withNonnullFields("playerSetups")
+                .withIgnoredFields("nanoTime")
+                .withRedefinedSuperclass()
+                .verify();
     }
 
 }

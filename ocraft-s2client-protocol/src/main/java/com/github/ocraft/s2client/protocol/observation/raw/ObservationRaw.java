@@ -33,6 +33,7 @@ import com.github.ocraft.s2client.protocol.unit.UnitSnapshot;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -121,7 +122,7 @@ public final class ObservationRaw implements Serializable {
         if (!units.equals(that.units)) return false;
         if (!unitSnapshots.equals(that.unitSnapshots)) return false;
         if (!mapState.equals(that.mapState)) return false;
-        if (event != null ? !event.equals(that.event) : that.event != null) return false;
+        if (!Objects.equals(event, that.event)) return false;
         return effects.equals(that.effects);
     }
 

@@ -41,7 +41,10 @@ class RequestPingTest {
 
     @Test
     void fulfillsEqualsContract() {
-        EqualsVerifier.forClass(RequestPing.class).withIgnoredFields("nanoTime").verify();
+        EqualsVerifier.forClass(RequestPing.class)
+                .withIgnoredFields("nanoTime")
+                .withRedefinedSuperclass()
+                .verify();
     }
 
 }
