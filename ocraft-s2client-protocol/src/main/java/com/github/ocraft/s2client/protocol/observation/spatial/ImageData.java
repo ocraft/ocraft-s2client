@@ -87,6 +87,8 @@ public final class ImageData implements Serializable {
                 return BufferedImage.TYPE_BYTE_BINARY;
             case 8:
                 return BufferedImage.TYPE_BYTE_GRAY;
+            case 24:
+                return BufferedImage.TYPE_3BYTE_BGR;
             case 32:
                 return BufferedImage.TYPE_4BYTE_ABGR;
             default:
