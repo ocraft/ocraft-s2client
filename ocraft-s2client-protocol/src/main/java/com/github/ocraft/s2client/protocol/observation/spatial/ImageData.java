@@ -51,6 +51,11 @@ public final class ImageData implements Serializable {
     private final ByteString data;
     private final int imageType;
 
+    public enum Origin {
+        BOTTOM_LEFT,
+        UPPER_LEFT
+    }
+
     private ImageData(Common.ImageData sc2ApiImageData) {
         bitsPerPixel = tryGet(
                 Common.ImageData::getBitsPerPixel, Common.ImageData::hasBitsPerPixel
@@ -93,7 +98,8 @@ public final class ImageData implements Serializable {
                 return BufferedImage.TYPE_4BYTE_ABGR;
             default:
                 throw new IllegalArgumentException(
-                        format("Unsupported image type with bits per pixel [%d]. Expected {1, 8, 32}.", bitsPerPixel));
+                        format("Unsupported image type with bits per pixel [%d]. Expected {1, 8, 24, 32}.",
+                                bitsPerPixel));
         }
     }
 
@@ -127,8 +133,26 @@ public final class ImageData implements Serializable {
         return bufferedImage;
     }
 
+    // TODO p.picheta refactor to version strategy
+    public int sample(Point2d point, Origin origin) {
+        int index;
+        if (Origin.UPPER_LEFT.equals(origin)) {
+            // Image data is stored with an upper left origin.
+            index = (int) point.getX() + (size.getY() - 1 - (int) point.getY()) * size.getX();
+        } else {
+            // Image data is stored with an bottom left origin.
+            index = (int) point.getX() + (int) point.getY() * size.getX();
+        }
+
+        if (bitsPerPixel == 1) {
+            return (data.byteAt(index / 8) >> (index % 8)) & 0x1;
+        } else {
+            return data.byteAt(index) & 0xFF;
+        }
+    }
+
     public int sample(Point2d point) {
-        return data.byteAt((int) point.getX() + (size.getY() - 1 - (int) point.getY()) * size.getX()) & 0xFF;
+        return sample(point, Origin.UPPER_LEFT);
     }
 
     @Override

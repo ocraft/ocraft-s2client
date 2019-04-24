@@ -37,7 +37,7 @@ import static java.util.Arrays.stream;
 
 public final class Versions {
 
-    public static final String API_VERSION = "4.8.4.73286";
+    public static final String API_VERSION = "4.8.5.73559";
 
     private static Map<Integer, GameVersion> gameVersions = new HashMap<>();
 

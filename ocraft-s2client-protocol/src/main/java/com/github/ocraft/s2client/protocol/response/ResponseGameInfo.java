@@ -37,10 +37,7 @@ import com.github.ocraft.s2client.protocol.spatial.Point2d;
 import com.github.ocraft.s2client.protocol.spatial.PointI;
 
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
@@ -207,9 +204,9 @@ public final class ResponseGameInfo extends Response {
         return that.canEqual(this) &&
                 mapName.equals(that.mapName) &&
                 modNames.equals(that.modNames) &&
-                (localMap != null ? localMap.equals(that.localMap) : that.localMap == null) &&
+                (Objects.equals(localMap, that.localMap)) &&
                 playersInfo.equals(that.playersInfo) &&
-                (startRaw != null ? startRaw.equals(that.startRaw) : that.startRaw == null) &&
+                (Objects.equals(startRaw, that.startRaw)) &&
                 interfaceOptions.equals(that.interfaceOptions);
     }
 

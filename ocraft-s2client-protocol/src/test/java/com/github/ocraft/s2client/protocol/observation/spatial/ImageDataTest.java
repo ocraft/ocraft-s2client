@@ -108,7 +108,7 @@ class ImageDataTest {
     void throwsExceptionWhenImageTypeIsUnsupported() {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> ImageData.from(sc2ApiImageDataWithTwoBitPerPixel()))
-                .withMessage("Unsupported image type with bits per pixel [2]. Expected {1, 8, 32}.");
+                .withMessage("Unsupported image type with bits per pixel [2]. Expected {1, 8, 24, 32}.");
     }
 
     @Test

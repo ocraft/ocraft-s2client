@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.bot.gateway.impl;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -40,6 +40,7 @@ import com.github.ocraft.s2client.protocol.observation.Observation;
 import com.github.ocraft.s2client.protocol.observation.PlayerCommon;
 import com.github.ocraft.s2client.protocol.observation.PlayerResult;
 import com.github.ocraft.s2client.protocol.observation.raw.*;
+import com.github.ocraft.s2client.protocol.observation.spatial.ImageData;
 import com.github.ocraft.s2client.protocol.request.RequestData;
 import com.github.ocraft.s2client.protocol.request.Requests;
 import com.github.ocraft.s2client.protocol.response.ResponseData;
@@ -446,13 +447,24 @@ class ObservationInterfaceImpl implements ObservationInterface {
     @Override
     public boolean isPathable(Point2d point) {
         Optional<StartRaw> startRaw = getGameInfo().getStartRaw();
-        return startRaw.isPresent() && startRaw.get().getPathingGrid().sample(point) != 255;
+        if (!startRaw.isPresent()) return false;
+
+        ImageData pathingGrid = startRaw.get().getPathingGrid();
+        ImageData.Origin origin = !isVersionCompatible("4.8.5")
+                ? ImageData.Origin.UPPER_LEFT : ImageData.Origin.BOTTOM_LEFT;
+        return (pathingGrid.getBitsPerPixel() == 1 && pathingGrid.sample(point, origin) != 1) ||
+                (pathingGrid.getBitsPerPixel() == 8 && pathingGrid.sample(point, origin) != 255);
     }
 
     @Override
     public boolean isPlacable(Point2d point) {
         Optional<StartRaw> startRaw = getGameInfo().getStartRaw();
-        return startRaw.isPresent() && startRaw.get().getPlacementGrid().sample(point) == 255;
+        if (!startRaw.isPresent()) return false;
+        ImageData placementGrid = startRaw.get().getPlacementGrid();
+        ImageData.Origin origin = !isVersionCompatible("4.8.5")
+                ? ImageData.Origin.UPPER_LEFT : ImageData.Origin.BOTTOM_LEFT;
+        return (placementGrid.getBitsPerPixel() == 1 && placementGrid.sample(point, origin) == 1) ||
+                (placementGrid.getBitsPerPixel() == 8 && placementGrid.sample(point, origin) == 255);
     }
 
     @Override
@@ -460,10 +472,26 @@ class ObservationInterfaceImpl implements ObservationInterface {
         Optional<StartRaw> startRaw = getGameInfo().getStartRaw();
         int sample = 0;
         if (startRaw.isPresent()) {
-            sample = startRaw.get().getTerrainHeight().sample(point);
-
+            ImageData.Origin origin = !isVersionCompatible("4.8.5")
+                    ? ImageData.Origin.UPPER_LEFT : ImageData.Origin.BOTTOM_LEFT;
+            sample = startRaw.get().getTerrainHeight().sample(point, origin);
         }
-        return -100.0f + 200.0f * (float) sample / 255.0f;
+        float scale;
+        if (isVersionCompatible("4.8.5")) {
+            scale = 16.0f;
+        } else {
+            scale = 100.0f;
+        }
+        return -scale + 2 * scale * (float) sample / 255.0f;
+
+    }
+
+    private boolean isVersionCompatible(String version) {
+        if ("4.8.5".equals(version)) {
+            return controlInterface.proto().getBaseBuild() > 73286;
+        } else {
+            return false;
+        }
     }
 
     @Override
