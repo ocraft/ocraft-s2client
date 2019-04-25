@@ -150,7 +150,7 @@ public final class InterfaceOptions implements Sc2ApiSerializable<Sc2Api.Interfa
 
         @Override
         public RawSyntax rawCropToPlayableArea(Boolean value) {
-            rawCropToPlayableArea = true;
+            rawCropToPlayableArea = value;
             return this;
         }
 
