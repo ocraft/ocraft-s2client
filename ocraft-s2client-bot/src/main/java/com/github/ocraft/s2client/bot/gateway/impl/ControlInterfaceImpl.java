@@ -210,7 +210,7 @@ class ControlInterfaceImpl implements ControlInterface {
                 .withOsMesaPath(processSettings.getOsMesaPath())
                 .verbose(processSettings.getVerbose())
                 .needsSupportDir(processSettings.getNeedsSupportDir())
-                .launch();
+                .launch().untilReady();
     }
 
     // test purposes only
