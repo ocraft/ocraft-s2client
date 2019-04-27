@@ -196,7 +196,10 @@ public final class ExecutableParser {
     private static Function<Path, String> toNewestBaseBuild(String exeFile) {
         return versionPath -> {
             try (Stream<Path> builds = Files.list(
-                    ofNullable(versionPath).filter(Files::exists).orElseThrow(required("version directory")))) {
+                    ofNullable(versionPath)
+                            .filter(Files::exists)
+                            .filter(file -> file.getFileName().toString().startsWith(BUILD_PREFIX))
+                            .orElseThrow(required("version directory")))) {
                 return builds.min(reverseOrder())
                         .filter(path -> Files.exists(path.resolve(exeFile)))
                         .map(Path::getFileName)
