@@ -198,8 +198,9 @@ public final class ExecutableParser {
             try (Stream<Path> builds = Files.list(
                     ofNullable(versionPath)
                             .filter(Files::exists)
-                            .filter(file -> file.getFileName().toString().startsWith(BUILD_PREFIX))
-                            .orElseThrow(required("version directory")))) {
+                            .orElseThrow(required("version directory")))
+                    .filter(file -> file.getFileName().toString().startsWith(BUILD_PREFIX))
+            ) {
                 return builds.min(reverseOrder())
                         .filter(path -> Files.exists(path.resolve(exeFile)))
                         .map(Path::getFileName)
