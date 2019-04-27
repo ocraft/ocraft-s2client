@@ -140,6 +140,11 @@ public class S2Controller extends DefaultSubscriber<Response> {
             return this;
         }
 
+        public Builder needsSupportDir(Boolean value) {
+            if (isSet(value)) builderConfig.put(GAME_CLI_NEEDS_SUPPORT_DIR, String.valueOf(value));
+            return this;
+        }
+
         public Builder withTmpDir(Path tmpDir) {
             if (isSet(tmpDir)) builderConfig.put(GAME_CLI_TEMP_DIR, tmpDir.toString());
             return this;
@@ -229,7 +234,8 @@ public class S2Controller extends DefaultSubscriber<Response> {
 
             s2Process = new ProcessBuilder(args)
                     .redirectErrorStream(true)
-                    .directory(gameRoot.resolve(getSupportDirPath()).toFile())
+                    .directory(cfg.hasPath(GAME_CLI_NEEDS_SUPPORT_DIR) && cfg.getBoolean(GAME_CLI_NEEDS_SUPPORT_DIR)
+                            ? gameRoot.resolve(getSupportDirPath()).toFile() : null)
                     .start();
 
             log.info("Launched SC2 ({}), PID: {}", exeFile, s2Process.pid());

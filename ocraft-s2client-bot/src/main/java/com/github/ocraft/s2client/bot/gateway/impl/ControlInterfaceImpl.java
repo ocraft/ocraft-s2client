@@ -209,6 +209,7 @@ class ControlInterfaceImpl implements ControlInterface {
                 .withEglPath(processSettings.getEglPath())
                 .withOsMesaPath(processSettings.getOsMesaPath())
                 .verbose(processSettings.getVerbose())
+                .needsSupportDir(processSettings.getNeedsSupportDir())
                 .launch();
     }
 
