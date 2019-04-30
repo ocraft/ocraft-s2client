@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -271,8 +272,16 @@ public class S2Controller extends DefaultSubscriber<Response> {
         try (Socket socket = new Socket()) {
             socket.connect(endpoint, CONNECTION_TIMEOUT_IN_MILLIS);
             tryCount = 0;
-        } catch (IOException e) {
+        } catch (SocketTimeoutException e) {
             tryReachAgain(endpoint);
+        } catch (IOException e) {
+            // Port is probably not open yet -> wait for some time
+            try {
+                TimeUnit.MILLISECONDS.sleep(CONNECTION_TIMEOUT_IN_MILLIS);
+            } catch (InterruptedException ignored) {
+            } finally {
+                tryReachAgain(endpoint);
+            }
         }
     }
 
