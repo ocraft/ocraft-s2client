@@ -153,6 +153,13 @@ public interface SettingsSyntax extends GameParticipantSyntax, ReplaySyntax {
     SettingsSyntax setVerbose(Boolean value);
 
     /**
+     * By default the game is started from inside a support directory containing some needed libraries.
+     * Set to {@code false} when working with the
+     * <a href="https://github.com/Blizzard/s2client-proto#downloads">Linux packages</a>.
+     */
+    SettingsSyntax setNeedsSupportDir(Boolean value);
+
+    /**
      * Enables logging on client of all protocol requests/responses to com.github.ocraft.s2client.api.log.DataFlowTracer
      * logger on level TRACE (JSON format).
      */

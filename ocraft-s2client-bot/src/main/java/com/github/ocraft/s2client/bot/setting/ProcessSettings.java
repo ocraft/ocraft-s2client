@@ -30,6 +30,7 @@ import com.github.ocraft.s2client.api.controller.PortSetup;
 import com.github.ocraft.s2client.bot.OcraftBotConfig;
 
 import java.nio.file.Path;
+import java.util.Objects;
 
 import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
 
@@ -51,6 +52,7 @@ public class ProcessSettings {
     private Integer windowY;
     private Boolean withGameController;
     private Boolean verbose;
+    private Boolean needsSupportDir;
     private Path tmpDir;
     private Path dataDir;
     private Path osMesaPath;
@@ -202,6 +204,15 @@ public class ProcessSettings {
         return verbose;
     }
 
+    public ProcessSettings setNeedsSupportDir(Boolean needsSupportDir) {
+        this.needsSupportDir = needsSupportDir;
+        return this;
+    }
+
+    public Boolean getNeedsSupportDir() {
+        return needsSupportDir;
+    }
+
     public ProcessSettings setTmpDir(Path tmpDir) {
         this.tmpDir = tmpDir;
         return this;
@@ -311,6 +322,7 @@ public class ProcessSettings {
         if (withGameController != null ? !withGameController.equals(that.withGameController) : that.withGameController != null)
             return false;
         if (verbose != null ? !verbose.equals(that.verbose) : that.verbose != null) return false;
+        if (!Objects.equals(needsSupportDir, that.needsSupportDir)) return false;
         if (tmpDir != null ? !tmpDir.equals(that.tmpDir) : that.tmpDir != null) return false;
         if (dataDir != null ? !dataDir.equals(that.dataDir) : that.dataDir != null) return false;
         if (osMesaPath != null ? !osMesaPath.equals(that.osMesaPath) : that.osMesaPath != null) return false;
@@ -341,6 +353,7 @@ public class ProcessSettings {
         result = 31 * result + (windowY != null ? windowY.hashCode() : 0);
         result = 31 * result + (withGameController != null ? withGameController.hashCode() : 0);
         result = 31 * result + (verbose != null ? verbose.hashCode() : 0);
+        result = 31 * result + (needsSupportDir != null ? needsSupportDir.hashCode() : 0);
         result = 31 * result + (tmpDir != null ? tmpDir.hashCode() : 0);
         result = 31 * result + (dataDir != null ? dataDir.hashCode() : 0);
         result = 31 * result + (osMesaPath != null ? osMesaPath.hashCode() : 0);
@@ -373,6 +386,7 @@ public class ProcessSettings {
                 ", windowY=" + windowY +
                 ", withGameController=" + withGameController +
                 ", verbose=" + verbose +
+                ", needsSupportDir=" + needsSupportDir +
                 ", tmpDir=" + tmpDir +
                 ", dataDir=" + dataDir +
                 ", osMesaPath=" + osMesaPath +

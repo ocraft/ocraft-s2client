@@ -334,6 +334,12 @@ public class S2Coordinator {
         }
 
         @Override
+        public SettingsSyntax setNeedsSupportDir(Boolean value) {
+            if (isSet(value)) processSettings.setNeedsSupportDir(value);
+            return this;
+        }
+
+        @Override
         public SettingsSyntax setTraced(Boolean value) {
             if (isSet(value)) processSettings.setTraced(value);
             return this;

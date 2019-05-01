@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -140,6 +141,11 @@ public class S2Controller extends DefaultSubscriber<Response> {
             return this;
         }
 
+        public Builder needsSupportDir(Boolean value) {
+            if (isSet(value)) builderConfig.put(GAME_CLI_NEEDS_SUPPORT_DIR, String.valueOf(value));
+            return this;
+        }
+
         public Builder withTmpDir(Path tmpDir) {
             if (isSet(tmpDir)) builderConfig.put(GAME_CLI_TEMP_DIR, tmpDir.toString());
             return this;
@@ -229,7 +235,8 @@ public class S2Controller extends DefaultSubscriber<Response> {
 
             s2Process = new ProcessBuilder(args)
                     .redirectErrorStream(true)
-                    .directory(gameRoot.resolve(getSupportDirPath()).toFile())
+                    .directory(cfg.hasPath(GAME_CLI_NEEDS_SUPPORT_DIR) && cfg.getBoolean(GAME_CLI_NEEDS_SUPPORT_DIR)
+                            ? gameRoot.resolve(getSupportDirPath()).toFile() : null)
                     .start();
 
             log.info("Launched SC2 ({}), PID: {}", exeFile, s2Process.pid());
@@ -265,8 +272,16 @@ public class S2Controller extends DefaultSubscriber<Response> {
         try (Socket socket = new Socket()) {
             socket.connect(endpoint, CONNECTION_TIMEOUT_IN_MILLIS);
             tryCount = 0;
-        } catch (IOException e) {
+        } catch (SocketTimeoutException e) {
             tryReachAgain(endpoint);
+        } catch (IOException e) {
+            // Port is probably not open yet -> wait for some time
+            try {
+                TimeUnit.MILLISECONDS.sleep(CONNECTION_TIMEOUT_IN_MILLIS);
+            } catch (InterruptedException ignored) {
+            } finally {
+                tryReachAgain(endpoint);
+            }
         }
     }
 

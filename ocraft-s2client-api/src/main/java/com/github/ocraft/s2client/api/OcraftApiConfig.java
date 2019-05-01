@@ -53,6 +53,7 @@ public final class OcraftApiConfig {
     public static final String GAME_WINDOW_MODE = GAME_WINDOW + ".mode";
     public static final String GAME_CLI = GAME + ".cli";
     public static final String GAME_CLI_VERBOSE = GAME_CLI + ".verbose";
+    public static final String GAME_CLI_NEEDS_SUPPORT_DIR = GAME_CLI + ".needsSupportDir";
     public static final String GAME_CLI_TEMP_DIR = GAME_CLI + ".tempDir";
     public static final String GAME_CLI_DATA_DIR = GAME_CLI + ".dataDir";
     public static final String GAME_CLI_OS_MESA_PATH = GAME_CLI + ".osmesapath";
