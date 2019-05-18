@@ -101,7 +101,8 @@ class S2ControllerTest {
                 entry(GAME_WINDOW_H, CFG_WINDOW_H),
                 entry(GAME_WINDOW_X, CFG_WINDOW_X),
                 entry(GAME_WINDOW_Y, CFG_WINDOW_Y),
-                entry(GAME_WINDOW_MODE, 0)
+                entry(GAME_WINDOW_MODE, 0),
+                entry(GAME_CLI_NEEDS_SUPPORT_DIR, true)
         )).withValue(GAME_CLI_DATA_DIR, ConfigValueFactory.fromAnyRef(nothing()))
                 .withValue(GAME_CLI_EGL_PATH, ConfigValueFactory.fromAnyRef(nothing()))
                 .withValue(GAME_CLI_OS_MESA_PATH, ConfigValueFactory.fromAnyRef(nothing()))
