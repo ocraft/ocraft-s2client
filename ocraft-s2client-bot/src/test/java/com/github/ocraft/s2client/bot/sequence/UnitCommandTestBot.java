@@ -409,7 +409,7 @@ class TestBehaviorCloakBanshee extends TestUnitCommandNoTarget {
             reportError("Could not find the test unit.");
         }
         if (isSet(testUnit) && (!testUnit.unit().getCloakState().isPresent() ||
-                !testUnit.unit().getCloakState().get().equals(CloakState.CLOAKED))) {
+                !testUnit.unit().getCloakState().get().equals(CloakState.CLOAKED_ALLIED))) {
             reportError("Unit is not cloaked as expected.");
         }
         verifyUnitIdleAfterOrder(testUnitType);
@@ -744,6 +744,9 @@ class TestBuildSpineCrawler extends TestUnitCommandTargetingPoint {
     @Override
     public void onTestFinish() {
         verifyUnitExistsAndComplete(Units.ZERG_SPINE_CRAWLER);
+        if (!agent().observation().hasCreep(targetPoint)) {
+            reportError("Creep is not spread.");
+        }
         killAllUnits();
     }
 

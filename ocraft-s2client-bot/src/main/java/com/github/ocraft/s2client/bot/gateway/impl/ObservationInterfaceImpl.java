@@ -429,8 +429,12 @@ class ObservationInterfaceImpl implements ObservationInterface {
                 .flatMap(Observation::getRaw)
                 .map(ObservationRaw::getMapState)
                 .map(MapState::getCreep)
-                .map(imageData -> imageData.sample(point))
+                .map(imageData -> imageData.sample(point, imageOrigin()))
                 .orElse(0) > 0;
+    }
+
+    private ImageData.Origin imageOrigin() {
+        return !isVersionCompatible("4.8.5") ? ImageData.Origin.UPPER_LEFT : ImageData.Origin.BOTTOM_LEFT;
     }
 
     @Override
@@ -439,7 +443,7 @@ class ObservationInterfaceImpl implements ObservationInterface {
                 .flatMap(Observation::getRaw)
                 .map(ObservationRaw::getMapState)
                 .map(MapState::getVisibility)
-                .map(imageData -> imageData.sample(point))
+                .map(imageData -> imageData.sample(point, imageOrigin()))
                 .map(Visibility::from)
                 .orElse(Visibility.FULL_HIDDEN);
     }
@@ -450,8 +454,7 @@ class ObservationInterfaceImpl implements ObservationInterface {
         if (!startRaw.isPresent()) return false;
 
         ImageData pathingGrid = startRaw.get().getPathingGrid();
-        ImageData.Origin origin = !isVersionCompatible("4.8.5")
-                ? ImageData.Origin.UPPER_LEFT : ImageData.Origin.BOTTOM_LEFT;
+        ImageData.Origin origin = imageOrigin();
         return (pathingGrid.getBitsPerPixel() == 1 && pathingGrid.sample(point, origin) != 1) ||
                 (pathingGrid.getBitsPerPixel() == 8 && pathingGrid.sample(point, origin) != 255);
     }
@@ -461,8 +464,7 @@ class ObservationInterfaceImpl implements ObservationInterface {
         Optional<StartRaw> startRaw = getGameInfo().getStartRaw();
         if (!startRaw.isPresent()) return false;
         ImageData placementGrid = startRaw.get().getPlacementGrid();
-        ImageData.Origin origin = !isVersionCompatible("4.8.5")
-                ? ImageData.Origin.UPPER_LEFT : ImageData.Origin.BOTTOM_LEFT;
+        ImageData.Origin origin = imageOrigin();
         return (placementGrid.getBitsPerPixel() == 1 && placementGrid.sample(point, origin) == 1) ||
                 (placementGrid.getBitsPerPixel() == 8 && placementGrid.sample(point, origin) == 255);
     }
@@ -472,9 +474,7 @@ class ObservationInterfaceImpl implements ObservationInterface {
         Optional<StartRaw> startRaw = getGameInfo().getStartRaw();
         int sample = 0;
         if (startRaw.isPresent()) {
-            ImageData.Origin origin = !isVersionCompatible("4.8.5")
-                    ? ImageData.Origin.UPPER_LEFT : ImageData.Origin.BOTTOM_LEFT;
-            sample = startRaw.get().getTerrainHeight().sample(point, origin);
+            sample = startRaw.get().getTerrainHeight().sample(point, imageOrigin());
         }
         float scale;
         if (isVersionCompatible("4.8.5")) {
