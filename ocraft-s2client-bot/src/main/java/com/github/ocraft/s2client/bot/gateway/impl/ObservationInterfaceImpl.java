@@ -455,7 +455,7 @@ class ObservationInterfaceImpl implements ObservationInterface {
 
         ImageData pathingGrid = startRaw.get().getPathingGrid();
         ImageData.Origin origin = imageOrigin();
-        return (pathingGrid.getBitsPerPixel() == 1 && pathingGrid.sample(point, origin) != 1) ||
+        return (pathingGrid.getBitsPerPixel() == 1 && pathingGrid.sample(point, origin) == 1) ||
                 (pathingGrid.getBitsPerPixel() == 8 && pathingGrid.sample(point, origin) != 255);
     }
 
