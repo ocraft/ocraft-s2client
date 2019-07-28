@@ -13,7 +13,7 @@ For reference, it can be found here: https://github.com/ocraft/ocraft-s2client
 <dependency>
     <groupId>com.github.ocraft</groupId>
     <artifactId>ocraft-s2client-bot</artifactId>
-    <version>0.3.8</version>
+    <version>0.3.9</version>
 </dependency>
 ----
 . If you want to build your own version (you need maven install on your PATH):

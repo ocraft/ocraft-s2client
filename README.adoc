@@ -30,7 +30,7 @@ sc2client-api should be valid or similar by analogy in this Java Api. More info 
 <dependency>
     <groupId>com.github.ocraft</groupId>
     <artifactId>ocraft-s2client-bot</artifactId>
-    <version>0.3.8</version>
+    <version>0.3.9</version>
 </dependency>
 ----
 
