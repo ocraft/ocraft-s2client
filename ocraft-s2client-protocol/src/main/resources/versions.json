@@ -318,5 +318,53 @@
         "label": "4.8.6",
         "replay-hash": "147388D35E76861BD4F590F8CC5B7B0B",
         "version": 73620
+    },
+    {
+        "base-version": 74071,
+        "data-hash": "70C74A2DCA8A0D8E7AE8647CAC68ACCA",
+        "fixed-hash": "C4A3F01B4753245296DC94BC1B5E9B36",
+        "label": "4.9",
+        "replay-hash": "19D15E5391FACB379BFCA262CA8FD208",
+        "version": 74071
+    },
+    {
+        "base-version": 74456,
+        "data-hash": "218CB2271D4E2FA083470D30B1A05F02",
+        "fixed-hash": "E82051387C591CAB1212B64073759826",
+        "label": "4.9.1",
+        "replay-hash": "1586ADF060C26219FF3404673D70245B",
+        "version": 74456
+    },
+    {
+        "base-version": 74741,
+        "data-hash": "614480EF79264B5BD084E57F912172FF",
+        "fixed-hash": "500CC375B7031C8272546B78E9BE439F",
+        "label": "4.9.2",
+        "replay-hash": "A7FAC56F940382E05157EAB19C932E3A",
+        "version": 74741
+    },
+    {
+        "base-version": 75025,
+        "data-hash": "C305368C63621480462F8F516FB64374",
+        "fixed-hash": "DEE7842C8BCB6874EC254AA3D45365F7",
+        "label": "4.9.3",
+        "replay-hash": "A7FAC56F940382E05157EAB19C932E3A",
+        "version": 75025
+    },
+    {
+        "base-version": 75689,
+        "data-hash": "B89B5D6FA7CBF6452E721311BFBC6CB2",
+        "fixed-hash": "2B2097DC4AD60A2D1E1F38691A1FF111",
+        "label": "4.10",
+        "replay-hash": "6A60E59031A7DB1B272EE87E51E4C7CD",
+        "version": 75689
+    },
+    {
+        "base-version": 75800,
+        "data-hash": "DDFFF9EC4A171459A4F371C6CC189554",
+        "fixed-hash": "1FB8FAF4A87940621B34F0B8F6FDDEA6",
+        "label": "4.10.1",
+        "replay-hash": "6A60E59031A7DB1B272EE87E51E4C7CD",
+        "version": 75800
     }
 ]

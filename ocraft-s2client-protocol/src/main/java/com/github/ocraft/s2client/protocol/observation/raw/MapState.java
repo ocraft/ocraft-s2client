@@ -41,7 +41,8 @@ public final class MapState implements Serializable {
     private static final long serialVersionUID = -4361255173604238600L;
 
     private final ImageData visibility;
-    private final ImageData creep;
+
+    private final ImageData creep; /** 1 bit creep layer. */
 
     private MapState(Raw.MapState sc2ApiMapState) {
         visibility = tryGet(

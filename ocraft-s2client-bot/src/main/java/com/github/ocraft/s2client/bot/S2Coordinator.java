@@ -722,6 +722,7 @@ public class S2Coordinator {
         if (!processSettings.getMultithreaded()) {
             agents.stream()
                     .filter(agent -> agent.control().getAppState() == AppState.NORMAL)
+                    // It is possible to have a pending leave game request here.
                     .filter(agent -> !agent.control().pollLeaveGame())
                     .forEach(this::callOnStep);
         }

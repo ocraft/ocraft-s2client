@@ -86,6 +86,7 @@ class ControlInterfaceImpl implements ControlInterface {
     private boolean multiplayer;
     private ProcessInfo processInfo;
     private boolean useGeneralizedAbilityId;
+    private boolean leaveGameWasRequested;
 
     ControlInterfaceImpl(ClientEvents clientEvents) {
         require("client events callback", clientEvents);
@@ -364,6 +365,7 @@ class ControlInterfaceImpl implements ControlInterface {
     @Override
     public Maybe<Response> requestLeaveGame() {
         if (!multiplayer) throw new IllegalStateException("LeaveGame request is only available for multiplayer game.");
+        leaveGameWasRequested = true;
         return proto().sendRequest(Requests.leaveGame());
     }
 
@@ -381,7 +383,7 @@ class ControlInterfaceImpl implements ControlInterface {
         if (!proto().hasResponsePending(ResponseType.LEAVE_GAME)) {
             // If not in a game, then it is in the end state trying to leave the game.
             errorIf(proto().hasResponsePending(), ClientError.RESPONSE_NOT_CONSUMED, Collections.emptyList());
-            return !isInGame();
+            return !isInGame() && leaveGameWasRequested;
         }
 
         return waitForResponse(getResponsePending(ResponseType.LEAVE_GAME))

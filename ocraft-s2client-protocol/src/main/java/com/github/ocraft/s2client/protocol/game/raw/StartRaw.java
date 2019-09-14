@@ -47,12 +47,12 @@ public final class StartRaw implements Serializable {
 
     private static final long serialVersionUID = -281483860654181069L;
 
-    private final Size2dI mapSize;              // Width and height of the map.
-    private final ImageData pathingGrid;        // 1 byte bitmap of the pathing grid.
-    private final ImageData terrainHeight;      // 1 byte bitmap of the terrain height.
-    private final ImageData placementGrid;      // 1 byte bitmap of the building placement grid.
-    private final RectangleI playableArea;      // The playable cells.
-    private final Set<Point2d> startLocations;  // Possible start locations for players.
+    private final Size2dI mapSize;              /** Width and height of the map. */
+    private final ImageData pathingGrid;        /** 1 bit bitmap of the pathing grid. */
+    private final ImageData terrainHeight;      /** 1 byte bitmap of the terrain height. */
+    private final ImageData placementGrid;      /** 1 bit bitmap of the building placement grid. */
+    private final RectangleI playableArea;      /** The playable cells. */
+    private final Set<Point2d> startLocations;  /** Possible start locations for players. */
 
     private StartRaw(Raw.StartRaw sc2ApiStartRaw) {
         mapSize = tryGet(Raw.StartRaw::getMapSize, Raw.StartRaw::hasMapSize)
