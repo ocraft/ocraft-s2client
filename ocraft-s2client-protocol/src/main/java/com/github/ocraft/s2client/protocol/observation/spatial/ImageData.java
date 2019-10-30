@@ -145,7 +145,7 @@ public final class ImageData implements Serializable {
         }
 
         if (bitsPerPixel == 1) {
-            return (data.byteAt(index / 8) >> (index % 8)) & 0x1;
+            return (data.byteAt(index / 8) >> (7 - (index % 8))) & 0x1;
         } else {
             return data.byteAt(index) & 0xFF;
         }
