@@ -134,10 +134,8 @@ class UnitTest {
 
     @Test
     void throwsExceptionWhenOwnerIsNotProvided() {
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> Unit.from(
-                        without(() -> sc2ApiUnit().toBuilder(), Raw.Unit.Builder::clearOwner).build()))
-                .withMessage("owner is required");
+        assertThat(Unit.from(without(() -> sc2ApiUnit().toBuilder(), Raw.Unit.Builder::clearOwner).build()).getOwner())
+                .isEqualTo(Unit.UNKNOWN_OWNER);
     }
 
     @Test

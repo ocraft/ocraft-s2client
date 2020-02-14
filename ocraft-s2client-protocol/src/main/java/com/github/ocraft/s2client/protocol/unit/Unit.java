@@ -42,6 +42,9 @@ public final class Unit extends UnitSnapshot {
 
     private static final long serialVersionUID = 2752475641175136550L;
 
+    // TODO p.picheta should return value as Optional instead but it will be breaking change in api
+    public static final int UNKNOWN_OWNER = -100;
+
     private final Tag tag;
     private final UnitType type;
     private final int owner;
@@ -57,7 +60,8 @@ public final class Unit extends UnitSnapshot {
         type = tryGet(Raw.Unit::getUnitType, Raw.Unit::hasUnitType)
                 .apply(sc2ApiUnit).map(Units::from).orElseThrow(required("unit type"));
 
-        owner = tryGet(Raw.Unit::getOwner, Raw.Unit::hasOwner).apply(sc2ApiUnit).orElseThrow(required("owner"));
+        // not given for enemy cloaked/undetected units
+        owner = tryGet(Raw.Unit::getOwner, Raw.Unit::hasOwner).apply(sc2ApiUnit).orElse(UNKNOWN_OWNER);
 
         facing = tryGet(Raw.Unit::getFacing, Raw.Unit::hasFacing).apply(sc2ApiUnit).orElseThrow(required("facing"));
 
