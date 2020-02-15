@@ -133,12 +133,6 @@ class UnitTest {
     }
 
     @Test
-    void throwsExceptionWhenOwnerIsNotProvided() {
-        assertThat(Unit.from(without(() -> sc2ApiUnit().toBuilder(), Raw.Unit.Builder::clearOwner).build()).getOwner())
-                .isEqualTo(Unit.UNKNOWN_OWNER);
-    }
-
-    @Test
     void throwsExceptionWhenPositionIsNotProvided() {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> Unit.from(
@@ -147,27 +141,31 @@ class UnitTest {
     }
 
     @Test
-    void throwsExceptionWhenFacingIsNotProvided() {
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> Unit.from(
-                        without(() -> sc2ApiUnit().toBuilder(), Raw.Unit.Builder::clearFacing).build()))
-                .withMessage("facing is required");
+    void returnsCloakedMarkerWhenOwnerIsNotProvided() {
+        assertThat(Unit.from(without(() -> sc2ApiUnit().toBuilder(), Raw.Unit.Builder::clearOwner).build()).getOwner())
+                .isEqualTo(Unit.CLOAKED);
     }
 
     @Test
-    void throwsExceptionWhenRadiusIsNotProvided() {
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> Unit.from(
-                        without(() -> sc2ApiUnit().toBuilder(), Raw.Unit.Builder::clearRadius).build()))
-                .withMessage("radius is required");
+    void returnsCloakedMarkerWhenFacingIsNotProvided() {
+        assertThat(
+                Unit.from(without(() -> sc2ApiUnit().toBuilder(), Raw.Unit.Builder::clearFacing).build()).getFacing())
+                .isEqualTo(Unit.CLOAKED);
     }
 
     @Test
-    void throwsExceptionWhenBuildProgressIsNotProvided() {
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> Unit.from(
-                        without(() -> sc2ApiUnit().toBuilder(), Raw.Unit.Builder::clearBuildProgress).build()))
-                .withMessage("build progress is required");
+    void returnsCloakedMarkerWhenRadiusIsNotProvided() {
+        assertThat(
+                Unit.from(without(() -> sc2ApiUnit().toBuilder(), Raw.Unit.Builder::clearRadius).build()).getRadius())
+                .isEqualTo(Unit.CLOAKED);
+    }
+
+    @Test
+    void returnsCloakedMarkerWhenBuildProgressIsNotProvided() {
+        assertThat(
+                Unit.from(without(() -> sc2ApiUnit().toBuilder(), Raw.Unit.Builder::clearBuildProgress).build())
+                        .getBuildProgress())
+                .isEqualTo(Unit.CLOAKED);
     }
 
     @Test

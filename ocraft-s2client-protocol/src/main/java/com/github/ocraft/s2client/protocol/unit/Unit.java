@@ -42,8 +42,8 @@ public final class Unit extends UnitSnapshot {
 
     private static final long serialVersionUID = 2752475641175136550L;
 
-    // TODO p.picheta should return value as Optional instead but it will be breaking change in api
-    public static final int UNKNOWN_OWNER = -100;
+    // TODO p.picheta should probably return value as Optional instead but it will be breaking change in api
+    public static final int CLOAKED = -1000;
 
     private final Tag tag;
     private final UnitType type;
@@ -60,15 +60,15 @@ public final class Unit extends UnitSnapshot {
         type = tryGet(Raw.Unit::getUnitType, Raw.Unit::hasUnitType)
                 .apply(sc2ApiUnit).map(Units::from).orElseThrow(required("unit type"));
 
-        // not given for enemy cloaked/undetected units
-        owner = tryGet(Raw.Unit::getOwner, Raw.Unit::hasOwner).apply(sc2ApiUnit).orElse(UNKNOWN_OWNER);
+        // owner, facing, radius and buildProgress not given for enemy cloaked/undetected units
+        owner = tryGet(Raw.Unit::getOwner, Raw.Unit::hasOwner).apply(sc2ApiUnit).orElse(CLOAKED);
 
-        facing = tryGet(Raw.Unit::getFacing, Raw.Unit::hasFacing).apply(sc2ApiUnit).orElseThrow(required("facing"));
+        facing = tryGet(Raw.Unit::getFacing, Raw.Unit::hasFacing).apply(sc2ApiUnit).orElse((float) CLOAKED);
 
-        radius = tryGet(Raw.Unit::getRadius, Raw.Unit::hasRadius).apply(sc2ApiUnit).orElseThrow(required("radius"));
+        radius = tryGet(Raw.Unit::getRadius, Raw.Unit::hasRadius).apply(sc2ApiUnit).orElse((float) CLOAKED);
 
         buildProgress = tryGet(Raw.Unit::getBuildProgress, Raw.Unit::hasBuildProgress)
-                .apply(sc2ApiUnit).orElseThrow(required("build progress"));
+                .apply(sc2ApiUnit).orElse((float) CLOAKED);
 
     }
 
