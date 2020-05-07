@@ -27,6 +27,8 @@ package com.github.ocraft.s2client.protocol.debug;
  */
 
 import SC2APIProtocol.Debug;
+import com.github.ocraft.s2client.protocol.OsCheck;
+import com.github.ocraft.s2client.protocol.OsCheck.OSType;
 import com.github.ocraft.s2client.protocol.Sc2ApiSerializable;
 import com.github.ocraft.s2client.protocol.Strings;
 
@@ -66,6 +68,11 @@ public final class Color implements Sc2ApiSerializable<Debug.Color> {
 
     @Override
     public Debug.Color toSc2Api() {
+        if(OsCheck.getOSType() == OSType.MacOS) {
+            // MacOS has BGR channels instead of RGB.
+            return Debug.Color.newBuilder().setR(b).setG(g).setB(r).build();
+        }
+        // All other OS types
         return Debug.Color.newBuilder().setR(r).setG(g).setB(b).build();
     }
 

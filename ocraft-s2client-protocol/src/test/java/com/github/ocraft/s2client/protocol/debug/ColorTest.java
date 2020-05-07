@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.debug;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,6 +27,8 @@ package com.github.ocraft.s2client.protocol.debug;
  */
 
 import SC2APIProtocol.Debug;
+import com.github.ocraft.s2client.protocol.OsCheck;
+import com.github.ocraft.s2client.protocol.OsCheck.OSType;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +43,11 @@ class ColorTest {
 
     @Test
     void serializesToSc2ApiColor() {
-        assertThatAllFieldsInRequestAreSerialized(Color.of(COLOR_R, COLOR_G, COLOR_B).toSc2Api());
+        if(OsCheck.getOSType() == OSType.MacOS) {
+            assertThatAllFieldsInRequestAreSerialized(Color.of(COLOR_B, COLOR_G, COLOR_R).toSc2Api());
+        } else {
+            assertThatAllFieldsInRequestAreSerialized(Color.of(COLOR_R, COLOR_G, COLOR_B).toSc2Api());
+        }
     }
 
     private void assertThatAllFieldsInRequestAreSerialized(Debug.Color sc2ApiColor) {
