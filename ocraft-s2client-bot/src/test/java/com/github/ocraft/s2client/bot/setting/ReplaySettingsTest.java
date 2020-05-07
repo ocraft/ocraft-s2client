@@ -38,7 +38,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -80,7 +79,7 @@ class ReplaySettingsTest {
         Path replays = replayDir.getRootFolder().resolve(REPLAYS_DIR_PATH);
 
         assertThat(new ReplaySettings().setReplayPath(replays).getReplayFiles())
-                .containsExactly(replays.resolve(REPLAY_PATH_01), replays.resolve(REPLAY_PATH_02));
+                .containsExactlyInAnyOrder(replays.resolve(REPLAY_PATH_01), replays.resolve(REPLAY_PATH_02));
     }
 
     @Test
