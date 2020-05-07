@@ -33,33 +33,33 @@ import java.util.Locale;
  */
 public final class OsCheck {
 
-    public enum OSType {
-        Windows,
-        MacOS,
-        Linux,
-        Other
+    public enum OsType {
+        WINDOWS,
+        MAC_OS,
+        LINUX,
+        OTHER
     }
 
     // Cached result of OS detection
-    private static OSType detectedOs;
+    private static OsType detectedOs;
 
     /**
      * Detect the operating system from the os.name System property and cache
      * the result
      *
-     * @returns - the operating system detected
+     * @return - the operating system detected
      */
-    public static OSType getOSType() {
+    public static OsType getOSType() {
         if (detectedOs == null) {
-            String OS = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
-            if ((OS.contains("mac")) || (OS.contains("darwin"))) {
-                detectedOs = OSType.MacOS;
-            } else if (OS.contains("win")) {
-                detectedOs = OSType.Windows;
-            } else if (OS.contains("nux")) {
-                detectedOs = OSType.Linux;
+            String os = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
+            if ((os.contains("mac")) || (os.contains("darwin"))) {
+                detectedOs = OsType.MAC_OS;
+            } else if (os.contains("win")) {
+                detectedOs = OsType.WINDOWS;
+            } else if (os.contains("nux")) {
+                detectedOs = OsType.LINUX;
             } else {
-                detectedOs = OSType.Other;
+                detectedOs = OsType.OTHER;
             }
         }
         return detectedOs;

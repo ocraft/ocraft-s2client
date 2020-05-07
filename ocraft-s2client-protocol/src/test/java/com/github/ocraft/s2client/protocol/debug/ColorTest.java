@@ -28,7 +28,7 @@ package com.github.ocraft.s2client.protocol.debug;
 
 import SC2APIProtocol.Debug;
 import com.github.ocraft.s2client.protocol.OsCheck;
-import com.github.ocraft.s2client.protocol.OsCheck.OSType;
+import com.github.ocraft.s2client.protocol.OsCheck.OsType;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +43,7 @@ class ColorTest {
 
     @Test
     void serializesToSc2ApiColor() {
-        if(OsCheck.getOSType() == OSType.MacOS) {
+        if(OsCheck.getOSType() == OsType.MAC_OS) {
             assertThatAllFieldsInRequestAreSerialized(Color.of(COLOR_B, COLOR_G, COLOR_R).toSc2Api());
         } else {
             assertThatAllFieldsInRequestAreSerialized(Color.of(COLOR_R, COLOR_G, COLOR_B).toSc2Api());
