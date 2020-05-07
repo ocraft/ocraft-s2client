@@ -69,7 +69,7 @@ public final class Color implements Sc2ApiSerializable<Debug.Color> {
     @Override
     public Debug.Color toSc2Api() {
         if(OsCheck.getOSType() == OSType.MacOS) {
-            // MacOS has BGR channels instead of a RGB.
+            // MacOS has BGR channels instead of RGB.
             return Debug.Color.newBuilder().setR(b).setG(g).setB(r).build();
         }
         // All other OS types
