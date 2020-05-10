@@ -52,7 +52,7 @@ public final class StartRaw implements Serializable {
     private final ImageData terrainHeight;      /** 1 byte bitmap of the terrain height. */
     private final ImageData placementGrid;      /** 1 bit bitmap of the building placement grid. */
     private final RectangleI playableArea;      /** The playable cells. */
-    private final Set<Point2d> startLocations;  /** Possible start locations for players. */
+    private final Set<Point2d> startLocations;  /** Possible start locations for enemy players (not self start location). */
 
     private StartRaw(Raw.StartRaw sc2ApiStartRaw) {
         mapSize = tryGet(Raw.StartRaw::getMapSize, Raw.StartRaw::hasMapSize)
