@@ -284,7 +284,10 @@ class DebugInterfaceImpl implements DebugInterface {
                     DebugTestProcess.testProcess().with(appTest).delayInMillis(delayMs)));
         }
 
-        if (commands.isEmpty() && !hasMoveCamera) return false;
+        if (commands.isEmpty() && !hasMoveCamera) {
+            reset();
+            return false;
+        }
 
         boolean debugResult = true;
         boolean cameraMoveResult = true;
