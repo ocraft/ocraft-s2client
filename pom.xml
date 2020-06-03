@@ -6,7 +6,7 @@
     <groupId>com.github.ocraft</groupId>
     <artifactId>ocraft-s2client</artifactId>
     <packaging>pom</packaging>
-    <version>0.3.17-SNAPSHOT</version>
+    <version>0.3.17</version>
 
     <modules>
         <module>ocraft-s2client-test</module>
@@ -57,7 +57,7 @@
         <connection>scm:git:https://github.com/ocraft/ocraft-s2client.git</connection>
         <url>https://github.com/ocraft/ocraft-s2client</url>
         <developerConnection>scm:git:https://github.com/ocraft/ocraft-s2client.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v0.3.17</tag>
     </scm>
 
     <properties>
