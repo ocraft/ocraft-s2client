@@ -77,6 +77,8 @@ class ControlInterfaceImpl implements ControlInterface {
     private final DebugInterface debugInterface;
     private final ObserverActionInterface observerActionInterface;
 
+    // Kept track of all units you called onCreatedUnit so you call it exactly once per unit.
+    private final Set<Tag> calledOnCreateUnits = new HashSet<>();
     private final List<ClientError> clientErrors = new ArrayList<>();
     private final List<String> protocolErrors = new ArrayList<>();
     private final ClientEvents clientEvents;
@@ -665,7 +667,8 @@ class ControlInterfaceImpl implements ControlInterface {
             if (!hasPreviousState(unit)) {
                 if (unit.getAlliance().equals(Alliance.ENEMY) && unit.getDisplayType().equals(DisplayType.VISIBLE)) {
                     clientEvents.onUnitEnterVision(unitInPool);
-                } else if (unit.getAlliance().equals(Alliance.SELF)) {
+                } else if (unit.getAlliance().equals(Alliance.SELF) && !calledOnCreateUnits.contains(unit.getTag())) {
+                    calledOnCreateUnits.add(unit.getTag());
                     clientEvents.onUnitCreated(unitInPool);
                 }
             }
