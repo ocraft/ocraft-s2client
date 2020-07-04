@@ -45,6 +45,7 @@ class InterfaceOptionsTest {
         assertThatAllFieldsAreSerialized(
                 interfaces()
                         .showCloaked(true)
+                        .showBurrowed(true)
                         .raw()
                         .rawAffectsSelection(true)
                         .rawCropToPlayableArea(true)
@@ -60,6 +61,7 @@ class InterfaceOptionsTest {
         assertThat(sc2ApiInterfaceOptions.hasFeatureLayer()).as("feature layer is set").isTrue();
         assertThat(sc2ApiInterfaceOptions.hasRender()).as("render is set").isTrue();
         assertThat(sc2ApiInterfaceOptions.getShowCloaked()).as("show cloaked option is set").isTrue();
+        assertThat(sc2ApiInterfaceOptions.getShowBurrowedShadows()).as("show burrowed option is set").isTrue();
         assertThat(sc2ApiInterfaceOptions.getRawAffectsSelection()).as("raw affects selection option is set").isTrue();
         assertThat(sc2ApiInterfaceOptions.getRawCropToPlayableArea()).as("raw crop area option is set").isTrue();
     }
@@ -70,6 +72,7 @@ class InterfaceOptionsTest {
         assertThatAllFieldsAreSerialized(
                 interfaces()
                         .showCloaked(true)
+                        .showBurrowed(true)
                         .raw()
                         .rawAffectsSelection(true)
                         .rawCropToPlayableArea(true)

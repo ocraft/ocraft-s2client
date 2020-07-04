@@ -35,22 +35,25 @@ public final class InterfaceSettings {
     private final SpatialCameraSetup featureLayerSettings;
     private final SpatialCameraSetup renderSettings;
     private final Boolean showCloaked;
+    private final Boolean showBurrowed;
     private final Boolean rawAffectsSelection;
     private final Boolean rawCropToPlayableArea;
 
     public InterfaceSettings(SpatialCameraSetup featureLayerSettings, SpatialCameraSetup renderSettings) {
-        this(featureLayerSettings, renderSettings, null, null, null);
+        this(featureLayerSettings, renderSettings, null, null, null, null);
     }
 
     public InterfaceSettings(
             SpatialCameraSetup featureLayerSettings,
             SpatialCameraSetup renderSettings,
             Boolean showCloaked,
+            Boolean showBurrowed,
             Boolean rawAffectsSelection,
             Boolean rawCropToPlayableArea) {
         this.featureLayerSettings = featureLayerSettings;
         this.renderSettings = renderSettings;
         this.showCloaked = showCloaked;
+        this.showBurrowed = showBurrowed;
         this.rawAffectsSelection = rawAffectsSelection;
         this.rawCropToPlayableArea = rawCropToPlayableArea;
     }
@@ -66,6 +69,10 @@ public final class InterfaceSettings {
 
     public Boolean getShowCloaked() {
         return showCloaked;
+    }
+
+    public Boolean getShowBurrowed() {
+        return showBurrowed;
     }
 
     public Boolean getRawAffectsSelection() {
@@ -88,6 +95,7 @@ public final class InterfaceSettings {
         if (!Objects.equals(renderSettings, that.renderSettings))
             return false;
         if (!Objects.equals(showCloaked, that.showCloaked)) return false;
+        if (!Objects.equals(showBurrowed, that.showBurrowed)) return false;
         if (!Objects.equals(rawAffectsSelection, that.rawAffectsSelection))
             return false;
         return Objects.equals(rawCropToPlayableArea, that.rawCropToPlayableArea);
@@ -99,6 +107,7 @@ public final class InterfaceSettings {
         int result = featureLayerSettings != null ? featureLayerSettings.hashCode() : 0;
         result = 31 * result + (renderSettings != null ? renderSettings.hashCode() : 0);
         result = 31 * result + (showCloaked != null ? showCloaked.hashCode() : 0);
+        result = 31 * result + (showBurrowed != null ? showBurrowed.hashCode() : 0);
         result = 31 * result + (rawAffectsSelection != null ? rawAffectsSelection.hashCode() : 0);
         result = 31 * result + (rawCropToPlayableArea != null ? rawCropToPlayableArea.hashCode() : 0);
         return result;
@@ -110,6 +119,7 @@ public final class InterfaceSettings {
                 "featureLayerSettings=" + featureLayerSettings +
                 ", renderSettings=" + renderSettings +
                 ", showCloaked=" + showCloaked +
+                ", showBurrowed=" + showBurrowed +
                 ", rawAffectsSelection=" + rawAffectsSelection +
                 ", rawCropToPlayableArea=" + rawCropToPlayableArea +
                 '}';

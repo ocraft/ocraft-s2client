@@ -34,4 +34,9 @@ public interface InterfaceSettingsSyntax extends BuilderSyntax<InterfaceOptions>
      * By default cloaked units are completely hidden. This shows some details.
      */
     InterfaceOptionsSyntax showCloaked(Boolean value);
+
+    /**
+     * By default burrowed units are completely hidden. This shows some details for those that produce a shadow.
+     */
+    InterfaceOptionsSyntax showBurrowed(Boolean value);
 }

@@ -317,6 +317,7 @@ class ControlInterfaceImpl implements ControlInterface {
     InterfaceOptions interfaceOptionsFrom(InterfaceSettings interfaceSettings) {
         FeatureLayerSyntax interfaces = InterfaceOptions.interfaces()
                 .showCloaked(interfaceSettings.getShowCloaked())
+                .showBurrowed(interfaceSettings.getShowBurrowed())
                 .raw()
                 .rawCropToPlayableArea(interfaceSettings.getRawCropToPlayableArea())
                 .rawAffectsSelection(interfaceSettings.getRawAffectsSelection())

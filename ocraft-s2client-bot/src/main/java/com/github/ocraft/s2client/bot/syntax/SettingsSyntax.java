@@ -210,6 +210,11 @@ public interface SettingsSyntax extends GameParticipantSyntax, ReplaySyntax {
     SettingsSyntax setShowCloaked(Boolean showCloaked);
 
     /**
+     * By default burrowed units are completely hidden. This shows some details for those that produce a shadow.
+     */
+    SettingsSyntax setShowBurrowed(Boolean showBurrowed);
+
+    /**
      * By default raw actions select, act and revert the selection. This is useful
      * if you're playing simultaneously with the agent so it doesn't steal your
      * selection. This inflates APM (due to deselect) and makes the actions hard

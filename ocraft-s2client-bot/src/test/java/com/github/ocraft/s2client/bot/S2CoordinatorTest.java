@@ -181,13 +181,14 @@ class S2CoordinatorTest {
                 .setRender(spatialCameraSetup)
                 .setFeatureLayers(spatialCameraSetup)
                 .setShowCloaked(true)
+                .setShowBurrowed(true)
                 .setRawAffectsSelection(true)
                 .setRawCropToPlayableArea(true)
                 .setParticipants(createParticipant(Race.PROTOSS, makeAgent()))
                 .launchStarcraft();
 
         assertThat(s2Coordinator.getInterfaceSettings())
-                .isEqualTo(new InterfaceSettings(spatialCameraSetup, spatialCameraSetup, true, true, true));
+                .isEqualTo(new InterfaceSettings(spatialCameraSetup, spatialCameraSetup, true, true, true, true));
     }
 
     @Test

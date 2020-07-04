@@ -104,6 +104,7 @@ public class S2Coordinator {
                 builder.featureLayerSettings,
                 builder.renderSettings,
                 builder.showCloaked,
+                builder.showBurrowed,
                 builder.rawAffectsSelection,
                 builder.rawCropToPlayableArea);
         replaySettings = builder.replaySettings;
@@ -161,6 +162,7 @@ public class S2Coordinator {
 
         private boolean useGeneralizedAbilityId = true; // TODO p.picheta move to settings class?
         private Boolean showCloaked;
+        private Boolean showBurrowed;
         private Boolean rawAffectsSelection;
         private Boolean rawCropToPlayableArea;
 
@@ -372,6 +374,12 @@ public class S2Coordinator {
         @Override
         public SettingsSyntax setShowCloaked(Boolean showCloaked) {
             if (isSet(showCloaked)) this.showCloaked = showCloaked;
+            return this;
+        }
+
+        @Override
+        public SettingsSyntax setShowBurrowed(Boolean showBurrowed) {
+            if (isSet(showBurrowed)) this.showBurrowed = showBurrowed;
             return this;
         }
 

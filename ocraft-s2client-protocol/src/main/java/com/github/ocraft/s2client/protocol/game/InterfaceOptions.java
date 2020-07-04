@@ -52,6 +52,7 @@ public final class InterfaceOptions implements Sc2ApiSerializable<Sc2Api.Interfa
     private final SpatialCameraSetup featureLayer;
     private final SpatialCameraSetup render;
     private final Boolean showCloaked;
+    private final Boolean showBurrowed;
     private final Boolean rawAffectsSelection;
     private final Boolean rawCropToPlayableArea;
 
@@ -61,6 +62,7 @@ public final class InterfaceOptions implements Sc2ApiSerializable<Sc2Api.Interfa
         this.featureLayer = builder.featureLayer;
         this.render = builder.render;
         this.showCloaked = builder.showCloaked;
+        this.showBurrowed = builder.showBurrowed;
         this.rawAffectsSelection = builder.rawAffectsSelection;
         this.rawCropToPlayableArea = builder.rawCropToPlayableArea;
     }
@@ -81,6 +83,10 @@ public final class InterfaceOptions implements Sc2ApiSerializable<Sc2Api.Interfa
         showCloaked = tryGet(Sc2Api.InterfaceOptions::getShowCloaked, Sc2Api.InterfaceOptions::hasShowCloaked)
                 .apply(sc2ApiInterfaceOptions).orElse(nothing());
 
+        showBurrowed = tryGet(
+                Sc2Api.InterfaceOptions::getShowBurrowedShadows, Sc2Api.InterfaceOptions::hasShowBurrowedShadows
+        ).apply(sc2ApiInterfaceOptions).orElse(nothing());
+
         rawAffectsSelection = tryGet(
                 Sc2Api.InterfaceOptions::getRawAffectsSelection, Sc2Api.InterfaceOptions::hasRawAffectsSelection
         ).apply(sc2ApiInterfaceOptions).orElse(nothing());
@@ -98,6 +104,7 @@ public final class InterfaceOptions implements Sc2ApiSerializable<Sc2Api.Interfa
         private SpatialCameraSetup featureLayer;
         private SpatialCameraSetup render;
         private Boolean showCloaked;
+        private Boolean showBurrowed;
         private Boolean rawAffectsSelection;
         private Boolean rawCropToPlayableArea;
 
@@ -161,6 +168,12 @@ public final class InterfaceOptions implements Sc2ApiSerializable<Sc2Api.Interfa
         }
 
         @Override
+        public InterfaceOptionsSyntax showBurrowed(Boolean value) {
+            showBurrowed = value;
+            return this;
+        }
+
+        @Override
         public BuilderSyntax<InterfaceOptions> render(BuilderSyntax<SpatialCameraSetup> render) {
             return render(render.build());
         }
@@ -196,6 +209,7 @@ public final class InterfaceOptions implements Sc2ApiSerializable<Sc2Api.Interfa
         getFeatureLayer().map(SpatialCameraSetup::toSc2Api).ifPresent(aSc2ApiInterfaceOptions::setFeatureLayer);
         getRender().map(SpatialCameraSetup::toSc2Api).ifPresent(aSc2ApiInterfaceOptions::setRender);
         getShowCloaked().ifPresent(aSc2ApiInterfaceOptions::setShowCloaked);
+        getShowBurrowed().ifPresent(aSc2ApiInterfaceOptions::setShowBurrowedShadows);
         getRawAffectsSelection().ifPresent(aSc2ApiInterfaceOptions::setRawAffectsSelection);
         getRawCropToPlayableArea().ifPresent(aSc2ApiInterfaceOptions::setRawCropToPlayableArea);
 
@@ -222,6 +236,10 @@ public final class InterfaceOptions implements Sc2ApiSerializable<Sc2Api.Interfa
         return Optional.ofNullable(showCloaked);
     }
 
+    public Optional<Boolean> getShowBurrowed() {
+        return Optional.ofNullable(showBurrowed);
+    }
+
     public Optional<Boolean> getRawAffectsSelection() {
         return Optional.ofNullable(rawAffectsSelection);
     }
@@ -242,6 +260,7 @@ public final class InterfaceOptions implements Sc2ApiSerializable<Sc2Api.Interfa
         if (!Objects.equals(featureLayer, that.featureLayer)) return false;
         if (!Objects.equals(render, that.render)) return false;
         if (!Objects.equals(showCloaked, that.showCloaked)) return false;
+        if (!Objects.equals(showBurrowed, that.showBurrowed)) return false;
         if (!Objects.equals(rawAffectsSelection, that.rawAffectsSelection))
             return false;
         return Objects.equals(rawCropToPlayableArea, that.rawCropToPlayableArea);
@@ -254,6 +273,7 @@ public final class InterfaceOptions implements Sc2ApiSerializable<Sc2Api.Interfa
         result = 31 * result + (featureLayer != null ? featureLayer.hashCode() : 0);
         result = 31 * result + (render != null ? render.hashCode() : 0);
         result = 31 * result + (showCloaked != null ? showCloaked.hashCode() : 0);
+        result = 31 * result + (showBurrowed != null ? showBurrowed.hashCode() : 0);
         result = 31 * result + (rawAffectsSelection != null ? rawAffectsSelection.hashCode() : 0);
         result = 31 * result + (rawCropToPlayableArea != null ? rawCropToPlayableArea.hashCode() : 0);
         return result;
