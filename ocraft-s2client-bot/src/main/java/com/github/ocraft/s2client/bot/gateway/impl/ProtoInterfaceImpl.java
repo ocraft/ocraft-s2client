@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.bot.gateway.impl;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,6 +31,7 @@ import com.github.ocraft.s2client.api.controller.S2Controller;
 import com.github.ocraft.s2client.bot.ClientError;
 import com.github.ocraft.s2client.bot.gateway.ProtoInterface;
 import com.github.ocraft.s2client.protocol.BuilderSyntax;
+import com.github.ocraft.s2client.protocol.data.Units;
 import com.github.ocraft.s2client.protocol.game.GameStatus;
 import com.github.ocraft.s2client.protocol.request.Request;
 import com.github.ocraft.s2client.protocol.request.Requests;
@@ -109,6 +110,7 @@ class ProtoInterfaceImpl implements ProtoInterface {
                     .ifPresentOrElse(ping -> {
                         this.dataVersion = ping.getDataVersion();
                         this.baseBuild = ping.getBaseBuild();
+                        Units.remapForBuild(this.baseBuild);
                     }, () -> {
                         throw new IllegalStateException("ping failed");
                     });

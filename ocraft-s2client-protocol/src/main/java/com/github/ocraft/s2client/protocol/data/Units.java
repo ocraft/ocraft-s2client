@@ -86,7 +86,6 @@ public enum Units implements UnitType {
     TERRAN_REAPER(49, SMART, MOVE, PATROL, HOLD_POSITION, EFFECT_KD8CHARGE, STOP, ATTACK),
     TERRAN_REFINERY(20, CANCEL, HALT),
     TERRAN_REFINERY_RICH(1943, CANCEL, HALT),
-    TERRAN_REFINERY_RICH_410(1960, CANCEL, HALT),
     TERRAN_SCV(45, SMART, MOVE, PATROL, HOLD_POSITION, BUILD_COMMAND_CENTER, BUILD_SUPPLY_DEPOT, BUILD_REFINERY,
             BUILD_BARRACKS, BUILD_ENGINEERING_BAY, BUILD_MISSILE_TURRET, BUILD_BUNKER, BUILD_SENSOR_TOWER,
             BUILD_GHOST_ACADEMY, BUILD_FACTORY, BUILD_STARPORT, BUILD_ARMORY, BUILD_FUSION_CORE, HALT, STOP,
@@ -146,7 +145,6 @@ public enum Units implements UnitType {
             RESEARCH_ZERG_MISSILE_WEAPONS),
     ZERG_EXTRACTOR(88, CANCEL),
     ZERG_EXTRACTOR_RICH(1981, CANCEL),
-    ZERG_EXTRACTOR_RICH_410(1956, CANCEL),
     ZERG_GREATER_SPIRE(102, CANCEL_LAST, RESEARCH_ZERG_FLYER_ARMOR, RESEARCH_ZERG_FLYER_ATTACK),
     ZERG_HATCHERY(86, SMART, MORPH_LAIR, RESEARCH_PNEUMATIZED_CARAPACE, RESEARCH_BURROW, TRAIN_QUEEN, CANCEL,
             CANCEL_LAST, RALLY_UNITS, RALLY_WORKERS),
@@ -214,7 +212,6 @@ public enum Units implements UnitType {
     PROTOSS_ARCHON(141, SMART, MOVE, PATROL, HOLD_POSITION, STOP, RALLY_UNITS, ATTACK),
     PROTOSS_ASSIMILATOR(61, CANCEL),
     PROTOSS_ASSIMILATOR_RICH(1980, CANCEL),
-    PROTOSS_ASSIMILATOR_RICH_410(1955, CANCEL),
     PROTOSS_CARRIER(79, SMART, MOVE, PATROL, HOLD_POSITION, BUILD_INTERCEPTORS, STOP, CANCEL_LAST, ATTACK),
     PROTOSS_COLOSSUS(4, SMART, MOVE, PATROL, HOLD_POSITION, STOP, ATTACK),
     PROTOSS_CYBERNETICS_CORE(72, RESEARCH_WARP_GATE, CANCEL, CANCEL_LAST, RESEARCH_PROTOSS_AIR_ARMOR,
@@ -378,6 +375,31 @@ public enum Units implements UnitType {
 
     public static UnitType from(int sc2ApiUnitTypeId) {
         return Optional.ofNullable(unitTypeIdMap.get(sc2ApiUnitTypeId)).orElse(Other.of(sc2ApiUnitTypeId));
+    }
+
+    public static void remapForBuild(Integer build) {
+        if (build >= 81009) {
+            updateId(1981, 1995);
+            updateId(1980, 1994);
+
+            updateId(1982, 1996);
+            updateId(1983, 1997);
+            updateId(1984, 1998);
+        } else if (build >= 75689) {
+            updateId(1943, 1960);
+            updateId(1981, 1956);
+            updateId(1980, 1955);
+
+            updateId(1982, 1961);
+            updateId(1983, 1962);
+            updateId(1984, 1963);
+        }
+    }
+
+    private static void updateId(int oldId, int newId) {
+        UnitType toUpdate = unitTypeIdMap.remove(oldId);
+        ((Units) toUpdate).unitTypeId = newId;
+        unitTypeIdMap.put(newId, toUpdate);
     }
 
     @Override

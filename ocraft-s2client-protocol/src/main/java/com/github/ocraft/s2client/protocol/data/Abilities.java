@@ -559,7 +559,9 @@ public enum Abilities implements Ability {
     BATTLECRUISER_STOP_CHEER(3785, NONE),
     BATTLECRUISER_STOP_DANCE(3786, NONE),
     VIPER_PARASITIC_BOMB_RELAY_PARASITIC_BOMB(3789, NONE),
-    PARASITIC_BOMB_RELAY_DODGE_PARASITIC_BOMB(3791, NONE);
+    PARASITIC_BOMB_RELAY_DODGE_PARASITIC_BOMB(3791, NONE),
+    BATTERY_OVERCHARGE(4107, NONE),
+    AMORPHOUS_ARMOR_CLOUD(4109, NONE);
 
     public static final class Other implements Ability {
 
@@ -610,7 +612,7 @@ public enum Abilities implements Ability {
         EnumSet.allOf(Abilities.class).forEach(ability -> abilityIdMap.put(ability.getAbilityId(), ability));
     }
 
-    private final int abilityId;
+    private int abilityId;
     private final EnumSet<Target> targets;
 
     Abilities(int abilityId, Target... targets) {

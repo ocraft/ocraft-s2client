@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.protocol.data;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -323,8 +323,9 @@ public enum Buffs implements Buff {
     NEXUS_SHIELD_OVERCHARGE(286),
     PARASITIC_BOMB_DELAY_TIMED_LIFE(287),
     TRANSFUSION(288),
-    INHIBITOR_ZONE_TEMPORAL_FIELD(289);
-
+    INHIBITOR_ZONE_TEMPORAL_FIELD(289),
+    BATTERY_OVERCHARGE(297),
+    AMORPHOUS_ARMOR_CLOUD(295);
 
     public static final class Other implements Buff {
 
@@ -354,7 +355,7 @@ public enum Buffs implements Buff {
         }
     }
 
-    private static Map<Integer, Buff> buffIdMap = new HashMap<>();
+    private static final Map<Integer, Buff> buffIdMap = new HashMap<>();
 
     static {
         EnumSet.allOf(Buffs.class).forEach(buff -> buffIdMap.put(buff.getBuffId(), buff));
