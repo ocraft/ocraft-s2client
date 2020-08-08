@@ -39,6 +39,7 @@ import com.github.ocraft.s2client.bot.gateway.UnitInPool;
 import com.github.ocraft.s2client.bot.setting.InterfaceSettings;
 import com.github.ocraft.s2client.bot.setting.PlayerSettings;
 import com.github.ocraft.s2client.protocol.action.Action;
+import com.github.ocraft.s2client.protocol.action.ActionError;
 import com.github.ocraft.s2client.protocol.action.raw.ActionRaw;
 import com.github.ocraft.s2client.protocol.action.spatial.ActionSpatial;
 import com.github.ocraft.s2client.protocol.data.Upgrades;
@@ -513,6 +514,7 @@ class ControlInterfaceImplIT {
         when(responseObservation.getActions()).thenReturn(List.of(action));
         when(responseObservation.getObservation()).thenReturn(observation);
         when(responseObservation.getPlayerResults()).thenReturn(List.of(mock(PlayerResult.class)));
+        when(responseObservation.getActionErrors()).thenReturn(List.of(mock(ActionError.class)));
 
         return responseObservation;
     }
@@ -544,6 +546,7 @@ class ControlInterfaceImplIT {
         assertThat(observation.getArmyCount()).isGreaterThan(0);
         assertThat(observation.getWarpGateCount()).isGreaterThan(0);
         assertThat(observation.getCameraPos()).isNotNull();
+        assertThat(observation.getActionErrors()).isNotEmpty();
     }
 
     private void assertThatClientEventsAreIssued(ClientEvents clientEvents, ControlInterfaceImpl control) {

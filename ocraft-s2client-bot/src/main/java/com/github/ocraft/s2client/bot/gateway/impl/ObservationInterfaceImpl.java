@@ -31,6 +31,7 @@ import com.github.ocraft.s2client.bot.gateway.ObservationInterface;
 import com.github.ocraft.s2client.bot.gateway.UnitInPool;
 import com.github.ocraft.s2client.protocol.GeneralizableAbility;
 import com.github.ocraft.s2client.protocol.action.Action;
+import com.github.ocraft.s2client.protocol.action.ActionError;
 import com.github.ocraft.s2client.protocol.action.raw.ActionRaw;
 import com.github.ocraft.s2client.protocol.action.spatial.ActionSpatial;
 import com.github.ocraft.s2client.protocol.data.*;
@@ -83,6 +84,7 @@ class ObservationInterfaceImpl implements ObservationInterface {
     private List<Upgrade> upgrades = new ArrayList<>();
     private List<Upgrade> upgradesPrevious = new ArrayList<>();
     private List<PlayerResult> playerResults = new ArrayList<>();
+    private List<ActionError> actionErrors = new ArrayList<>();
 
     private boolean abilitiesCached;
     private boolean unitTypesCached;
@@ -486,6 +488,11 @@ class ObservationInterfaceImpl implements ObservationInterface {
 
     }
 
+    @Override
+    public List<ActionError> getActionErrors() {
+        return actionErrors;
+    }
+
     private boolean isVersionCompatible(String version) {
         if ("4.8.5".equals(version)) {
             return controlInterface.proto().getBaseBuild() > 73286;
@@ -556,6 +563,7 @@ class ObservationInterfaceImpl implements ObservationInterface {
                 .map(PlayerRaw::getUpgrades)
                 .orElse(Collections.emptySet()));
         playerResults = responseObservation.getPlayerResults();
+        actionErrors = responseObservation.getActionErrors();
 
         return true;
     }

@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.bot.gateway;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,6 +26,7 @@ package com.github.ocraft.s2client.bot.gateway;
  * #L%
  */
 
+import com.github.ocraft.s2client.protocol.action.ActionError;
 import com.github.ocraft.s2client.protocol.action.raw.ActionRaw;
 import com.github.ocraft.s2client.protocol.action.spatial.ActionSpatial;
 import com.github.ocraft.s2client.protocol.data.*;
@@ -345,6 +346,13 @@ public interface ObservationInterface {
      * @return Height.
      */
     float terrainHeight(Point2d point);
+
+    /**
+     * Equivalent of UI "red text" errors.
+     *
+     * @return Action errors.
+     */
+    List<ActionError> getActionErrors();
 
     /**
      * A pointer to the low-level protocol data for the current observation. While it's possible to extract most in-game
