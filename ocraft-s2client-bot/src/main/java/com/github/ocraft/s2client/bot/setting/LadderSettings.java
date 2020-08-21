@@ -57,7 +57,7 @@ public final class LadderSettings {
     @CommandLine.Option(names = {"-h4l", "--help4Ladder"}, usageHelp = true, description = "Display this help message.")
     private boolean usageHelpRequested;
 
-    @CommandLine.Option(names = {"-i", "--OpponentId"}, description = "Display this help message.")
+    @CommandLine.Option(names = {"-i", "--OpponentId"}, description = "Unique Id of the opponent.")
     private String opponentId;
 
     @CommandLine.Option(names = {"-r", "--RealTime"}, arity = "0..1",
