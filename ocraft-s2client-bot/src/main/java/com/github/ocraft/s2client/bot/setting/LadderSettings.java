@@ -60,8 +60,9 @@ public final class LadderSettings {
     @CommandLine.Option(names = {"-i", "--OpponentId"}, description = "Display this help message.")
     private String opponentId;
 
-    @CommandLine.Option(names = {"-r", "--RealTime"}, description = "Games are played in real time?")
-    private boolean realTime;
+    @CommandLine.Option(names = {"-r", "--RealTime"}, arity = "0..1",
+            description = "Whether to run StarCraft II in  real time or not.")
+    private Boolean realTime;
 
     public Integer getGamePort() {
         return gamePort;
@@ -95,7 +96,7 @@ public final class LadderSettings {
         return opponentId;
     }
 
-    public boolean isRealTime() {
+    public Boolean isRealTime() {
         return realTime;
     }
 
@@ -113,7 +114,7 @@ public final class LadderSettings {
         if (ladderServer != null ? !ladderServer.equals(that.ladderServer) : that.ladderServer != null) return false;
         if (computerRace != that.computerRace) return false;
         if (computerDifficulty != that.computerDifficulty) return false;
-        if (realTime != that.realTime) return false;
+        if (realTime != null ? !realTime.equals(that.realTime) : that.realTime != null) return false;
         return opponentId != null ? opponentId.equals(that.opponentId) : that.opponentId == null;
     }
 
@@ -127,7 +128,7 @@ public final class LadderSettings {
         result = 31 * result + (computerDifficulty != null ? computerDifficulty.hashCode() : 0);
         result = 31 * result + (usageHelpRequested ? 1 : 0);
         result = 31 * result + (opponentId != null ? opponentId.hashCode() : 0);
-        result = 31 * result + (realTime ? 1 : 0);
+        result = 31 * result + (realTime != null ? realTime.hashCode() : 0);
         return result;
     }
 

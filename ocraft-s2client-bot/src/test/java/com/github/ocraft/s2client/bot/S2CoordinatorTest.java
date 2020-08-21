@@ -258,6 +258,7 @@ class S2CoordinatorTest {
                         "-c", "true",
                         "-a", "Zerg",
                         "-d", "VeryHard",
+                        "-r", "true"
                 })
                 .setParticipants(createParticipant(Race.PROTOSS, agent))
                 .connectToLadder();
@@ -278,7 +279,8 @@ class S2CoordinatorTest {
                 .setPortStart(portStart)
                 .setConnection(CFG_IP, CFG_PORT)
                 .setLadderGame(true)
-                .setWithGameController(false);
+                .setWithGameController(false)
+                .setRealtime(true);
     }
 
     @Test
@@ -290,7 +292,8 @@ class S2CoordinatorTest {
                 .loadLadderSettings(new String[]{
                         "-g", String.valueOf(CFG_PORT),
                         "-o", String.valueOf(portStart),
-                        "-l", CFG_IP
+                        "-l", CFG_IP,
+                        "-r", "true"
                 })
                 .setParticipants(createParticipant(Race.PROTOSS, agent))
                 .connectToLadder();
