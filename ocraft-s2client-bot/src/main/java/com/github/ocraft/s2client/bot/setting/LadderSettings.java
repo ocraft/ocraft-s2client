@@ -60,7 +60,7 @@ public final class LadderSettings {
     @CommandLine.Option(names = {"-i", "--OpponentId"}, description = "Display this help message.")
     private String opponentId;
 
-    @CommandLine.Option(names = {"-r", "--RealTime"}, description = "Game in real time or faster")
+    @CommandLine.Option(names = {"-r", "--RealTime"}, description = "Games are played in real time?")
     private boolean realTime;
 
     public Integer getGamePort() {
