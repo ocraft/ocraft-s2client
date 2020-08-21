@@ -241,6 +241,7 @@ public class S2Coordinator {
                             ladderSettings.getComputerRace().orElseThrow(required("computer race")),
                             ladderSettings.getComputerDifficulty().orElseThrow(required("computer difficulty"))));
                 }
+                setRealtime(ladderSettings.isRealTime());
 
             } catch (Exception e) {
                 printLadderHelp();
