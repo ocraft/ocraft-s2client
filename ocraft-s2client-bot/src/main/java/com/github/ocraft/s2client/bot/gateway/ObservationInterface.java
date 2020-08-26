@@ -206,9 +206,20 @@ public interface ObservationInterface {
     /**
      * Gets the GameInfo struct for the current map.
      *
+     * @param forceRefresh forces a full query from the game, may otherwise cache data from a previous call.
      * @return The current GameInfo struct.
      */
-    ResponseGameInfo getGameInfo();
+    ResponseGameInfo getGameInfo(boolean forceRefresh);
+
+    /**
+     * See {@link #getGameInfo(boolean forceRefresh)}.
+     * By default caches data from a previous call.
+     *
+     * @return The current GameInfo struct.
+     */
+    default ResponseGameInfo getGameInfo() {
+        return getGameInfo(false);
+    }
 
     /**
      * The mineral count of the player.
@@ -325,9 +336,21 @@ public interface ObservationInterface {
      * use QueryInterface::PathingDistance.
      *
      * @param point Position to sample.
+     * @param forceRefresh forces a full query from the game, may otherwise cache data from a previous call.
      * @return Pathable.
      */
-    boolean isPathable(Point2d point);
+    boolean isPathable(Point2d point, boolean forceRefresh);
+
+    /**
+     * See {@link #isPathable(Point2d point, boolean forceRefresh)}.
+     * By default caches data from a previous call to getStartRaw().
+     *
+     * @param point Position to sample.
+     * @return Pathable.
+     */
+    default boolean isPathable(Point2d point) {
+        return isPathable(point, false);
+    }
 
     /**
      * Returns 'true' if the given point on the terrain is buildable. This does not
@@ -335,9 +358,22 @@ public interface ObservationInterface {
      * results use QueryInterface#placement.
      *
      * @param point Position to sample.
+     * @param forceRefresh forces a full query from the game, may otherwise cache data from a previous call.
      * @return Placable.
      */
-    boolean isPlacable(Point2d point);
+    boolean isPlacable(Point2d point, boolean forceRefresh);
+
+    /**
+     * See {@link #isPlacable(Point2d point, boolean forceRefresh)}.
+     * By default caches data from a previous call to getStartRaw().
+     *
+     * @param point Position to sample.
+     * @return Placable.
+     */
+    default boolean isPlacable(Point2d point) {
+        return isPlacable(point, false);
+    }
+
 
     /**
      * Returns terrain height of the given point.
