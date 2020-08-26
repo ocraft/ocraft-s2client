@@ -139,7 +139,7 @@ class ObservationInterfaceImplIT {
         GameSetup gameSetup = new GameSetup().mockObservation(false).start();
         gameSetup.server().onRequest(Sc2Api.Request::hasGameInfo, GameServerResponses::gameInfo);
 
-        ResponseGameInfo gameInfo = gameSetup.observation().getGameInfo();
+        ResponseGameInfo gameInfo = gameSetup.observation().getGameInfo(true);
         assertThat(gameInfo).as("provided game info").isNotNull();
 
         assertThat(gameSetup.observation().getGameInfo()).as("returns cached game info").isSameAs(gameInfo);

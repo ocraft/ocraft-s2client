@@ -317,7 +317,11 @@ class ObservationInterfaceImpl implements ObservationInterface {
     }
 
     @Override
-    public ResponseGameInfo getGameInfo() {
+    public ResponseGameInfo getGameInfo(boolean forceRefresh) {
+        if (forceRefresh) {
+            gameInfoCached = false;
+        }
+
         if (gameInfoCached) {
             return gameInfo;
         }

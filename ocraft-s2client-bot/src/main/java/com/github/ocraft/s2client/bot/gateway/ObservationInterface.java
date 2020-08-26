@@ -205,10 +205,21 @@ public interface ObservationInterface {
 
     /**
      * Gets the GameInfo struct for the current map.
+     * By default caches data from a previous call.
      *
      * @return The current GameInfo struct.
      */
-    ResponseGameInfo getGameInfo();
+    default ResponseGameInfo getGameInfo() {
+        return getGameInfo(false);
+    }
+
+    /**
+     * Gets the GameInfo struct for the current map.
+     *
+     * @param forceRefresh forces a full query from the game, may otherwise cache data from a previous call.
+     * @return The current GameInfo struct.
+     */
+    ResponseGameInfo getGameInfo(boolean forceRefresh);
 
     /**
      * The mineral count of the player.
