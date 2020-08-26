@@ -455,8 +455,8 @@ class ObservationInterfaceImpl implements ObservationInterface {
     }
 
     @Override
-    public boolean isPathable(Point2d point) {
-        Optional<StartRaw> startRaw = getGameInfo().getStartRaw();
+    public boolean isPathable(Point2d point, boolean forceRefresh) {
+        Optional<StartRaw> startRaw = getGameInfo(forceRefresh).getStartRaw();
         if (!startRaw.isPresent()) return false;
 
         ImageData pathingGrid = startRaw.get().getPathingGrid();
@@ -466,8 +466,8 @@ class ObservationInterfaceImpl implements ObservationInterface {
     }
 
     @Override
-    public boolean isPlacable(Point2d point) {
-        Optional<StartRaw> startRaw = getGameInfo().getStartRaw();
+    public boolean isPlacable(Point2d point, boolean forceRefresh) {
+        Optional<StartRaw> startRaw = getGameInfo(forceRefresh).getStartRaw();
         if (!startRaw.isPresent()) return false;
         ImageData placementGrid = startRaw.get().getPlacementGrid();
         ImageData.Origin origin = imageOrigin();
