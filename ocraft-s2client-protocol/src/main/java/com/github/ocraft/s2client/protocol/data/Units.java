@@ -205,6 +205,7 @@ public enum Units implements UnitType {
     ZERG_ULTRALISK_BURROWED(131, BURROW_UP),
     ZERG_RAVAGER_BURROWED(690, BURROW_UP),
     ZERG_INFESTOR_TERRAN_BURROWED(120, BURROW_UP),
+    ZERG_OVERSEER_SIEGED(1912),
 
     // Zerg non-interactive
     ZERG_PARASITIC_BOMB_DUMMY(824),
@@ -274,7 +275,7 @@ public enum Units implements UnitType {
             ATTACK),
     PROTOSS_WARP_PRISM_PHASING(136, SMART, MORPH_WARP_PRISM_TRANSPORT_MODE, STOP, LOAD, UNLOAD_ALL_AT),
     PROTOSS_ZEALOT(73, SMART, MOVE, PATROL, HOLD_POSITION, EFFECT_CHARGE, STOP, RALLY_UNITS, ATTACK),
-
+    PROTOSS_OBSERVER_SIEGED(1911),
     // Protoss non-interactive
 
     // Neutral
@@ -401,8 +402,10 @@ public enum Units implements UnitType {
 
     private static void updateId(int oldId, int newId) {
         UnitType toUpdate = unitTypeIdMap.remove(oldId);
-        ((Units) toUpdate).unitTypeId = newId;
-        unitTypeIdMap.put(newId, toUpdate);
+        if (toUpdate != null) {
+            ((Units) toUpdate).unitTypeId = newId;
+            unitTypeIdMap.put(newId, toUpdate);
+        }
     }
 
     @Override
