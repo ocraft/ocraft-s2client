@@ -36,6 +36,7 @@ import com.github.ocraft.s2client.protocol.game.GameStatus;
 import com.github.ocraft.s2client.protocol.request.Request;
 import com.github.ocraft.s2client.protocol.request.Requests;
 import com.github.ocraft.s2client.protocol.response.Response;
+import com.github.ocraft.s2client.protocol.response.ResponseGameInfo;
 import com.github.ocraft.s2client.protocol.response.ResponsePing;
 import com.github.ocraft.s2client.protocol.response.ResponseType;
 import io.reactivex.Maybe;
@@ -105,12 +106,20 @@ class ProtoInterfaceImpl implements ProtoInterface {
                     .start()
                     .untilReady();
 
+
+            //checks if map name ends in a version number eg "Death Aura 5.0.6"
+            boolean isUpdatedLinuxMap = waitForResponse(sendRequest(Requests.gameInfo()))
+                    .flatMap(response -> response.as(ResponseGameInfo.class))
+                    .map(responseGameInfo -> responseGameInfo.getMapName().matches("^.*\\d{1,2}\\.\\d{1,2}\\.\\d{1,2}$"))
+                    .orElse(false);
+
             waitForResponse(sendRequest(Requests.ping()))
                     .flatMap(response -> response.as(ResponsePing.class))
                     .ifPresentOrElse(ping -> {
                         this.dataVersion = ping.getDataVersion();
                         this.baseBuild = ping.getBaseBuild();
-                        Units.remapForBuild(this.baseBuild);
+                        if (isUpdatedLinuxMap) Units.remapForBuild(Integer.MAX_VALUE); //remap to latest build
+                        else Units.remapForBuild(this.baseBuild);
                     }, () -> {
                         throw new IllegalStateException("ping failed");
                     });
