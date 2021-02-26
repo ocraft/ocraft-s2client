@@ -343,7 +343,7 @@ public enum Abilities implements Ability {
     RESEARCH_HISEC_AUTOTRACKING(650, NONE),
     RESEARCH_INFERNAL_PREIGNITER(761, NONE),
     RESEARCH_INTERCEPTOR_GRAVITON_CATAPULT(44, NONE),
-    RESEARCH_MAGFIELD_LAUNCHERS(769, NONE),
+    RESEARCH_MAGFIELD_LAUNCHERS(766, NONE),
     RESEARCH_MUSCULAR_AUGMENTS(1283, NONE),
     RESEARCH_NEOSTEEL_FRAME(655, NONE),
     RESEARCH_NEURAL_PARASITE(1455, NONE),
@@ -419,7 +419,7 @@ public enum Abilities implements Ability {
     RESEARCH_TERRAN_RAPID_DEPLOYMENT(802, NONE),
     RESEARCH_TERRAN_SEEKER_MISSILE(796, NONE),
     RESEARCH_TERRAN_DURABLE_MATERIALS(797, NONE),
-    RESEARCH_TERRAN_TRANSFORMATION_SERVOS(766, NONE),
+    RESEARCH_TERRAN_TRANSFORMATION_SERVOS(763, NONE),
     RESEARCH_TERRAN_GHOST_ENERGY_UPGRADE(821, NONE),
     RESEARCH_TERRAN_LIBERATOR_AG_MODE(800, NONE),
     RESEARCH_TUNNELING_CLAWS(217, NONE),
@@ -622,6 +622,21 @@ public enum Abilities implements Ability {
 
     public static Ability from(int sc2ApiAbilityId) {
         return Optional.ofNullable(abilityIdMap.get(sc2ApiAbilityId)).orElse(Other.of(sc2ApiAbilityId));
+    }
+
+    public static void remapForBuild(Integer build) {
+        if (build >= 83830) {
+            updateId(766, 769);
+            updateId(763, 766);
+        }
+    }
+
+    private static void updateId(int oldId, int newId) {
+        Ability toUpdate = abilityIdMap.remove(oldId);
+        if (toUpdate != null) {
+            ((Abilities) toUpdate).abilityId = newId;
+            abilityIdMap.put(newId, toUpdate);
+        }
     }
 
     @Override

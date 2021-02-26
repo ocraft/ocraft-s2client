@@ -31,6 +31,7 @@ import com.github.ocraft.s2client.api.controller.S2Controller;
 import com.github.ocraft.s2client.bot.ClientError;
 import com.github.ocraft.s2client.bot.gateway.ProtoInterface;
 import com.github.ocraft.s2client.protocol.BuilderSyntax;
+import com.github.ocraft.s2client.protocol.data.Abilities;
 import com.github.ocraft.s2client.protocol.data.Units;
 import com.github.ocraft.s2client.protocol.game.GameStatus;
 import com.github.ocraft.s2client.protocol.request.Request;
@@ -111,6 +112,7 @@ class ProtoInterfaceImpl implements ProtoInterface {
                         this.dataVersion = ping.getDataVersion();
                         this.baseBuild = ping.getBaseBuild();
                         Units.remapForBuild(this.baseBuild);
+                        Abilities.remapForBuild(this.baseBuild);
                     }, () -> {
                         throw new IllegalStateException("ping failed");
                     });
