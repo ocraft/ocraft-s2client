@@ -105,7 +105,7 @@
         <version.plugin.javadoc>3.0.1</version.plugin.javadoc>
         <version.plugin.gpg>1.6</version.plugin.gpg>
         <version.plugin.staging>1.6.8</version.plugin.staging>
-        <version.plugin.release>2.5.3</version.plugin.release>
+        <version.plugin.release>3.0.0-M4</version.plugin.release>
         <version.plugin.license>1.16</version.plugin.license>
         <version.plugin.asciidoctor>1.5.6</version.plugin.asciidoctor>
         <version.plugin.ghpage>0.12</version.plugin.ghpage>
