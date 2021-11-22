@@ -329,7 +329,9 @@ public enum Upgrades implements Upgrade {
     RAVEN_ENHANCED_MUNITIONS(292),
     DIGGING_CLAWS(293),
     CARRIER_CARRIER_CAPACITY(294),
-    CARRIER_LEASH_RANGE_UPGRADE(295);
+    CARRIER_LEASH_RANGE_UPGRADE(295),
+    TEMPEST_GROUND_ATTACK_UPGRADE(296),
+    ENHANCED_SHOCKWAVES(297);
 
     public static final class Other implements Upgrade {
 
