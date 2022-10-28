@@ -127,6 +127,17 @@ public class S2Coordinator {
      * @param checkSingle    Checks if the game is a single player or multiplayer game
      */
     public void setupPorts(int numberOfAgents, Supplier<Integer> portStart, boolean checkSingle) {
+        withPorts(numberOfAgents, portStart, checkSingle);
+    }
+
+    /**
+     * Sets up the sc2 game ports to use
+     *
+     * @param numberOfAgents Number of agents in the game
+     * @param portStart      Starting port number
+     * @param checkSingle    Checks if the game is a single player or multiplayer game
+     */
+    public S2Coordinator withPorts(int numberOfAgents, Supplier<Integer> portStart, boolean checkSingle) {
         int bots;
         if (checkSingle) {
             bots = (int) gameSettings.getPlayerSettings().stream()
@@ -139,6 +150,7 @@ public class S2Coordinator {
             gameSettings.setMultiplayerOptions(multiplayerSetupFor(portStart.get(), bots));
             log.info("Setting multiplayer options: {}", gameSettings.getMultiplayerOptions());
         }
+        return this;
     }
 
     public static SettingsSyntax setup() {
@@ -436,6 +448,18 @@ public class S2Coordinator {
         public S2Coordinator launchStarcraft() {
             try {
                 processSettings.setWithGameController(true);
+                return new S2Coordinator(this);
+            } catch (Exception e) {
+                printHelp();
+                throw e;
+            }
+        }
+
+        @Override
+        public S2Coordinator launchStarcraft(Integer port) {
+            try {
+                processSettings.setWithGameController(true);
+                processSettings.setPortStart(port);
                 return new S2Coordinator(this);
             } catch (Exception e) {
                 printHelp();
@@ -1031,6 +1055,10 @@ public class S2Coordinator {
     public void quit() {
         agents.forEach(agent -> agent.control().quit());
         replayObservers.forEach(replayObserver -> replayObserver.control().quit());
+    }
+
+    public static PlayerSettings createParticipant(Race race) {
+        return PlayerSettings.participant(race);
     }
 
     public static PlayerSettings createParticipant(Race race, S2Agent bot) {

@@ -275,4 +275,40 @@ public class SampleBot {
         s2Coordinator.quit();
     }
 
+    static void runAsHost(String[] args) {
+        TestBot bot = new TestBot();
+        S2Coordinator s2Coordinator = S2Coordinator.setup()
+                .loadSettings(args)
+                .setTimeoutMS(120000)
+                .setParticipants(
+                        S2Coordinator.createParticipant(Race.TERRAN, bot),
+                        S2Coordinator.createParticipant(Race.TERRAN))
+                .launchStarcraft(4000)
+                .withPorts(2, () -> 5000, false)
+                .startGame(BattlenetMap.of("Lava Flow"));
+
+        while (s2Coordinator.update()) {
+        }
+
+        s2Coordinator.quit();
+    }
+
+    static void runAsClient(String[] args) {
+        TestBot bot = new TestBot();
+        S2Coordinator s2Coordinator = S2Coordinator.setup()
+                .loadSettings(args)
+                .setTimeoutMS(120000)
+                .setParticipants(
+                        S2Coordinator.createParticipant(Race.TERRAN, bot),
+                        S2Coordinator.createParticipant(Race.TERRAN))
+                .launchStarcraft(4001)
+                .withPorts(2, () -> 5000, false)
+                .joinGame();
+
+        while (s2Coordinator.update()) {
+        }
+
+        s2Coordinator.quit();
+    }
+
 }
