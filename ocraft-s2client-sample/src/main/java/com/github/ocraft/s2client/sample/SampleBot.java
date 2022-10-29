@@ -34,9 +34,7 @@ import com.github.ocraft.s2client.protocol.data.Ability;
 import com.github.ocraft.s2client.protocol.data.UnitType;
 import com.github.ocraft.s2client.protocol.data.Units;
 import com.github.ocraft.s2client.protocol.debug.Color;
-import com.github.ocraft.s2client.protocol.game.BattlenetMap;
-import com.github.ocraft.s2client.protocol.game.Difficulty;
-import com.github.ocraft.s2client.protocol.game.Race;
+import com.github.ocraft.s2client.protocol.game.*;
 import com.github.ocraft.s2client.protocol.game.raw.StartRaw;
 import com.github.ocraft.s2client.protocol.response.ResponseGameInfo;
 import com.github.ocraft.s2client.protocol.spatial.Point2d;
@@ -277,14 +275,24 @@ public class SampleBot {
 
     static void runAsHost(String[] args) {
         TestBot bot = new TestBot();
+        // A clientPorts set must exist for each client, even though one of them is the server.
+        // Both agents must use the same MultiplayerOptions in their JoinGame requests.
+        MultiplayerOptions multiplayerOptions = MultiplayerOptions.multiplayerSetup()
+                .sharedPort(5000)
+                .serverPort(PortSet.of(5001, 5002))
+                .clientPorts(
+                        PortSet.of(5003, 5004),
+                        PortSet.of(5005, 5006))
+                .build();
+        // One agent must create and join the game. The other agent only needs to join the game.
         S2Coordinator s2Coordinator = S2Coordinator.setup()
                 .loadSettings(args)
                 .setTimeoutMS(120000)
+                .setMultiplayerOptions(multiplayerOptions)
                 .setParticipants(
                         S2Coordinator.createParticipant(Race.TERRAN, bot),
                         S2Coordinator.createParticipant(Race.TERRAN))
                 .launchStarcraft(4000)
-                .withPorts(2, () -> 5000, false)
                 .startGame(BattlenetMap.of("Lava Flow"));
 
         while (s2Coordinator.update()) {
@@ -295,14 +303,24 @@ public class SampleBot {
 
     static void runAsClient(String[] args) {
         TestBot bot = new TestBot();
+        // A clientPorts set must exist for each client, even though one of them is the server.
+        // Both agents must use the same MultiplayerOptions in their JoinGame requests.
+        MultiplayerOptions multiplayerOptions = MultiplayerOptions.multiplayerSetup()
+                .sharedPort(5000)
+                .serverPort(PortSet.of(5001, 5002))
+                .clientPorts(
+                        PortSet.of(5003, 5004),
+                        PortSet.of(5005, 5006))
+                .build();
+        // One agent must create and join the game. The other agent only needs to join the game.
         S2Coordinator s2Coordinator = S2Coordinator.setup()
                 .loadSettings(args)
                 .setTimeoutMS(120000)
+                .setMultiplayerOptions(multiplayerOptions)
                 .setParticipants(
                         S2Coordinator.createParticipant(Race.TERRAN, bot),
                         S2Coordinator.createParticipant(Race.TERRAN))
                 .launchStarcraft(4001)
-                .withPorts(2, () -> 5000, false)
                 .joinGame();
 
         while (s2Coordinator.update()) {

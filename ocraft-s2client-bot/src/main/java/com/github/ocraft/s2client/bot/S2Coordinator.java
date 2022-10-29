@@ -110,7 +110,12 @@ public class S2Coordinator {
         replaySettings = builder.replaySettings;
         useGeneralizedAbilityId = builder.useGeneralizedAbilityId;
 
-        if (processSettings.isLadderGame() && !builder.ladderSettings.getComputerOpponent()) {
+        if (builder.multiplayerOptions.isPresent()) {
+            if (processSettings.isLadderGame()) {
+                log.warn("Multiplayer options were provided, which supercedes the isLadderGame.");
+            }
+            builder.multiplayerOptions.ifPresent(gameSettings::setMultiplayerOptions);
+        } else if (processSettings.isLadderGame() && !builder.ladderSettings.getComputerOpponent()) {
             setupPorts(agents.size() + 1, () -> processSettings.getPortSetup().fetchPort(), false);
         } else {
             setupPorts(agents.size(), () -> processSettings.getPortSetup().fetchPort(), true);
@@ -168,6 +173,7 @@ public class S2Coordinator {
         private GameSettings gameSettings = new GameSettings();
         private CliSettings cliSettings = new CliSettings();
         private LadderSettings ladderSettings = new LadderSettings();
+        private Optional<MultiplayerOptions> multiplayerOptions = Optional.empty();
 
         private SpatialCameraSetup featureLayerSettings;
         private SpatialCameraSetup renderSettings;
@@ -441,6 +447,12 @@ public class S2Coordinator {
         @Override
         public SettingsSyntax loadReplayList(Path path) throws IOException {
             if (isSet(path)) replaySettings.loadReplayList(path);
+            return this;
+        }
+
+        @Override
+        public SettingsSyntax setMultiplayerOptions(MultiplayerOptions multiplayerOptions) {
+            if (isSet(multiplayerOptions)) this.multiplayerOptions = Optional.of(multiplayerOptions);
             return this;
         }
 
