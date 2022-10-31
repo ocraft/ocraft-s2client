@@ -110,7 +110,12 @@ public class S2Coordinator {
         replaySettings = builder.replaySettings;
         useGeneralizedAbilityId = builder.useGeneralizedAbilityId;
 
-        if (processSettings.isLadderGame() && !builder.ladderSettings.getComputerOpponent()) {
+        if (builder.multiplayerOptions.isPresent()) {
+            if (processSettings.isLadderGame()) {
+                log.warn("Multiplayer options were provided, which supercedes the isLadderGame.");
+            }
+            builder.multiplayerOptions.ifPresent(gameSettings::setMultiplayerOptions);
+        } else if (processSettings.isLadderGame() && !builder.ladderSettings.getComputerOpponent()) {
             setupPorts(agents.size() + 1, () -> processSettings.getPortSetup().fetchPort(), false);
         } else {
             setupPorts(agents.size(), () -> processSettings.getPortSetup().fetchPort(), true);
@@ -127,6 +132,17 @@ public class S2Coordinator {
      * @param checkSingle    Checks if the game is a single player or multiplayer game
      */
     public void setupPorts(int numberOfAgents, Supplier<Integer> portStart, boolean checkSingle) {
+        withPorts(numberOfAgents, portStart, checkSingle);
+    }
+
+    /**
+     * Sets up the sc2 game ports to use
+     *
+     * @param numberOfAgents Number of agents in the game
+     * @param portStart      Starting port number
+     * @param checkSingle    Checks if the game is a single player or multiplayer game
+     */
+    public S2Coordinator withPorts(int numberOfAgents, Supplier<Integer> portStart, boolean checkSingle) {
         int bots;
         if (checkSingle) {
             bots = (int) gameSettings.getPlayerSettings().stream()
@@ -139,6 +155,7 @@ public class S2Coordinator {
             gameSettings.setMultiplayerOptions(multiplayerSetupFor(portStart.get(), bots));
             log.info("Setting multiplayer options: {}", gameSettings.getMultiplayerOptions());
         }
+        return this;
     }
 
     public static SettingsSyntax setup() {
@@ -156,6 +173,7 @@ public class S2Coordinator {
         private GameSettings gameSettings = new GameSettings();
         private CliSettings cliSettings = new CliSettings();
         private LadderSettings ladderSettings = new LadderSettings();
+        private Optional<MultiplayerOptions> multiplayerOptions = Optional.empty();
 
         private SpatialCameraSetup featureLayerSettings;
         private SpatialCameraSetup renderSettings;
@@ -433,9 +451,27 @@ public class S2Coordinator {
         }
 
         @Override
+        public SettingsSyntax setMultiplayerOptions(MultiplayerOptions multiplayerOptions) {
+            if (isSet(multiplayerOptions)) this.multiplayerOptions = Optional.of(multiplayerOptions);
+            return this;
+        }
+
+        @Override
         public S2Coordinator launchStarcraft() {
             try {
                 processSettings.setWithGameController(true);
+                return new S2Coordinator(this);
+            } catch (Exception e) {
+                printHelp();
+                throw e;
+            }
+        }
+
+        @Override
+        public S2Coordinator launchStarcraft(Integer port) {
+            try {
+                processSettings.setWithGameController(true);
+                processSettings.setPortStart(port);
                 return new S2Coordinator(this);
             } catch (Exception e) {
                 printHelp();
@@ -1031,6 +1067,10 @@ public class S2Coordinator {
     public void quit() {
         agents.forEach(agent -> agent.control().quit());
         replayObservers.forEach(replayObserver -> replayObserver.control().quit());
+    }
+
+    public static PlayerSettings createParticipant(Race race) {
+        return PlayerSettings.participant(race);
     }
 
     public static PlayerSettings createParticipant(Race race, S2Agent bot) {

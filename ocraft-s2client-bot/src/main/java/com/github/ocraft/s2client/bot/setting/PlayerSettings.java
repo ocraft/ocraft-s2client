@@ -107,6 +107,17 @@ public final class PlayerSettings {
                 aiBuild);
     }
 
+    public static PlayerSettings participant(Race race) {
+        require("race", race);
+        return new PlayerSettings(
+                PlayerSetup.participant(),
+                race,
+                null,
+                null,
+                null,
+                null);
+    }
+
     public PlayerSetup getPlayerSetup() {
         return playerSetup;
     }

@@ -26,6 +26,7 @@ package com.github.ocraft.s2client.bot.syntax;
  * #L%
  */
 
+import com.github.ocraft.s2client.protocol.game.MultiplayerOptions;
 import com.github.ocraft.s2client.protocol.game.ReplayInfo;
 import com.github.ocraft.s2client.protocol.spatial.SpatialCameraSetup;
 
@@ -228,4 +229,11 @@ public interface SettingsSyntax extends GameParticipantSyntax, ReplaySyntax {
      * The map_size and playable_area will be the diagonal of the real playable area.
      */
     SettingsSyntax setRawCropToPlayableArea(Boolean rawCropToPlayableArea);
+
+    /**
+     * Changes the multiplayer options for the coordinator. This allows you to specify the ports directly,
+     * for example if you are connecting to a multiplayer game.
+     * NOTE: Setting the MultiplayerOptions directly will supercede the any Ladder settings you provide.
+     */
+    SettingsSyntax setMultiplayerOptions(MultiplayerOptions multiplayerOptions);
 }

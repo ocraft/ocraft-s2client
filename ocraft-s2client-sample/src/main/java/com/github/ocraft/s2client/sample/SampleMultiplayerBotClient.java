@@ -1,8 +1,8 @@
-package com.github.ocraft.s2client.bot.syntax;
+package com.github.ocraft.s2client.sample;
 
 /*-
  * #%L
- * ocraft-s2client-bot
+ * ocraft-s2client-sample
  * %%
  * Copyright (C) 2017 - 2018 Ocraft Project
  * %%
@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.bot.syntax;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,29 +26,11 @@ package com.github.ocraft.s2client.bot.syntax;
  * #L%
  */
 
-import com.github.ocraft.s2client.bot.S2Coordinator;
+// Running two bots in one game.
+public class SampleMultiplayerBotClient {
 
-public interface StartGameSyntax {
+    public static void main(String[] args) {
+        SampleBot.runAsClient(args);
+    }
 
-    /**
-     * Uses settings gathered from LoadSettings, specifically the path to the executable, to run StarCraft II.
-     * Uses the PortStart to select a port for the game to listen on.
-     */
-    S2Coordinator launchStarcraft();
-
-    /**
-     * Uses settings gathered from LoadSettings, specifically the path to the executable, to run StarCraft II.
-     * Starts the game listening on a specific port.
-     */
-    S2Coordinator launchStarcraft(Integer port);
-
-    /**
-     * Attaches to a running Starcraft.
-     */
-    S2Coordinator connect(String ip, Integer port);
-
-    /**
-     * Attaches to a ladder server;
-     */
-    S2Coordinator connectToLadder();
 }
