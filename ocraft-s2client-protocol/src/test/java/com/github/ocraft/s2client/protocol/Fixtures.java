@@ -666,6 +666,7 @@ public final class Fixtures {
                 .setIsHallucination(UNIT_IS_HALLUCINATION)
                 .setBuffDurationRemain(UNIT_BUFF_REMAIN)
                 .setBuffDurationMax(UNIT_BUFF_MAX)
+                .addRallyTargets(sc2ApiRallyTarget())
                 .build();
     }
 

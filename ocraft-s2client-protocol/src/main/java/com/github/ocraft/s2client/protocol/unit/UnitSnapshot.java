@@ -92,6 +92,7 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
     private final Tag engagedTargetTag;
     private final Integer buffDurationRemain;
     private final Integer buffDurationMax;
+    private final List<RallyTarget> rallyTargets;
 
     UnitSnapshot(Raw.Unit sc2ApiUnit) {
         displayType = tryGet(Raw.Unit::getDisplayType, Raw.Unit::hasDisplayType)
@@ -189,6 +190,9 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
 
         buffDurationMax = tryGet(Raw.Unit::getBuffDurationMax, Raw.Unit::hasBuffDurationMax)
                 .apply(sc2ApiUnit).orElse(nothing());
+
+        rallyTargets = sc2ApiUnit.getRallyTargetsList().stream().map(RallyTarget::from)
+                .collect(collectingAndThen(toList(), Collections::unmodifiableList));
     }
 
     UnitSnapshot(UnitSnapshot original, UnaryOperator<Ability> generalize) {
@@ -231,6 +235,7 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
         this.engagedTargetTag = original.engagedTargetTag;
         this.buffDurationRemain = original.buffDurationRemain;
         this.buffDurationMax = original.buffDurationMax;
+        this.rallyTargets = original.rallyTargets;
     }
 
     public static UnitSnapshot from(Raw.Unit sc2ApiUnit) {
@@ -404,6 +409,13 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
         return Optional.ofNullable(buffDurationMax);
     }
 
+    /**
+     * List of rally points set for this structure. Each RallyTarget will always have a point, and may have a tag.
+     */
+    public List<RallyTarget> getRallyTargets() {
+        return rallyTargets;
+    }
+
     @Override
     public UnitSnapshot generalizeAbility(UnaryOperator<Ability> generalize) {
         return new UnitSnapshot(this, generalize);
@@ -469,7 +481,9 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
             return false;
         if (!Objects.equals(buffDurationRemain, that.buffDurationRemain))
             return false;
-        return Objects.equals(buffDurationMax, that.buffDurationMax);
+        if (!Objects.equals(buffDurationMax, that.buffDurationMax))
+            return false;
+        return Objects.equals(rallyTargets, that.rallyTargets);
     }
 
     @Override
@@ -511,6 +525,7 @@ public class UnitSnapshot implements Serializable, GeneralizableAbility<UnitSnap
         result = 31 * result + (engagedTargetTag != null ? engagedTargetTag.hashCode() : 0);
         result = 31 * result + (buffDurationRemain != null ? buffDurationRemain.hashCode() : 0);
         result = 31 * result + (buffDurationMax != null ? buffDurationMax.hashCode() : 0);
+        result = 31 * result + (rallyTargets != null ? rallyTargets.hashCode() : 0);
         return result;
     }
 
