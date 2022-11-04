@@ -669,6 +669,19 @@ public final class Fixtures {
                 .build();
     }
 
+    public static Raw.RallyTarget sc2ApiRallyTarget() {
+        return Raw.RallyTarget.newBuilder()
+                .setPoint(sc2ApiPoint())
+                .build();
+    }
+
+    public static Raw.RallyTarget sc2ApiRallyTargetWithTag() {
+        return Raw.RallyTarget.newBuilder()
+                .setPoint(sc2ApiPoint())
+                .setTag(UNIT_TAG)
+                .build();
+    }
+
     public static Raw.UnitOrder sc2ApiUnitOrder() {
         return Raw.UnitOrder.newBuilder()
                 .setAbilityId(PSI_STORM_ABILITY_ID)
