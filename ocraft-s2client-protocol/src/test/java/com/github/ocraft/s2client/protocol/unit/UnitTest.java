@@ -98,6 +98,7 @@ class UnitTest {
         assertThat(unit.getHallucination()).as("unit: hallucination").hasValue(UNIT_IS_HALLUCINATION);
         assertThat(unit.getBuffDurationRemain()).as("unit: buff duration remain").hasValue(UNIT_BUFF_REMAIN);
         assertThat(unit.getBuffDurationMax()).as("unit: buff duration max").hasValue(UNIT_BUFF_MAX);
+        assertThat(unit.getRallyTargets()).as("unit: rally targets").isNotEmpty();
     }
 
     @Test
@@ -220,7 +221,7 @@ class UnitTest {
                 .forClass(Unit.class)
                 .withRedefinedSuperclass()
                 .withNonnullFields("displayType", "alliance", "tag", "type", "position", "orders", "passengers",
-                        "buffs")
+                        "buffs", "rallyTargets")
                 .verify();
     }
 }

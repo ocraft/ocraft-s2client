@@ -110,6 +110,13 @@ class Point2dTest {
     }
 
     @Test
+    void convertsToPoint() {
+        Point2d p0 = Point2d.of(2, 4);
+
+        assertThat(p0.toPoint2d(1)).isEqualTo(Point.of(2, 4, 1));
+    }
+
+    @Test
     void fulfillsEqualsContract() {
         EqualsVerifier.forClass(Point2d.class).verify();
     }

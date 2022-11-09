@@ -666,6 +666,20 @@ public final class Fixtures {
                 .setIsHallucination(UNIT_IS_HALLUCINATION)
                 .setBuffDurationRemain(UNIT_BUFF_REMAIN)
                 .setBuffDurationMax(UNIT_BUFF_MAX)
+                .addRallyTargets(sc2ApiRallyTarget())
+                .build();
+    }
+
+    public static Raw.RallyTarget sc2ApiRallyTarget() {
+        return Raw.RallyTarget.newBuilder()
+                .setPoint(sc2ApiPoint())
+                .build();
+    }
+
+    public static Raw.RallyTarget sc2ApiRallyTargetWithTag() {
+        return Raw.RallyTarget.newBuilder()
+                .setPoint(sc2ApiPoint())
+                .setTag(UNIT_TAG)
                 .build();
     }
 
