@@ -69,11 +69,21 @@ public class SampleFeatureLayerBot {
 
         @Override
         public void onStep() {
-            getRandomUnit(Units.TERRAN_COMMAND_CENTER).ifPresent(commandCenter -> {
-                actions().unitCommand(commandCenter.unit(), Abilities.LOAD_ALL_COMMAND_CENTER, false);
-                this.actions().select(commandCenter.getTag());
-                this.actionsFeatureLayer().unloadCargo(0);
-            });
+            long gameLoop = observation().getGameLoop();
+
+            if (gameLoop % 100 == 0) {
+                getRandomUnit(Units.TERRAN_COMMAND_CENTER).ifPresent(commandCenter -> {
+                    actions().unitCommand(commandCenter.unit(), Abilities.LOAD_ALL_COMMAND_CENTER, false);
+                });
+            } else if (gameLoop % 20 == 0) {
+                getRandomUnit(Units.TERRAN_COMMAND_CENTER).ifPresent(commandCenter -> {
+                    int cargoUnitsSize = commandCenter.unit().getPassengers().size();
+                    if (cargoUnitsSize > 0) {
+                        this.actions().select(commandCenter.getTag());
+                        this.actionsFeatureLayer().unloadCargo(ThreadLocalRandom.current().nextInt(cargoUnitsSize));
+                    }
+                });
+            }
         }
 
         private Optional<UnitInPool> getRandomUnit(UnitType unitType) {
