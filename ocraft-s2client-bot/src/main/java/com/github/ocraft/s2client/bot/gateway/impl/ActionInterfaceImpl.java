@@ -204,10 +204,21 @@ class ActionInterfaceImpl implements ActionInterface {
     }
 
     @Override
-    public ActionInterface select(Tag unitTag) {
+    public ActionInterface select(Tag... unitTag) {
         actions.add(action()
                 .raw(ActionRawUnitCommand.unitCommand()
                         .forUnits(unitTag)
+                        .useAbility(Abilities.from(0))
+                        .build())
+                .build());
+        return this;
+    }
+
+    @Override
+    public ActionInterface select(Unit... unit) {
+        actions.add(action()
+                .raw(ActionRawUnitCommand.unitCommand()
+                        .forUnits(unit)
                         .useAbility(Abilities.from(0))
                         .build())
                 .build());

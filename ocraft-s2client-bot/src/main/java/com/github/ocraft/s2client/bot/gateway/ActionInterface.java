@@ -158,7 +158,21 @@ public interface ActionInterface {
      */
     ActionInterface sendChat(String message, ActionChat.Channel channel);
 
-    ActionInterface select(Tag unitTag);
+    /**
+     * Selects a specific unit. This is used for Ui Actions such as {@link ActionFeatureLayerInterface#unloadCargo},
+     * and rawAffectsSelection must be set to true, otherwise the selection will be reverted.
+     *
+     * @param unitTag Tag of the unit or units to select.
+     */
+    ActionInterface select(Tag... unitTag);
+
+    /**
+     * Selects a specific unit. This is used for Ui Actions such as {@link ActionFeatureLayerInterface#unloadCargo},
+     * and rawAffectsSelection must be set to true, otherwise the selection will be reverted.
+     *
+     * @param unit The unit or units to select.
+     */
+    ActionInterface select(Unit... unit);
 
     /**
      * This function sends out all batched unit commands. You DO NOT need to call this function in non real time

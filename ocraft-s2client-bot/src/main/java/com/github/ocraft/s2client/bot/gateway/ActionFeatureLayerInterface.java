@@ -29,9 +29,6 @@ package com.github.ocraft.s2client.bot.gateway;
 import com.github.ocraft.s2client.protocol.action.spatial.ActionSpatialUnitSelectionPoint;
 import com.github.ocraft.s2client.protocol.data.Ability;
 import com.github.ocraft.s2client.protocol.spatial.PointI;
-import com.github.ocraft.s2client.protocol.unit.Tag;
-
-import java.util.Set;
 
 /**
  * The ActionFeatureLayerInterface emulates UI actions in feature layer. Not available in replays.
