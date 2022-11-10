@@ -158,6 +158,8 @@ public interface ActionInterface {
      */
     ActionInterface sendChat(String message, ActionChat.Channel channel);
 
+    ActionInterface select(Tag unitTag);
+
     /**
      * This function sends out all batched unit commands. You DO NOT need to call this function in non real time
      * simulations since it is automatically called when stepping the simulation forward. You only need to call this

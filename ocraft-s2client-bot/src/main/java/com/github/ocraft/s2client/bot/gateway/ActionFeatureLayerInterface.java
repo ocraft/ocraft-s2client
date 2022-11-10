@@ -29,6 +29,9 @@ package com.github.ocraft.s2client.bot.gateway;
 import com.github.ocraft.s2client.protocol.action.spatial.ActionSpatialUnitSelectionPoint;
 import com.github.ocraft.s2client.protocol.data.Ability;
 import com.github.ocraft.s2client.protocol.spatial.PointI;
+import com.github.ocraft.s2client.protocol.unit.Tag;
+
+import java.util.Set;
 
 /**
  * The ActionFeatureLayerInterface emulates UI actions in feature layer. Not available in replays.
@@ -73,6 +76,8 @@ public interface ActionFeatureLayerInterface {
      * @param addToSelection Will add newly selected units to an existing selection.
      */
     ActionFeatureLayerInterface select(PointI p0, PointI p1, boolean addToSelection);
+
+    ActionFeatureLayerInterface unloadCargo(int unitIndex);
 
     /**
      * This function sends out all batched selection and unit commands. You DO NOT need to call this function in non
