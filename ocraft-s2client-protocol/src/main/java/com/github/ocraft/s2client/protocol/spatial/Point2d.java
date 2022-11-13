@@ -120,7 +120,7 @@ public final class Point2d implements Sc2ApiSerializable<Common.Point2D> {
         return x * b.getX() + y * b.getY();
     }
 
-    public Point toPoint2d(float z) {
+    public Point toPoint(float z) {
         return Point.of(x, y, z);
     }
 
