@@ -32,6 +32,7 @@ import com.github.ocraft.s2client.protocol.action.spatial.ActionSpatialCameraMov
 import com.github.ocraft.s2client.protocol.action.spatial.ActionSpatialUnitCommand;
 import com.github.ocraft.s2client.protocol.action.spatial.ActionSpatialUnitSelectionPoint;
 import com.github.ocraft.s2client.protocol.action.spatial.ActionSpatialUnitSelectionRect;
+import com.github.ocraft.s2client.protocol.action.ui.ActionUiCargoPanelUnload;
 import com.github.ocraft.s2client.protocol.data.Ability;
 import com.github.ocraft.s2client.protocol.request.RequestAction;
 import com.github.ocraft.s2client.protocol.request.Requests;
@@ -40,9 +41,11 @@ import com.github.ocraft.s2client.protocol.spatial.PointI;
 import com.github.ocraft.s2client.protocol.spatial.RectangleI;
 import com.github.ocraft.s2client.protocol.syntax.action.spatial.AddSyntax;
 import com.github.ocraft.s2client.protocol.syntax.action.spatial.TargetSyntax;
+import com.github.ocraft.s2client.protocol.unit.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static com.github.ocraft.s2client.protocol.action.Action.action;
 
@@ -97,6 +100,14 @@ class ActionFeatureLayerInterfaceImpl implements ActionFeatureLayerInterface {
         if (addToSelection) unitSelectionRect.add();
         actions.add(action()
                 .featureLayer(unitSelectionRect)
+                .build());
+        return this;
+    }
+
+    @Override
+    public ActionFeatureLayerInterface unloadCargo(int unitIndex) {
+        actions.add(action()
+                .ui(ActionUiCargoPanelUnload.cargoPanelUnload().of(unitIndex).build())
                 .build());
         return this;
     }

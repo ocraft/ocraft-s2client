@@ -26,12 +26,14 @@ package com.github.ocraft.s2client.bot.gateway.impl;
  * #L%
  */
 
+import SC2APIProtocol.Data;
 import com.github.ocraft.s2client.bot.gateway.ActionInterface;
 import com.github.ocraft.s2client.protocol.action.Action;
 import com.github.ocraft.s2client.protocol.action.ActionChat;
 import com.github.ocraft.s2client.protocol.action.raw.ActionRaw;
 import com.github.ocraft.s2client.protocol.action.raw.ActionRawToggleAutocast;
 import com.github.ocraft.s2client.protocol.action.raw.ActionRawUnitCommand;
+import com.github.ocraft.s2client.protocol.data.Abilities;
 import com.github.ocraft.s2client.protocol.data.Ability;
 import com.github.ocraft.s2client.protocol.request.RequestAction;
 import com.github.ocraft.s2client.protocol.request.Requests;
@@ -198,6 +200,28 @@ class ActionInterfaceImpl implements ActionInterface {
     @Override
     public ActionInterface sendChat(String message, ActionChat.Channel channel) {
         actions.add(action().chat(ActionChat.message().of(message).to(channel)).build());
+        return this;
+    }
+
+    @Override
+    public ActionInterface select(Tag... unitTag) {
+        actions.add(action()
+                .raw(ActionRawUnitCommand.unitCommand()
+                        .forUnits(unitTag)
+                        .useAbility(Abilities.from(0))
+                        .build())
+                .build());
+        return this;
+    }
+
+    @Override
+    public ActionInterface select(Unit... unit) {
+        actions.add(action()
+                .raw(ActionRawUnitCommand.unitCommand()
+                        .forUnits(unit)
+                        .useAbility(Abilities.from(0))
+                        .build())
+                .build());
         return this;
     }
 

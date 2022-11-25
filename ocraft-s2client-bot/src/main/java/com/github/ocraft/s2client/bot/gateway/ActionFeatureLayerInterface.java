@@ -75,6 +75,13 @@ public interface ActionFeatureLayerInterface {
     ActionFeatureLayerInterface select(PointI p0, PointI p1, boolean addToSelection);
 
     /**
+     * Unloads a cargo unit from the currently selected unit.
+     *
+     * @param unitIndex      The 0-indexed position of the unit to unload.
+     */
+    ActionFeatureLayerInterface unloadCargo(int unitIndex);
+
+    /**
      * This function sends out all batched selection and unit commands. You DO NOT need to call this function in non
      * real time simulations since it is automatically called when stepping the simulation forward. You only need to
      * call this function in a real time simulation.
