@@ -113,7 +113,7 @@ class Point2dTest {
     void convertsToPoint() {
         Point2d p0 = Point2d.of(2, 4);
 
-        assertThat(p0.toPoint2d(1)).isEqualTo(Point.of(2, 4, 1));
+        assertThat(p0.toPoint(1)).isEqualTo(Point.of(2, 4, 1));
     }
 
     @Test
