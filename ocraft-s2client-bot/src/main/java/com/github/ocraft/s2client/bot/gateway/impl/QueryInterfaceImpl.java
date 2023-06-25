@@ -77,8 +77,6 @@ class QueryInterfaceImpl implements QueryInterface {
                 .orElseGet(ArrayList::new);
 
         // TODO p.picheta to test
-        control().errorIf(availableAbilities.isEmpty(), ClientError.NO_ABILITIES_FOR_TAG, Collections.emptyList());
-
         if (control().isUseGeneralizedAbilityId()) {
             availableAbilities = availableAbilities.stream()
                     .map(ability -> ability.generalizeAbility(control().observationInternal()::getGeneralizedAbility))
