@@ -39,7 +39,6 @@ import com.github.ocraft.s2client.protocol.action.observer.ActionObserverPlayerP
 import com.github.ocraft.s2client.protocol.action.observer.ActionObserverCameraFollowUnits;
 import com.github.ocraft.s2client.protocol.unit.Tag;
 import com.github.ocraft.s2client.protocol.unit.Unit;
-import com.github.ocraft.s2client.protocol.spatial.Point2I;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +57,7 @@ class ObserverActionInterfaceImpl implements ObserverActionInterface {
     }
 
     @Override
-    public ObserverActionInterface cameraMove(Point2I point, float distance) {
+    public ObserverActionInterface cameraMove(Point2d point, float distance) {
         actions.add(ObserverAction.observerAction().of(
                 ActionObserverCameraMove
                         .cameraMove()
