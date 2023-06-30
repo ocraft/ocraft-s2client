@@ -37,6 +37,8 @@ import com.github.ocraft.s2client.protocol.response.ResponseObserverAction;
 import com.github.ocraft.s2client.protocol.spatial.Point2d;
 import com.github.ocraft.s2client.protocol.action.observer.ActionObserverPlayerPerspective;
 import com.github.ocraft.s2client.protocol.action.observer.ActionObserverCameraFollowUnits;
+import com.github.ocraft.s2client.protocol.unit.Tag;
+import com.github.ocraft.s2client.protocol.unit.Unit;
 
 import java.util.ArrayList;
 import java.util.List;
