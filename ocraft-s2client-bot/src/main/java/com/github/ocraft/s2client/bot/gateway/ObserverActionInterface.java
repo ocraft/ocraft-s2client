@@ -26,7 +26,9 @@ package com.github.ocraft.s2client.bot.gateway;
  * #L%
  */
 
-import com.github.ocraft.s2client.protocol.spatial.PointI;
+import com.github.ocraft.s2client.protocol.spatial.Point2d;
+import com.github.ocraft.s2client.protocol.unit.Tag;
+import com.github.ocraft.s2client.protocol.unit.Unit;
 
 /**
  * The ObserverActionInterface corresponds to the actions available in the observer UI.
@@ -40,7 +42,7 @@ public interface ObserverActionInterface {
      * @param distance Distance between camera and terrain. Larger value zooms out camera. Defaults to standard camera
      *                 distance if set to 0.
      */
-    ObserverActionInterface cameraMove(PointI point, float distance);
+    ObserverActionInterface cameraMove(Point2d point, float distance);
 
     /**
      * Makes the observer camera follow the observed player's perspective.
@@ -48,6 +50,12 @@ public interface ObserverActionInterface {
      * @param playerId Player to follow.
      */
     ObserverActionInterface cameraFollowPlayer(int playerId);
+
+    ObserverActionInterface cameraSetPerspective(int playerId);
+
+    ObserverActionInterface cameraFollowUnits(Unit...unit, float distance);
+
+    ObserverActionInterface cameraFollowUnits(Tag...unit, float distance);
 
     /**
      * This function sends out all batched commands. You DO NOT need to call this function.
