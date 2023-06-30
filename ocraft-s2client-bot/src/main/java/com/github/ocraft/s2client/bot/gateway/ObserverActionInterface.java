@@ -26,7 +26,7 @@ package com.github.ocraft.s2client.bot.gateway;
  * #L%
  */
 
-import com.github.ocraft.s2client.protocol.spatial.Point2d;
+import com.github.ocraft.s2client.protocol.spatial.Point2I;
 import com.github.ocraft.s2client.protocol.unit.Tag;
 import com.github.ocraft.s2client.protocol.unit.Unit;
 
@@ -42,7 +42,7 @@ public interface ObserverActionInterface {
      * @param distance Distance between camera and terrain. Larger value zooms out camera. Defaults to standard camera
      *                 distance if set to 0.
      */
-    ObserverActionInterface cameraMove(Point2d point, float distance);
+    ObserverActionInterface cameraMove(Point2I point, float distance);
 
     /**
      * Makes the observer camera follow the observed player's perspective.
