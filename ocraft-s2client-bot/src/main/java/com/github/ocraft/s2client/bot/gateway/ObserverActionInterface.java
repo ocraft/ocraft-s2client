@@ -51,11 +51,26 @@ public interface ObserverActionInterface {
      */
     ObserverActionInterface cameraFollowPlayer(int playerId);
 
+    /**
+     * Makes the observer view the camera from the perspective of a player
+     *
+     * @param playerId Player to use perspective of.
+     */
     ObserverActionInterface cameraSetPerspective(int playerId);
 
-    ObserverActionInterface cameraFollowUnits(Unit...unit, float distance);
+    /**
+     * Moves the observer to follow the specific set of units.
+     *
+     * @param units The units to follow.
+     */
+    ObserverActionInterface cameraFollowUnits(Unit...units);
 
-    ObserverActionInterface cameraFollowUnits(Tag...unit, float distance);
+    /**
+     * Moves the observer camera to follow a specific set of units.
+     *
+     * @param units The units to follow.
+     */
+    ObserverActionInterface cameraFollowUnits(Tag...units);
 
     /**
      * This function sends out all batched commands. You DO NOT need to call this function.
