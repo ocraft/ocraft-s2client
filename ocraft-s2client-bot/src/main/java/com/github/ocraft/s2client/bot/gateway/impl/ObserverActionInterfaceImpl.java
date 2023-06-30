@@ -81,13 +81,13 @@ class ObserverActionInterfaceImpl implements ObserverActionInterface {
 
     @Override
     public ObserverActionInterface cameraFollowUnits(Unit...units) {
-        actions.add(ActionObserverCameraFollowUnits.cameraFollowUnits().of(units));
+        actions.add(ObserverAction.observerAction().of(ActionObserverCameraFollowUnits.cameraFollowUnits().of(units)));
         return this;
     }
 
     @Override
     public ObserverActionInterface cameraFollowUnits(Tag...units) {
-        actions.add(ActionObserverCameraFollowUnits.cameraFollowUnits().withTags(units));
+        actions.add(ObserverAction.observerAction().of(ActionObserverCameraFollowUnits.cameraFollowUnits().withTags(units)));
         return this;
     }
 
