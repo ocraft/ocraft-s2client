@@ -75,7 +75,7 @@ class ObserverActionInterfaceImpl implements ObserverActionInterface {
 
     @Override
     public ObserverActionInterface cameraSetPerspective(int playerId) {
-        actions.add(ActionObserverPlayerPerspective.playerPerspective().ofPlayer(playerId));
+        actions.add(ObserverAction.observerAction().of(ActionObserverPlayerPerspective.playerPerspective().ofPlayer(playerId)));
         return this;
     }
 
