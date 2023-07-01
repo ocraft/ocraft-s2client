@@ -129,13 +129,15 @@ class ProtoInterfaceImpl implements ProtoInterface {
     @Override
     public <T extends Request> Maybe<Response> sendRequest(T requestData) {
         require("request", requestData);
-        if (!requestData.responseType().equals(ResponseType.PING) &&
-                responseQueue.peek(requestData.responseType())) {
-            // TODO p.picheta to test
-            onError.accept(ClientError.RESPONSE_NOT_CONSUMED, Collections.emptyList());
-            return Maybe.empty();
+        Maybe<Response> responseMaybe;
+        if (!requestData.responseType().equals(ResponseType.PING) && responseQueue.peek(requestData.responseType())) {
+            // We don't need to sync when using a ping response type
+            synchronized(requestData.responseType()) {
+                responseMaybe = s2Client.waitForResponse(requestData.responseType());
+            }
+        } else {
+            responseMaybe = s2Client.waitForResponse(requestData.responseType());
         }
-        Maybe<Response> responseMaybe = s2Client.waitForResponse(requestData.responseType());
         s2Client.request(requestData);
         countUses.compute(requestData.responseType(), (responseType, count) -> count != null ? ++count : 1);
         responseQueue.offer(requestData.responseType(), responseMaybe);

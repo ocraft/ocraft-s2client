@@ -35,7 +35,10 @@ import com.github.ocraft.s2client.protocol.request.RequestObserverAction;
 import com.github.ocraft.s2client.protocol.request.Requests;
 import com.github.ocraft.s2client.protocol.response.ResponseObserverAction;
 import com.github.ocraft.s2client.protocol.spatial.Point2d;
-import com.github.ocraft.s2client.protocol.spatial.PointI;
+import com.github.ocraft.s2client.protocol.action.observer.ActionObserverPlayerPerspective;
+import com.github.ocraft.s2client.protocol.action.observer.ActionObserverCameraFollowUnits;
+import com.github.ocraft.s2client.protocol.unit.Tag;
+import com.github.ocraft.s2client.protocol.unit.Unit;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +57,7 @@ class ObserverActionInterfaceImpl implements ObserverActionInterface {
     }
 
     @Override
-    public ObserverActionInterface cameraMove(PointI point, float distance) {
+    public ObserverActionInterface cameraMove(Point2d point, float distance) {
         actions.add(ObserverAction.observerAction().of(
                 ActionObserverCameraMove
                         .cameraMove()
@@ -67,6 +70,24 @@ class ObserverActionInterfaceImpl implements ObserverActionInterface {
     public ObserverActionInterface cameraFollowPlayer(int playerId) {
         actions.add(ObserverAction.observerAction().of(
                 ActionObserverCameraFollowPlayer.cameraFollowPlayer().withId(playerId)));
+        return this;
+    }
+
+    @Override
+    public ObserverActionInterface cameraSetPerspective(int playerId) {
+        actions.add(ObserverAction.observerAction().of(ActionObserverPlayerPerspective.playerPerspective().ofPlayer(playerId)));
+        return this;
+    }
+
+    @Override
+    public ObserverActionInterface cameraFollowUnits(Unit...units) {
+        actions.add(ObserverAction.observerAction().of(ActionObserverCameraFollowUnits.cameraFollowUnits().of(units)));
+        return this;
+    }
+
+    @Override
+    public ObserverActionInterface cameraFollowUnits(Tag...units) {
+        actions.add(ObserverAction.observerAction().of(ActionObserverCameraFollowUnits.cameraFollowUnits().withTags(units)));
         return this;
     }
 

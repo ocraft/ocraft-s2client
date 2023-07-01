@@ -828,7 +828,7 @@ public class S2Coordinator {
                 }
                 if (shouldRelaunch(replayObserver)) break;
                 boolean launched = !replayObserver.replayControl()
-                        .loadReplay(replay, interfaceSettings, 1, processSettings.getRealtime())
+                        .loadReplay(replay, interfaceSettings, 0, processSettings.getRealtime())
                         .isEmpty()
                         .blockingGet();
                 replays.remove(replays.size() - 1);

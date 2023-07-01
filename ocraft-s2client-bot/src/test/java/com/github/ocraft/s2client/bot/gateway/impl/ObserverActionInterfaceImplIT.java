@@ -29,7 +29,7 @@ package com.github.ocraft.s2client.bot.gateway.impl;
 import SC2APIProtocol.Sc2Api;
 import com.github.ocraft.s2client.bot.GameServerResponses;
 import com.github.ocraft.s2client.bot.gateway.ObserverActionInterface;
-import com.github.ocraft.s2client.protocol.spatial.PointI;
+import com.github.ocraft.s2client.protocol.spatial.Point2d;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +43,7 @@ class ObserverActionInterfaceImplIT {
         gameSetup.server().onRequest(Sc2Api.Request::hasObsAction, GameServerResponses::obsAction);
 
         ObserverActionInterface observerAction = gameSetup.control().observerAction();
-        observerAction.cameraMove(PointI.of(1, 2), 1.0f).cameraFollowPlayer(1);
+        observerAction.cameraMove(Point2d.of(1, 2), 1.0f).cameraFollowPlayer(1);
 
         assertThat(observerAction.sendActions()).as("sending observer action status").isTrue();
         assertThat(observerAction.sendActions()).as("sending empty observer action status").isFalse();
