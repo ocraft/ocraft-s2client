@@ -641,6 +641,7 @@ public enum Abilities implements Ability {
         }
         if (build >= 91115) {
             updateId(80, 4119);
+            updateId(792, 1535);
         }
     }
 
