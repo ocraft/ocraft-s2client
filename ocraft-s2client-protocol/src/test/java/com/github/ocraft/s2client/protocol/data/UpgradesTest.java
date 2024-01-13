@@ -41,6 +41,6 @@ class UpgradesTest {
 
     @Test
     void returnsOtherTypeIfIdIsNotMapped() {
-        assertThat(Upgrades.from(-1000)).as("effect: not mapped id").isEqualTo(Upgrades.Other.of(-1000));
+        assertThat(Upgrades.from(-10000)).as("effect: not mapped id").isEqualTo(Upgrades.Other.of(-10000));
     }
 }
