@@ -331,8 +331,9 @@ public enum Upgrades implements Upgrade {
     CARRIER_CARRIER_CAPACITY(294),
     CARRIER_LEASH_RANGE_UPGRADE(295),
     TEMPEST_GROUND_ATTACK_UPGRADE(296),
-    ENHANCED_SHOCKWAVES(297),
+    MICROBIAL_SHROUD(298),
     INTERFERENCE_MATRIX(299),
+    ENHANCED_SHOCKWAVES(304),
     HURRICANE_THRUSTERS(-1000); //-1000 is arbitrary id. It's 296, but 296 is taken in older versions
 
     public static final class Other implements Upgrade {
