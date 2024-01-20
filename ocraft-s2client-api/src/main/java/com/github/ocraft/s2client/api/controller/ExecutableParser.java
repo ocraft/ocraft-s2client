@@ -47,7 +47,7 @@ import static com.github.ocraft.s2client.protocol.Constants.nothing;
 import static com.github.ocraft.s2client.protocol.Errors.required;
 import static com.github.ocraft.s2client.protocol.Preconditions.isSet;
 import static java.lang.String.format;
-import static java.util.Comparator.reverseOrder;
+import static java.util.Comparator.naturalOrder;
 import static java.util.Optional.ofNullable;
 
 public final class ExecutableParser {
@@ -60,6 +60,7 @@ public final class ExecutableParser {
     public static final String X64_SUFFIX = "_x64";
     public static final Path CFG_PATH = Paths.get("Starcraft II", EXECUTE_INFO);
     public static final Path WIN_CFG = Paths.get("Documents").resolve(CFG_PATH);
+    public static final Path WIN_CFG_ONE_DRIVE = Paths.get("OneDrive","Documents").resolve(CFG_PATH);
     public static final Path LINUX_CFG = CFG_PATH;
     public static final Path MAC_CFG = Paths.get("Library", "Application Support", "Blizzard").resolve(CFG_PATH);
 
@@ -146,12 +147,14 @@ public final class ExecutableParser {
     private static Optional<Path> resolveExecuteInfoPath() {
         String os = System.getProperty("os.name").toLowerCase();
         String userHome = System.getProperty("user.home");
+        Path userHomePath = Paths.get(userHome);
         if (isWindows(os)) {
-            return Optional.of(Paths.get(userHome).resolve(WIN_CFG));
+            Path executeInfoPath = userHomePath.resolve(WIN_CFG);
+            return Files.exists(executeInfoPath) ? Optional.of(executeInfoPath) : Optional.of(userHomePath.resolve(WIN_CFG_ONE_DRIVE));
         } else if (isUnix(os)) {
-            return Optional.of(Paths.get(userHome).resolve(LINUX_CFG));
+            return Optional.of(userHomePath.resolve(LINUX_CFG));
         } else if (isMac(os)) {
-            return Optional.of(Paths.get(userHome).resolve(MAC_CFG));
+            return Optional.of(userHomePath.resolve(MAC_CFG));
         } else {
             return Optional.empty();
         }
@@ -201,7 +204,7 @@ public final class ExecutableParser {
                             .orElseThrow(required("version directory")))
                     .filter(file -> file.getFileName().toString().startsWith(BUILD_PREFIX))
             ) {
-                return builds.min(reverseOrder())
+                return builds.max(naturalOrder())
                         .filter(path -> Files.exists(path.resolve(exeFile)))
                         .map(Path::getFileName)
                         .map(Path::toString)
