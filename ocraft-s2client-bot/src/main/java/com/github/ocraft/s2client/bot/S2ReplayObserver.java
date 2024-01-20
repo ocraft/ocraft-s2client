@@ -60,7 +60,7 @@ public class S2ReplayObserver extends Client {
      * @param replayInfo Replay information used to decide if the replay should be filtered.
      * @return If 'true', the replay will be rejected and not analyzed.
      */
-    public boolean ignoreReplay(ReplayInfo replayInfo, int playerId) {
+    boolean ignoreReplay(ReplayInfo replayInfo, int playerId) {
         return replayInfo.getGameDurationSeconds() < MINIMUM_REPLAY_DURATION;
     }
 
