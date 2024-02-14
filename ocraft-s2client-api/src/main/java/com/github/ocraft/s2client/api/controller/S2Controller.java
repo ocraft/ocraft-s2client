@@ -210,7 +210,7 @@ public class S2Controller extends DefaultSubscriber<Response> {
         log.info("Launching Starcraft II with configuration: {}.", cfg);
         try {
             Path gameRoot = Paths.get(cfg.getString(GAME_EXE_ROOT));
-            String exeFile = cfg.hasPath(GAME_EXE_PATH) ? cfg.getString(GAME_EXE_PATH) : gameRoot
+            String exeFile = gameRoot
                     .resolve(Paths.get(
                             ExecutableParser.VERSIONS_DIR,
                             cfg.getString(GAME_EXE_BUILD),
