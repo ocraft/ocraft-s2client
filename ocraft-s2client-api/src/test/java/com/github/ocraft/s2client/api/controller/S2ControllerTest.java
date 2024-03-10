@@ -93,7 +93,7 @@ class S2ControllerTest {
                 entry(GAME_NET_RETRY_COUNT, 10),
                 entry(GAME_EXE_ROOT, gameRoot.toString()),
                 entry(GAME_EXE_PATH, exePath),
-                entry(GAME_EXE_BUILD, CFG_EXE_BUILD_NEW),
+                entry(GAME_EXE_BUILD, CFG_EXE_BUILD_OLD),
                 entry(GAME_EXE_FILE, CFG_EXE_FILE),
                 entry(GAME_EXE_DATA_VER, CFG_EXE_DATA_VER),
                 entry(GAME_EXE_IS_64, true),

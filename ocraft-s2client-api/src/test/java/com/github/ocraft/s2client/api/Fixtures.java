@@ -65,7 +65,7 @@ public class Fixtures {
     public static final int CFG_NET_PORT = 5000;
     public static final String CFG_EXE_BUILD_NEW = "Base58400";
     public static final String CFG_EXE_BUILD_OLD = "Base55958";
-    public static final String CFG_EXE_DATA_VER = "2B06AEE58017A7DF2A3D452D733F1019";
+    public static final String CFG_EXE_DATA_VER = "5BD7C31B44525DAB46E64C4602A81DC2";
     public static final String GAME_DIR = "Starcraft II";
     public static final int CFG_WINDOW_W = 1024;
     public static final int CFG_WINDOW_H = 768;
