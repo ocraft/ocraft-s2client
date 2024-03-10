@@ -114,7 +114,6 @@ class ProtoInterfaceImpl implements ProtoInterface {
                         this.baseBuild = ping.getBaseBuild();
                         Units.remapForBuild(this.baseBuild);
                         Abilities.remapForBuild(this.baseBuild);
-                        Upgrades.remapForBuild(this.baseBuild);
                     }, () -> {
                         throw new IllegalStateException("ping failed");
                     });

@@ -331,10 +331,10 @@ public enum Upgrades implements Upgrade {
     CARRIER_CARRIER_CAPACITY(294),
     CARRIER_LEASH_RANGE_UPGRADE(295),
     TEMPEST_GROUND_ATTACK_UPGRADE(296),
-    MICROBIAL_SHROUD(298),
-    INTERFERENCE_MATRIX(299),
-    ENHANCED_SHOCKWAVES(304),
-    HURRICANE_THRUSTERS(-1000); //-1000 is arbitrary id. It's 296, but 296 is taken in older versions
+    MICROBIAL_SHROUD(297),
+    ENHANCED_SHOCKWAVES(302),
+    HURRICANE_THRUSTERS(303),
+    INTERFERENCE_MATRIX(304);
 
     public static final class Other implements Upgrade {
 
@@ -370,7 +370,7 @@ public enum Upgrades implements Upgrade {
         EnumSet.allOf(Upgrades.class).forEach(upgrade -> upgradeIdMap.put(upgrade.getUpgradeId(), upgrade));
     }
 
-    private int upgradeId;
+    private final int upgradeId;
 
     Upgrades(int upgradeId) {
         this.upgradeId = upgradeId;
@@ -378,21 +378,6 @@ public enum Upgrades implements Upgrade {
 
     public static Upgrade from(int sc2ApiUpgradeId) {
         return Optional.ofNullable(upgradeIdMap.get(sc2ApiUpgradeId)).orElse(Other.of(sc2ApiUpgradeId));
-    }
-
-    public static void remapForBuild(Integer build) {
-        if (build >= 91115) {
-            updateId(296, 297);
-            updateId(-1000, 296);
-        }
-    }
-
-    private static void updateId(int oldId, int newId) {
-        Upgrade toUpdate = upgradeIdMap.remove(oldId);
-        if (toUpdate != null) {
-            ((Upgrades) toUpdate).upgradeId = newId;
-            upgradeIdMap.put(newId, toUpdate);
-        }
     }
 
     @Override
