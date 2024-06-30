@@ -87,23 +87,23 @@ class S2ControllerTest {
         Path gameRoot = gameRoot();
         String exePath = gameRoot.resolve(Paths.get("Versions", CFG_EXE_BUILD_OLD, CFG_EXE_FILE)).toString();
         return ConfigFactory.parseMap(Map.ofEntries(
-                entry(GAME_NET_IP, CFG_NET_IP),
-                entry(GAME_NET_PORT, CFG_NET_PORT),
-                entry(GAME_NET_TIMEOUT, 2000),
-                entry(GAME_NET_RETRY_COUNT, 10),
-                entry(GAME_EXE_ROOT, gameRoot.toString()),
-                entry(GAME_EXE_PATH, exePath),
-                entry(GAME_EXE_BUILD, CFG_EXE_BUILD_OLD),
-                entry(GAME_EXE_FILE, CFG_EXE_FILE),
-                entry(GAME_EXE_DATA_VER, CFG_EXE_DATA_VER),
-                entry(GAME_EXE_IS_64, true),
-                entry(GAME_WINDOW_W, CFG_WINDOW_W),
-                entry(GAME_WINDOW_H, CFG_WINDOW_H),
-                entry(GAME_WINDOW_X, CFG_WINDOW_X),
-                entry(GAME_WINDOW_Y, CFG_WINDOW_Y),
-                entry(GAME_WINDOW_MODE, 0),
-                entry(GAME_CLI_NEEDS_SUPPORT_DIR, true)
-        )).withValue(GAME_CLI_DATA_DIR, ConfigValueFactory.fromAnyRef(nothing()))
+                        entry(GAME_NET_IP, CFG_NET_IP),
+                        entry(GAME_NET_PORT, CFG_NET_PORT),
+                        entry(GAME_NET_TIMEOUT, 2000),
+                        entry(GAME_NET_RETRY_COUNT, 10),
+                        entry(GAME_EXE_ROOT, gameRoot.toString()),
+                        entry(GAME_EXE_PATH, exePath),
+                        entry(GAME_EXE_BUILD, CFG_EXE_BUILD_NEW),
+                        entry(GAME_EXE_FILE, CFG_EXE_FILE),
+                        entry(GAME_EXE_DATA_VER, CFG_EXE_DATA_VER),
+                        entry(GAME_EXE_IS_64, true),
+                        entry(GAME_WINDOW_W, CFG_WINDOW_W),
+                        entry(GAME_WINDOW_H, CFG_WINDOW_H),
+                        entry(GAME_WINDOW_X, CFG_WINDOW_X),
+                        entry(GAME_WINDOW_Y, CFG_WINDOW_Y),
+                        entry(GAME_WINDOW_MODE, 0),
+                        entry(GAME_CLI_NEEDS_SUPPORT_DIR, true)
+                )).withValue(GAME_CLI_DATA_DIR, ConfigValueFactory.fromAnyRef(nothing()))
                 .withValue(GAME_CLI_EGL_PATH, ConfigValueFactory.fromAnyRef(nothing()))
                 .withValue(GAME_CLI_OS_MESA_PATH, ConfigValueFactory.fromAnyRef(nothing()))
                 .withValue(GAME_CLI_DATA_DIR, ConfigValueFactory.fromAnyRef(nothing()))

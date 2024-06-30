@@ -12,10 +12,10 @@ package com.github.ocraft.s2client.api.controller;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -73,7 +73,11 @@ public final class ExecutableParser {
         try {
             Map<String, Object> executableConfig = new HashMap<>();
 
-            executableConfig.put(GAME_EXE_PATH, customPath == null ? findExecutablePath().toString() : customPath);
+            if (customPath == null) {
+                executableConfig.put(GAME_EXE_PATH, findExecutablePath().toString());
+            } else {
+                executableConfig.put(GAME_EXE_PATH, customPath);
+            }
 
             Path executablePath = Paths.get((String) executableConfig.get(GAME_EXE_PATH));
 
@@ -102,7 +106,7 @@ public final class ExecutableParser {
             String baseBuild = customBaseBuild;
 
             if (!isSet(baseBuild)) {
-                baseBuild = getBaseBuildFromGameExePath((String) executableConfig.get(GAME_EXE_PATH));
+                baseBuild = toNewestBaseBuild(exeFile).apply(gamePath.resolve(VERSIONS_DIR));
             }
 
             executableConfig.put(GAME_EXE_BUILD, baseBuild);
@@ -120,16 +124,6 @@ public final class ExecutableParser {
             throw new StarCraft2ControllerException(
                     ControllerError.INVALID_EXECUTABLE, "Invalid argument was provided", e);
         }
-    }
-
-    private static String getBaseBuildFromGameExePath(String gameExePath) {
-        String[] dirTree = gameExePath.split("\\\\");
-        for (String dir : dirTree) {
-            if (dir.startsWith("Base")) {
-                return dir;
-            }
-        }
-        return null;
     }
 
     private static Path findExecutablePath() {
@@ -205,9 +199,9 @@ public final class ExecutableParser {
     private static Function<Path, String> toNewestBaseBuild(String exeFile) {
         return versionPath -> {
             try (Stream<Path> builds = Files.list(
-                    ofNullable(versionPath)
-                            .filter(Files::exists)
-                            .orElseThrow(required("version directory")))
+                            ofNullable(versionPath)
+                                    .filter(Files::exists)
+                                    .orElseThrow(required("version directory")))
                     .filter(file -> file.getFileName().toString().startsWith(BUILD_PREFIX))
             ) {
                 return builds.max(naturalOrder())
