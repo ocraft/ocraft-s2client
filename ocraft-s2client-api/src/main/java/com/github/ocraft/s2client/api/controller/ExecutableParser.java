@@ -73,11 +73,7 @@ public final class ExecutableParser {
         try {
             Map<String, Object> executableConfig = new HashMap<>();
 
-            if (customPath == null) {
-                executableConfig.put(GAME_EXE_PATH, findExecutablePath().toString());
-            } else {
-                executableConfig.put(GAME_EXE_PATH, customPath);
-            }
+            executableConfig.put(GAME_EXE_PATH, customPath == null ? findExecutablePath().toString() : customPath);
 
             Path executablePath = Paths.get((String) executableConfig.get(GAME_EXE_PATH));
 
@@ -106,7 +102,7 @@ public final class ExecutableParser {
             String baseBuild = customBaseBuild;
 
             if (!isSet(baseBuild)) {
-                baseBuild = toNewestBaseBuild(exeFile).apply(gamePath.resolve(VERSIONS_DIR));
+                baseBuild = getBaseBuildFromGameExePath((String) executableConfig.get(GAME_EXE_PATH));
             }
 
             executableConfig.put(GAME_EXE_BUILD, baseBuild);
@@ -124,6 +120,16 @@ public final class ExecutableParser {
             throw new StarCraft2ControllerException(
                     ControllerError.INVALID_EXECUTABLE, "Invalid argument was provided", e);
         }
+    }
+
+    private static String getBaseBuildFromGameExePath(String gameExePath) {
+        String[] dirTree = gameExePath.split("\\\\");
+        for (String dir : dirTree) {
+            if (dir.startsWith("Base")) {
+                return dir;
+            }
+        }
+        return null;
     }
 
     private static Path findExecutablePath() {
