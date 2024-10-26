@@ -39,6 +39,7 @@ import com.github.ocraft.s2client.protocol.spatial.Point2d;
 import com.github.ocraft.s2client.protocol.unit.Unit;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 
@@ -117,20 +118,19 @@ public interface QueryInterface {
      * optional unit tags and returns a matching array of booleans indicating if placement is possible.
      *
      * @param queries Placement queries.
-     * @return Array of booleans indicating if placement is possible.
+     * @return List of booleans indicating if placement is possible.
      */
     List<Boolean> placement(List<QueryBuildingPlacement> queries);
 
     /**
-     * Calculates expansion locations, this call can take on the order of 100ms since it makes blocking queries to SC2
-     * so call it once and cache the results.
+     * Calculates expansion locations
+     * Note: bases that are blocked by destructible rocks or small minerals are included in this list
      *
-     * @param debug If filled out CalculateExpansionLocations will render spheres to show what it calculated.
+     * @param debug If provided CalculateExpansionLocations will render boxes to show what it calculated.
      */
-    default List<Point> calculateExpansionLocations(
-            ObservationInterface observation, DebugInterface debug, ExpansionParameters parameters) {
+    default List<Point> calculateExpansionLocations(ObservationInterface observation, DebugInterface debug) {
         List<UnitInPool> resources = observation.getUnits(unitInPool -> {
-            Set<UnitType> fields = new HashSet<>(asList(
+            Set<UnitType> nodes = new HashSet<>(asList(
                     Units.NEUTRAL_MINERAL_FIELD, Units.NEUTRAL_MINERAL_FIELD750,
                     Units.NEUTRAL_RICH_MINERAL_FIELD, Units.NEUTRAL_RICH_MINERAL_FIELD750,
                     Units.NEUTRAL_PURIFIER_MINERAL_FIELD, Units.NEUTRAL_PURIFIER_MINERAL_FIELD750,
@@ -141,78 +141,66 @@ public interface QueryInterface {
                     Units.NEUTRAL_SPACE_PLATFORM_GEYSER, Units.NEUTRAL_PURIFIER_VESPENE_GEYSER,
                     Units.NEUTRAL_SHAKURAS_VESPENE_GEYSER, Units.NEUTRAL_RICH_VESPENE_GEYSER
             ));
-            return fields.contains(unitInPool.unit().getType());
+            return nodes.contains(unitInPool.unit().getType());
         });
 
         List<Point> expansionLocations = new ArrayList<>();
-        Map<Point, List<UnitInPool>> clusters = cluster(resources, parameters.getClusterDistance());
+        Map<Point2d, List<UnitInPool>> clusters = cluster(resources, 15);
+        for (Map.Entry<Point2d, List<UnitInPool>> cluster : clusters.entrySet()) {
 
-        Map<Point, Integer> querySize = new LinkedHashMap<>();
-        List<QueryBuildingPlacement> queries = new ArrayList<>();
-        for (Map.Entry<Point, List<UnitInPool>> cluster : clusters.entrySet()) {
-            if (debug != null) {
-                for (double r : parameters.getRadiuses()) {
-                    debug.debugSphereOut(cluster.getKey(), (float) r, Color.GREEN);
-                }
-            }
+            Point2d basePos = cluster.getKey();
+            List<UnitInPool> nodes = cluster.getValue();
 
-            // Get the required queries for this cluster.
-            int queryCount = 0;
-            for (double r : parameters.getRadiuses()) {
-                List<QueryBuildingPlacement> calculatedQueries = calculateQueries(
-                        r, parameters.getCircleStepSize(), cluster.getKey().toPoint2d());
-                queries.addAll(calculatedQueries);
-                queryCount += calculatedQueries.size();
-            }
+            //estimate base position
+            basePos = estimateBasePos(basePos, nodes);
 
-            querySize.put(cluster.getKey(), queryCount);
-        }
-
-        List<Boolean> results = this.placement(queries);
-        int startIndex = 0;
-        for (Map.Entry<Point, List<UnitInPool>> cluster : clusters.entrySet()) {
-            double distance = Double.MAX_VALUE;
-            Point2d closest = null;
-
-            // For each query for the cluster minimum distance location that is valid.
-            for (int j = startIndex, e = startIndex + querySize.get(cluster.getKey()); j < e; ++j) {
-                if (!results.get(j)) {
+            //adjust basePos by grid restraints on each resource node in the cluster
+            while (true) {
+                Point2d finalBasePos = basePos;
+                nodes = nodes.stream()
+                        .sorted(Comparator.comparing(u -> u.unit().getPosition().toPoint2d().distance(finalBasePos)))
+                        .collect(Collectors.toList());
+                Point2d adjustedPoint = pushAwayFromNodes(basePos, nodes);
+                if (adjustedPoint != null) {
+                    basePos = adjustedPoint;
                     continue;
                 }
-
-                Point2d p = queries.get(j).getTarget();
-
-                double d = p.distance(cluster.getKey().toPoint2d());
-                if (d < distance) {
-                    distance = d;
-                    closest = p;
+                adjustedPoint = pullTowardsNodes(basePos, nodes);
+                if (adjustedPoint != null) {
+                    basePos = adjustedPoint;
+                    continue;
                 }
+                break;
             }
-
-            if (closest != null) {
-                Point expansion = Point.of(
-                        closest.getX(),
-                        closest.getY(),
-                        cluster.getValue().get(0).unit().getPosition().getZ());
-                if (debug != null) {
-                    debug.debugSphereOut(expansion, 0.35f, Color.RED);
-                }
-
-                expansionLocations.add(expansion);
+            Point basePoint = basePos.toPoint(observation.terrainHeight(basePos));
+            if (debug != null) {
+                debug.debugBoxOut(basePoint.add(2.5f, 2.5f, 0), basePoint.sub(2.5f, 2.5f, 0), Color.RED);
             }
-
-            startIndex += querySize.get(cluster.getKey());
+            expansionLocations.add(basePoint);
         }
-
         return expansionLocations;
     }
 
-    default List<Point> calculateExpansionLocations(ObservationInterface observation) {
-        return calculateExpansionLocations(observation, null, ExpansionParameters.preset());
+
+    /**
+     * Calculates expansion locations
+     * Note: bases that are blocked by destructible rocks or small minerals are included in this list
+     *
+     * @param debug If provided CalculateExpansionLocations will render boxes to show what it calculated.
+     * @deprecated use {@link #calculateExpansionLocations(ObservationInterface observation, DebugInterface debug)} instead.
+     */
+    @Deprecated
+    default List<Point> calculateExpansionLocations(
+            ObservationInterface observation, DebugInterface debug, ExpansionParameters parameters) {
+        return calculateExpansionLocations(observation, debug);
     }
 
-    default List<Point> calculateExpansionLocations(ObservationInterface observation, DebugInterface debug) {
-        return calculateExpansionLocations(observation, debug, ExpansionParameters.preset());
+    /**
+     * Calculates expansion locations
+     * Note: bases that are blocked by destructible rocks or small minerals are included in this list
+     */
+    default List<Point> calculateExpansionLocations(ObservationInterface observation) {
+        return calculateExpansionLocations(observation, null);
     }
 
     private List<QueryBuildingPlacement> calculateQueries(double radius, double stepSize, Point2d center) {
@@ -249,16 +237,33 @@ public interface QueryInterface {
 
     /**
      * Clusters units within some distance of each other and returns a list of them and their center of mass.
+     * @param units List of minerals and vespian geyser units
+     * @param distanceApart Range to consider as apart of the same base
+     * @return Map of minerals/gas clusters (one entry for each base)
      */
-    static Map<Point, List<UnitInPool>> cluster(List<UnitInPool> units, double distanceApart) {
-        Map<Point, List<UnitInPool>> clusters = new LinkedHashMap<>();
+    static Map<Point2d, List<UnitInPool>> cluster(List<UnitInPool> units, double distanceApart) {
+        return cluster(units, distanceApart,true);
+    }
+
+
+    /**
+     * Clusters units within some distance of each other and returns a list of them and their center of mass.
+     * @param units List of minerals and vespian geyser units
+     * @param distanceApart Range to consider as apart of the same base
+     * @param isElevationResticted if true, minerals/gas will only be apart of the same cluster if they are at the same elevation
+     * @return Map of minerals/gas clusters (one entry for each base)
+     */
+    static Map<Point2d, List<UnitInPool>> cluster(List<UnitInPool> units, double distanceApart, boolean isElevationResticted) {
+        Map<Point2d, List<UnitInPool>> clusters = new LinkedHashMap<>();
         for (UnitInPool u : units) {
             double distance = Double.MAX_VALUE;
-            Map.Entry<Point, List<UnitInPool>> targetCluster = null;
+            Point2d unitPos = u.unit().getPosition().toPoint2d();
+            Map.Entry<Point2d, List<UnitInPool>> targetCluster = null;
+
             // Find the cluster this mineral patch is closest to.
-            for (Map.Entry<Point, List<UnitInPool>> cluster : clusters.entrySet()) {
-                double d = u.unit().getPosition().distance(cluster.getKey());
-                if (d < distance) {
+            for (Map.Entry<Point2d, List<UnitInPool>> cluster : clusters.entrySet()) {
+                double d = unitPos.distance(cluster.getKey());
+                if (d < distance && (!isElevationResticted || isSameElevation(u.unit().getPosition(), cluster))) {
                     distance = d;
                     targetCluster = cluster;
                 }
@@ -268,23 +273,125 @@ public interface QueryInterface {
             if (targetCluster == null || distance > distanceApart) {
                 ArrayList<UnitInPool> unitsInCluster = new ArrayList<>();
                 unitsInCluster.add(u);
-                clusters.put(u.unit().getPosition(), unitsInCluster);
+                clusters.put(unitPos, unitsInCluster);
                 continue;
             }
 
             // Otherwise append to that cluster and update it's center of mass.
-
             if (targetCluster.getValue() == null) {
                 targetCluster.setValue(new ArrayList<>());
             }
             targetCluster.getValue().add(u);
-
-            int size = targetCluster.getValue().size();
-            Point centerOfMass = targetCluster.getKey().mul(size - 1.0f).add(u.unit().getPosition()).div(size);
-            clusters.put(centerOfMass, clusters.remove(targetCluster.getKey()));
+            Point2d centerOfCluster = getCenterPos(targetCluster.getValue());
+            clusters.put(centerOfCluster, clusters.remove(targetCluster.getKey()));
         }
-
         return clusters;
     }
 
+    private static Point2d getCenterPos(List<UnitInPool> unitList) {
+        float minX, maxX, minY, maxY;
+        minX = minY = Float.MAX_VALUE;
+        maxX = maxY = 0;
+        for (UnitInPool u : unitList) {
+            Point2d p = u.unit().getPosition().toPoint2d();
+            minX = Math.min(p.getX(), minX);
+            maxX = Math.max(p.getX(), maxX);
+            minY = Math.min(p.getY(), minY);
+            maxY = Math.max(p.getY(), maxY);
+        }
+        return Point2d.of((minX+maxX)/2f, (minY+maxY)/2f);
+    }
+
+    private static Point2d estimateBasePos(Point2d basePos, List<UnitInPool> nodes) {
+        for (int i=0; i<6; i++) {
+            Point2d finalBestGuess = basePos;
+            Point2d closestNodePos = nodes.stream()
+                    .min(Comparator.comparing(node -> node.unit().getPosition().toPoint2d().distance(finalBestGuess))).get()
+                    .unit().getPosition().toPoint2d();
+            basePos = closestNodePos.towards(basePos, 6.2f);
+        }
+        basePos = Point2d.of(basePos.getX(), basePos.getY()).toNearestHalfPoint();
+        return basePos;
+    }
+
+    private static Point2d pullTowardsNodes(Point2d basePos, List<UnitInPool> nodes) {
+        for (int i = nodes.size() - 1; i >= 0; i--) {
+            UnitInPool node = nodes.get(i);
+            Point2d nodePos = node.unit().getPosition().toPoint2d().roundToHalfPointAccuracy();
+            boolean isMineralNode = node.unit().getType().toString().contains("MINERAL");
+            float xMinDistCenter = isMineralNode ? 6.5f : 7;
+            float yMinDistCenter = isMineralNode ? 6f : 7;
+            float xMaxDist = isMineralNode ? 7.5f : 7;
+            float yMaxDist = 7;
+            float xDist = Math.abs(nodePos.getX() - basePos.getX());
+            float yDist = Math.abs(nodePos.getY() - basePos.getY());
+            if (xDist < yDist) {
+                if (xDist < xMinDistCenter && yDist > yMaxDist) {
+                    return moveYFromNodeBy(basePos, nodePos, yMaxDist);
+                }
+            }
+            else {
+                if (yDist < yMinDistCenter && xDist > xMaxDist) {
+                    return moveXFromNodeBy(basePos, nodePos, xMaxDist);
+                }
+            }
+        }
+        return null;
+    }
+
+    private static Point2d pushAwayFromNodes(Point2d basePos, List<UnitInPool> nodes) {
+        for (UnitInPool node : nodes) {
+            Point2d nodePos = node.unit().getPosition().toPoint2d().roundToHalfPointAccuracy();
+            boolean isMineralNode = node.unit().getType().toString().contains("MINERAL");
+            float xMinDistCenter = isMineralNode ? 6.5f : 7;
+            float xMinDistCorner = isMineralNode ? 5.5f : 6;
+            float yMinDistCenter = isMineralNode ? 6f : 7;
+            float yMinDistCorner = isMineralNode ? 5f : 6;
+            float xDist = Math.abs(nodePos.getX() - basePos.getX());
+            float yDist = Math.abs(nodePos.getY() - basePos.getY());
+            if (xDist < yDist) {
+                if (xDist < xMinDistCorner && yDist < yMinDistCenter) {
+                    return moveYFromNodeBy(basePos, nodePos, yMinDistCenter);
+                }
+                else if (xDist < xMinDistCenter && yDist < yMinDistCorner) {
+                    return moveYFromNodeBy(basePos, nodePos, yMinDistCorner);
+                }
+            }
+            else {
+                if (yDist < yMinDistCorner && xDist < xMinDistCenter) {
+                    return moveXFromNodeBy(basePos, nodePos, xMinDistCenter);
+                }
+                else if (yDist < yMinDistCenter && xDist < xMinDistCorner) {
+                    return moveXFromNodeBy(basePos, nodePos, xMinDistCorner);
+                }
+            }
+        }
+        return null;
+    }
+
+    private static Point2d moveXFromNodeBy(Point2d origin, Point2d nodePos, float distance) {
+        float newX;
+        if (origin.getX() < nodePos.getX()) {
+            newX = nodePos.getX() - distance;
+        }
+        else {
+            newX = nodePos.getX() + distance;
+        }
+        return Point2d.of(newX, origin.getY());
+    }
+
+    private static Point2d moveYFromNodeBy(Point2d origin, Point2d nodePos, float distance) {
+        float newY;
+        if (origin.getY() < nodePos.getY()) {
+            newY = nodePos.getY() - distance;
+        }
+        else {
+            newY = nodePos.getY() + distance;
+        }
+        return Point2d.of(origin.getX(), newY);
+    }
+
+    private static boolean isSameElevation(Point newNode, Map.Entry<Point2d, List<UnitInPool>> cluster) {
+        return cluster.getValue().stream().allMatch(node -> Math.abs(node.unit().getPosition().getZ() - newNode.getZ()) < 1.2);
+    }
 }
