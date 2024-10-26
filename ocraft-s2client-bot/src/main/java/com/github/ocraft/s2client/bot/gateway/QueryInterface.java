@@ -172,7 +172,7 @@ public interface QueryInterface {
                 }
                 break;
             }
-            Point basePoint = basePos.toPoint(observation.terrainHeight(basePos));
+            Point basePoint = basePos.toPoint((float)Math.ceil(observation.terrainHeight(basePos)));
             if (debug != null) {
                 debug.debugBoxOut(basePoint.add(2.5f, 2.5f, 0), basePoint.sub(2.5f, 2.5f, 0), Color.RED);
             }
@@ -201,38 +201,6 @@ public interface QueryInterface {
      */
     default List<Point> calculateExpansionLocations(ObservationInterface observation) {
         return calculateExpansionLocations(observation, null);
-    }
-
-    private List<QueryBuildingPlacement> calculateQueries(double radius, double stepSize, Point2d center) {
-        List<QueryBuildingPlacement> queries = new ArrayList<>();
-
-        Point2d previousGrid = Point2d.of(Float.MAX_VALUE, Float.MAX_VALUE);
-        // Find a buildable location on the circumference of the sphere
-        for (double degree = 0.0; degree < 360.0; degree += stepSize) {
-            Point2d point = pointOnCircle(radius, center, degree);
-
-            QueryBuildingPlacement query = QueryBuildingPlacement
-                    .placeBuilding()
-                    .useAbility(Abilities.BUILD_COMMAND_CENTER)
-                    .on(point)
-                    .build();
-
-            Point2d currentGrid = Point2d.of((float) Math.floor(point.getX()), (float) Math.floor(point.getY()));
-
-            if (!previousGrid.equals(currentGrid)) {
-                queries.add(query);
-            }
-
-            previousGrid = currentGrid;
-        }
-
-        return queries;
-    }
-
-    private static Point2d pointOnCircle(double radius, Point2d center, double degree) {
-        return Point2d.of(
-                (float) (radius * Math.cos(Math.toRadians(degree)) + center.getX()),
-                (float) (radius * Math.sin(Math.toRadians(degree)) + center.getY()));
     }
 
     /**
