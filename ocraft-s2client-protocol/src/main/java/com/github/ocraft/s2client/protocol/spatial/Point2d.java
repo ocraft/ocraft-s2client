@@ -29,6 +29,7 @@ package com.github.ocraft.s2client.protocol.spatial;
 import SC2APIProtocol.Common;
 import com.github.ocraft.s2client.protocol.Sc2ApiSerializable;
 import com.github.ocraft.s2client.protocol.Strings;
+import com.github.ocraft.s2client.protocol.unit.Unit;
 
 import static com.github.ocraft.s2client.protocol.DataExtractor.tryGet;
 import static com.github.ocraft.s2client.protocol.Errors.required;
@@ -110,10 +111,7 @@ public final class Point2d implements Sc2ApiSerializable<Common.Point2D> {
     }
 
     public double distance(Point2d b) {
-        float x1 = x - b.getX();
-        float y1 = y - b.getY();
-
-        return Math.sqrt(x1 * x1 + y1 * y1);
+        return Math.hypot(x - b.getX(), y - b.getY());
     }
 
     public float dot(Point2d b) {
@@ -122,6 +120,78 @@ public final class Point2d implements Sc2ApiSerializable<Common.Point2D> {
 
     public Point toPoint(float z) {
         return Point.of(x, y, z);
+    }
+
+    public float getAngle(Unit b) {
+        return getAngle(b.getPosition().toPoint2d());
+    }
+    // 0 = right, pi/2 = up, pi = left, 3pi/2 = down
+    public float getAngle(Point2d b) {
+        return (float)((Math.atan2(b.getY() - y, b.getX() - x) + Math.PI*2) % (Math.PI*2));
+    }
+
+    public Point2d addDistanceByAngle(double angleInRads, float distance) {
+        return Point2d.of(
+                distance * (float)Math.cos(angleInRads) + x,
+                distance * (float)Math.sin(angleInRads) + y
+        );
+    }
+
+    public Point2d midPoint(Point2d b) {
+        return this.add(b).div(2);
+    }
+
+    public Point2d rotate(Point2d pivotPoint, double angleInRads) {
+        double sin = Math.sin(angleInRads);
+        double cos = Math.cos(angleInRads);
+
+        //subtract pivot point
+        Point2d origin = this.sub(pivotPoint);
+
+        //rotate point
+        float xNew = (float)(origin.getX() * cos - origin.getY() * sin);
+        float yNew = (float)(origin.getX() * sin + origin.getY() * cos);
+
+        //add back the pivot point
+        float x = xNew + pivotPoint.getX();
+        float y = yNew + pivotPoint.getY();
+
+        return Point2d.of(x, y);
+    }
+
+    public Point2d roundToHalfPointAccuracy() {
+        return Point2d.of(Math.round(x * 2) / 2f, Math.round(y * 2) / 2f);
+    }
+
+    //useful for 1x1, 3x3, and 5x5 structure placements
+    public Point2d toNearestHalfPoint() {
+        return Point2d.of((int)x + 0.5f, (int)y + 0.5f);
+    }
+
+    //useful for 2x2 structure placements
+    public Point2d toNearestWholePoint() {
+        return Point2d.of(Math.round(x), Math.round(y));
+    }
+
+    public Point2d towards(Unit b, float distance) {
+        return towards(b.getPosition().toPoint2d(), distance);
+    }
+
+    public Point2d towards(Point2d b, float distance) {
+        if (this.equals(b)) {
+            return b;
+        }
+        Point2d vector = unitVector(b);
+        return this.add(vector.mul(distance));
+    }
+
+    public Point2d unitVector(Point2d b) {
+        return b.sub(this).normalize();
+    }
+
+    public Point2d normalize() {
+        float length = (float)Math.hypot(x, y);
+        return this.div(length);
     }
 
     @Override
@@ -137,8 +207,8 @@ public final class Point2d implements Sc2ApiSerializable<Common.Point2D> {
 
     @Override
     public int hashCode() {
-        int result = (x != +0.0f ? Float.floatToIntBits(x) : 0);
-        result = 31 * result + (y != +0.0f ? Float.floatToIntBits(y) : 0);
+        int result = (x != 0.0f ? Float.floatToIntBits(x) : 0);
+        result = 31 * result + (y != 0.0f ? Float.floatToIntBits(y) : 0);
         return result;
     }
 

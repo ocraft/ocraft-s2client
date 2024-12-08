@@ -105,6 +105,10 @@ public final class Point implements Sc2ApiSerializable<Common.Point> {
         return new Point(x + pointToAdd.getX(), y + pointToAdd.getY(), z + pointToAdd.getZ());
     }
 
+    public Point add(float addX, float addY, float addZ) {
+        return new Point(x + addX, y + addY, z + addZ);
+    }
+
     public Point sub(Point pointToSubtract) {
         return new Point(x - pointToSubtract.getX(), y - pointToSubtract.getY(), z - pointToSubtract.getZ());
     }
@@ -151,9 +155,9 @@ public final class Point implements Sc2ApiSerializable<Common.Point> {
 
     @Override
     public int hashCode() {
-        int result = (x != +0.0f ? Float.floatToIntBits(x) : 0);
-        result = 31 * result + (y != +0.0f ? Float.floatToIntBits(y) : 0);
-        result = 31 * result + (z != +0.0f ? Float.floatToIntBits(z) : 0);
+        int result = (x != 0.0f ? Float.floatToIntBits(x) : 0);
+        result = 31 * result + (y != 0.0f ? Float.floatToIntBits(y) : 0);
+        result = 31 * result + (z != 0.0f ? Float.floatToIntBits(z) : 0);
         return result;
     }
 

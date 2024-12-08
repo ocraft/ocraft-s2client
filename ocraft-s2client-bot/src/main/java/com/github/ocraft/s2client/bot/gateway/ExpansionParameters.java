@@ -31,7 +31,9 @@ import java.util.List;
 
 /**
  * Some nice parameters that generally work but may require tuning for certain maps.
+ * @deprecated this class is no longer used in the calculateExpansionLocations() algorithm
  */
+@Deprecated
 public final class ExpansionParameters {
 
     private final List<Double> radiuses = new ArrayList<>();
