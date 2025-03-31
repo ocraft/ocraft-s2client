@@ -666,9 +666,9 @@ class ControlInterfaceImpl implements ControlInterface {
     private void issueUnitAddedEvents() {
         observationInternal().unitPool().forEachExistingUnit(unitInPool -> unitInPool.getUnit().ifPresent(unit -> {
             if (!hasPreviousState(unit)) {
-                if (unit.getAlliance().equals(Alliance.ENEMY) && unit.getDisplayType().equals(DisplayType.VISIBLE)) {
+                if ((unit.getAlliance().equals(Alliance.ENEMY) || unit.getAlliance().equals(Alliance.NEUTRAL)) && unit.getDisplayType().equals(DisplayType.VISIBLE)) {
                     clientEvents.onUnitEnterVision(unitInPool);
-                } else if (unit.getAlliance().equals(Alliance.SELF) && !calledOnCreateUnits.contains(unit.getTag())) {
+                } else if ((unit.getAlliance().equals(Alliance.SELF) || unit.getAlliance().equals(Alliance.ALLY)) && !calledOnCreateUnits.contains(unit.getTag())) {
                     calledOnCreateUnits.add(unit.getTag());
                     clientEvents.onUnitCreated(unitInPool);
                 }
