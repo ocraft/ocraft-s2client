@@ -338,7 +338,7 @@ class OcraftS2ClientEndToEndIT {
     private void startTheGameAsObserver() {
         client.request(createGame()
                 .onLocalMap(LocalMap.of(MAP_PATH))
-                .withPlayerSetup(observer(), computer(TERRAN, Difficulty.HARD))
+                .withPlayerSetup(observer(), computer(TERRAN, Difficulty.HARDER))
                 .disableFog());
         subscriber.hasReceivedResponseOfType(ResponseCreateGame.class);
         game.isInState(GameStatus.INIT_GAME);

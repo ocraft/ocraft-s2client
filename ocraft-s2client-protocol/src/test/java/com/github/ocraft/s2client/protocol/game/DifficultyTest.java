@@ -52,10 +52,10 @@ class DifficultyTest {
                 Arguments.of(Difficulty.VERY_EASY, Sc2Api.Difficulty.VeryEasy),
                 Arguments.of(Difficulty.EASY, Sc2Api.Difficulty.Easy),
                 Arguments.of(Difficulty.MEDIUM, Sc2Api.Difficulty.Medium),
-                Arguments.of(Difficulty.MEDIUM_HARD, Sc2Api.Difficulty.MediumHard),
                 Arguments.of(Difficulty.HARD, Sc2Api.Difficulty.Hard),
                 Arguments.of(Difficulty.HARDER, Sc2Api.Difficulty.Harder),
                 Arguments.of(Difficulty.VERY_HARD, Sc2Api.Difficulty.VeryHard),
+                Arguments.of(Difficulty.ELITE, Sc2Api.Difficulty.Elite),
                 Arguments.of(Difficulty.CHEAT_VISION, Sc2Api.Difficulty.CheatVision),
                 Arguments.of(Difficulty.CHEAT_MONEY, Sc2Api.Difficulty.CheatMoney),
                 Arguments.of(Difficulty.CHEAT_INSANE, Sc2Api.Difficulty.CheatInsane)

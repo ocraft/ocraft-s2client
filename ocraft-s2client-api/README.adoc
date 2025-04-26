@@ -19,7 +19,7 @@ analyze in many different tools.
 <dependency>
     <groupId>com.github.ocraft</groupId>
     <artifactId>ocraft-s2client-api</artifactId>
-    <version>0.4.21</version>
+    <version>0.4.23</version>
 </dependency>
 ----
 

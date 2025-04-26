@@ -517,10 +517,10 @@ enum Difficulty {
   VeryEasy = 1;
   Easy = 2;
   Medium = 3;
-  MediumHard = 4;
-  Hard = 5;
-  Harder = 6;
-  VeryHard = 7;
+  Hard = 4;
+  Harder = 5;
+  VeryHard = 6;
+  Elite = 7;
   CheatVision = 8;
   CheatMoney = 9;
   CheatInsane = 10;

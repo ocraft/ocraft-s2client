@@ -35,10 +35,10 @@ public enum Difficulty implements Sc2ApiSerializable<Sc2Api.Difficulty> {
     VERY_EASY,
     EASY,
     MEDIUM,
-    MEDIUM_HARD,
     HARD,
     HARDER,
     VERY_HARD,
+    ELITE,
     CHEAT_VISION,
     CHEAT_MONEY,
     CHEAT_INSANE;
@@ -52,14 +52,14 @@ public enum Difficulty implements Sc2ApiSerializable<Sc2Api.Difficulty> {
                 return Sc2Api.Difficulty.Easy;
             case MEDIUM:
                 return Sc2Api.Difficulty.Medium;
-            case MEDIUM_HARD:
-                return Sc2Api.Difficulty.MediumHard;
             case HARD:
                 return Sc2Api.Difficulty.Hard;
             case HARDER:
                 return Sc2Api.Difficulty.Harder;
             case VERY_HARD:
                 return Sc2Api.Difficulty.VeryHard;
+            case ELITE:
+                return Sc2Api.Difficulty.Elite;
             case CHEAT_VISION:
                 return Sc2Api.Difficulty.CheatVision;
             case CHEAT_MONEY:
@@ -80,14 +80,14 @@ public enum Difficulty implements Sc2ApiSerializable<Sc2Api.Difficulty> {
                 return EASY;
             case Medium:
                 return MEDIUM;
-            case MediumHard:
-                return MEDIUM_HARD;
             case Hard:
                 return HARD;
             case Harder:
                 return HARDER;
             case VeryHard:
                 return VERY_HARD;
+            case Elite:
+                return ELITE;
             case CheatVision:
                 return CHEAT_VISION;
             case CheatMoney:
